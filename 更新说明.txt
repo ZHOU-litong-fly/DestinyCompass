@@ -1,24 +1,16 @@
-命运罗盘｜分享与传播升级版
+命运罗盘｜微信分享修复版
 
-本次增加：
-1. 网页标题与简介优化
-2. Open Graph 分享信息
-3. GitHub Pages 分享封面 share-cover.jpg
-4. 手机桌面/浏览器图标
-5. 分享结果弹窗增加“分享命运罗盘”
-6. 增加“复制网页链接”
-7. 增加可扫码访问的二维码
+修复重点：
+1. 微信内不再调用不可靠的系统分享 API。
+2. “分享命运罗盘”在微信里会提示：
+   右上角 ··· → 发送给朋友 / 分享到朋友圈。
+3. “分享结果图”在微信里会引导：
+   打开结果图片 → 长按保存 → 再发送到微信/朋友圈。
+4. Safari/Chrome 等支持系统分享的浏览器仍保留原系统分享。
+5. 保留复制链接作为兜底。
 
-当前正式访问地址：
+更新方法：
+把本版 index.html 上传到 GitHub 仓库 DestinyCompass 根目录并覆盖旧 index.html，
+Commit changes 后等待 GitHub Pages 自动重新部署。
+原访问地址不变：
 https://zhou-litong-fly.github.io/DestinyCompass/
-
-手机更新 GitHub：
-把压缩包内的 index.html、share-cover.jpg、favicon.png、
-apple-touch-icon.png、icon-192.png、icon-512.png 上传到仓库根目录，
-选择覆盖旧文件并 Commit changes。
-二维码 PNG 可选上传，不影响网页，因为二维码已经内置在 index.html。
-
-注意：
-微信对普通网页的链接卡片展示仍受微信平台规则和缓存影响；
-GitHub Pages + Open Graph 可以改善多数浏览器/社交平台的预览，
-但不能保证微信像公众号 JS-SDK 那样完全自定义卡片。

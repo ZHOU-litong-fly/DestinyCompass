@@ -296,6 +296,22 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
 .share-qr{width:132px;height:132px;background:#fff;border-radius:8px;padding:5px;display:block;margin:0 auto 8px}
 .share-url{font-size:11px;line-height:1.45;color:#a99068;word-break:break-all}
 
+
+.wechat-share-guide{
+  position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.78);
+  display:none;align-items:flex-start;justify-content:center;padding:22px 16px;
+}
+.wechat-share-guide.show{display:flex}
+.wechat-guide-card{
+  width:min(420px,94vw);margin-top:58px;background:#11171a;border:1px solid #9e7130;
+  border-radius:14px;padding:20px 18px 18px;color:#ead8b5;box-shadow:0 12px 50px rgba(0,0,0,.45);
+}
+.wechat-guide-arrow{font-size:36px;text-align:right;line-height:1;color:#e6b75a;margin:-10px 4px 2px 0}
+.wechat-guide-title{font-size:18px;font-weight:700;color:#f0c76d;text-align:center;margin-bottom:10px}
+.wechat-guide-text{font-size:14px;line-height:1.8;color:#d8c7a5}
+.wechat-guide-actions{display:flex;gap:10px;margin-top:14px}
+.wechat-guide-actions button{flex:1}
+
 </style>
 </head>
 <body>
@@ -1047,6 +1063,16 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
   }
   document.addEventListener("keydown",function(e){if(e.key==="Escape"){var pm=document.getElementById("imagePreviewModal");if(pm&&!pm.classList.contains("hidden")){closeImagePreview(e)}else{closeShareModal(e)}}},false);
   document.getElementById("shareImage").onclick=async function(){
+    if(isWeChat()){
+      try{ makeShareCard(); }catch(e){}
+      var img=document.getElementById("shareImg");
+      var canvas=document.getElementById("shareCanvas");
+      try{
+        if(img && canvas){ img.src=canvas.toDataURL("image/png"); img.style.display="block"; }
+      }catch(e){}
+      showWechatGuide("image");
+      return;
+    }
     try{
       var b=shareBlob||await makeShareCard();
       var file=new File([b],"命运罗盘-卦象结果.png",{type:"image/png"});
@@ -1105,9 +1131,52 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
     }
   };
   
+  
+  function isWeChat(){
+    return /MicroMessenger/i.test(navigator.userAgent || "");
+  }
+  function copyTextFallback(txt){
+    return new Promise(function(resolve,reject){
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+          navigator.clipboard.writeText(txt).then(resolve).catch(reject);
+          return;
+        }
+        var ta=document.createElement("textarea");
+        ta.value=txt;ta.style.position="fixed";ta.style.left="-9999px";ta.style.top="0";
+        document.body.appendChild(ta);ta.focus();ta.select();
+        var ok=document.execCommand("copy");
+        document.body.removeChild(ta);
+        ok?resolve():reject(new Error("copy failed"));
+      }catch(e){reject(e);}
+    });
+  }
+  function showWechatGuide(mode){
+    var g=document.getElementById("wechatShareGuide");
+    var title=document.getElementById("wechatGuideTitle");
+    var text=document.getElementById("wechatGuideText");
+    if(!g)return;
+    if(mode==="image"){
+      title.textContent="在微信中分享卦象结果";
+      text.innerHTML='请先打开结果图片，<b>长按图片保存</b>，然后在微信聊天或朋友圈中发送图片。';
+    }else{
+      title.textContent="在微信中分享命运罗盘";
+      text.innerHTML='请点击微信右上角“···”，然后选择<b>发送给朋友</b>或<b>分享到朋友圈</b>。';
+    }
+    g.classList.add("show");g.setAttribute("aria-hidden","false");
+  }
+  function hideWechatGuide(){
+    var g=document.getElementById("wechatShareGuide");
+    if(g){g.classList.remove("show");g.setAttribute("aria-hidden","true");}
+  }
+
   document.getElementById("sharePage").onclick=async function(){
     var url="https://zhou-litong-fly.github.io/DestinyCompass/";
     var text="输入所问之事，结合六十四卦、本卦、动爻与变卦进行传统易学文化分析。仅供文化娱乐参考。";
+    if(isWeChat()){
+      showWechatGuide("page");
+      return;
+    }
     try{
       if(navigator.share){
         await navigator.share({title:"命运罗盘｜易学卦象分析工具",text:text,url:url});
@@ -1115,14 +1184,12 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
       }
     }catch(e){if(e&&e.name==="AbortError")return;}
     try{
-      if(navigator.clipboard&&navigator.clipboard.writeText&&window.isSecureContext){
-        await navigator.clipboard.writeText(url);
-      }else{
-        var ta=document.createElement("textarea");ta.value=url;ta.style.position="fixed";ta.style.left="-9999px";
-        document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);
-      }
-      alert("网页链接已复制，可以直接粘贴到微信发送。");
-    }catch(e){alert("请长按下方网址复制后发送。");}
+      await copyTextFallback(url);
+      alert("网页链接已复制，可以粘贴到微信发送。");
+    }catch(e){
+      alert("请复制这个链接后发送到微信：
+"+url);
+    }
   };
   document.getElementById("copyLink").onclick=async function(){
     var url="https://zhou-litong-fly.github.io/DestinyCompass/";
@@ -1160,8 +1227,37 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
 
   renderHistory();
 })();
+
+  (function(){
+    var closeBtn=document.getElementById("wechatGuideCloseBtn");
+    var copyBtn=document.getElementById("wechatCopyLinkBtn");
+    var guide=document.getElementById("wechatShareGuide");
+    if(closeBtn) closeBtn.onclick=hideWechatGuide;
+    if(guide) guide.addEventListener("click",function(e){ if(e.target===guide) hideWechatGuide(); });
+    if(copyBtn) copyBtn.onclick=async function(){
+      var url="https://zhou-litong-fly.github.io/DestinyCompass/";
+      try{ await copyTextFallback(url); alert("链接已复制。"); }
+      catch(e){ alert(url); }
+    };
+  })();
+
 </script>
 
+
+
+<div id="wechatShareGuide" class="wechat-share-guide" aria-hidden="true">
+  <div class="wechat-guide-card">
+    <div class="wechat-guide-arrow">↗</div>
+    <div class="wechat-guide-title" id="wechatGuideTitle">在微信中分享</div>
+    <div class="wechat-guide-text" id="wechatGuideText">
+      请点击右上角“···”，然后选择“发送给朋友”或“分享到朋友圈”。
+    </div>
+    <div class="wechat-guide-actions">
+      <button id="wechatCopyLinkBtn" type="button">复制链接</button>
+      <button id="wechatGuideCloseBtn" type="button">知道了</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
