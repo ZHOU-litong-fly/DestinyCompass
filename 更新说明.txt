@@ -1,16 +1,17 @@
-命运罗盘｜微信分享修复版 v2
+命运罗盘｜微信弹窗关闭修复版
 
-本版修复：
-- 修复上一版 JavaScript 字符串换行导致的脚本语法错误
-- 恢复页面全部按钮点击功能
-- 保留微信专用分享引导逻辑
+本版专门修复微信分享提示框无法关闭的问题：
+
+- “知道了”按钮支持 click / touch / pointer
+- 新增右上角“×”关闭按钮
+- 点击提示框外的黑色遮罩也可关闭
+- 支持 Esc 键（电脑浏览器）
+- 修复上一版关闭事件绑定时机错误
+- 已通过 JavaScript 语法检查
 
 更新方法：
-1. 把本版 index.html 上传到 GitHub 仓库 DestinyCompass 根目录
-2. 覆盖旧 index.html
-3. Commit changes
-4. 等 GitHub Pages 自动部署完成
-5. 在微信里重新打开原网址测试
+只需要把本版 index.html 上传到 GitHub 仓库根目录，覆盖旧 index.html，
+Commit changes 后等待 GitHub Pages 自动更新。
 
 原网址不变：
 https://zhou-litong-fly.github.io/DestinyCompass/

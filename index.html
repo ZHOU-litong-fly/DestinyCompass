@@ -303,7 +303,7 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
 }
 .wechat-share-guide.show{display:flex}
 .wechat-guide-card{
-  width:min(420px,94vw);margin-top:58px;background:#11171a;border:1px solid #9e7130;
+  position:relative;width:min(420px,94vw);margin-top:58px;background:#11171a;border:1px solid #9e7130;
   border-radius:14px;padding:20px 18px 18px;color:#ead8b5;box-shadow:0 12px 50px rgba(0,0,0,.45);
 }
 .wechat-guide-arrow{font-size:36px;text-align:right;line-height:1;color:#e6b75a;margin:-10px 4px 2px 0}
@@ -1163,7 +1163,7 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
       title.textContent="在微信中分享命运罗盘";
       text.innerHTML='请点击微信右上角“···”，然后选择<b>发送给朋友</b>或<b>分享到朋友圈</b>。';
     }
-    g.classList.add("show");g.setAttribute("aria-hidden","false");
+    g.style.display="flex";g.classList.add("show");g.setAttribute("aria-hidden","false");
   }
   function hideWechatGuide(){
     var g=document.getElementById("wechatShareGuide");
@@ -1246,6 +1246,8 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
 
 <div id="wechatShareGuide" class="wechat-share-guide" aria-hidden="true">
   <div class="wechat-guide-card">
+    <button id="wechatGuideXBtn" type="button" aria-label="关闭"
+      style="position:absolute;right:14px;top:12px;width:38px;height:38px;border:0;background:transparent;color:#e8bb61;font-size:30px;line-height:1;z-index:2;">×</button>
     <div class="wechat-guide-arrow">↗</div>
     <div class="wechat-guide-title" id="wechatGuideTitle">在微信中分享</div>
     <div class="wechat-guide-text" id="wechatGuideText">
@@ -1257,6 +1259,64 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
     </div>
   </div>
 </div>
+
+
+<script>
+(function(){
+  var guide = document.getElementById("wechatShareGuide");
+  var closeBtn = document.getElementById("wechatGuideCloseBtn");
+  var xBtn = document.getElementById("wechatGuideXBtn");
+  var copyBtn = document.getElementById("wechatCopyLinkBtn");
+  if(!guide) return;
+
+  function closeGuide(e){
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    guide.classList.remove("show");
+    guide.setAttribute("aria-hidden","true");
+    guide.style.display="none";
+  }
+  function openStateRepair(){
+    if(guide.classList.contains("show")) guide.style.display="flex";
+  }
+
+  ["click","touchend","pointerup"].forEach(function(evt){
+    if(closeBtn) closeBtn.addEventListener(evt, closeGuide, {passive:false});
+    if(xBtn) xBtn.addEventListener(evt, closeGuide, {passive:false});
+  });
+
+  guide.addEventListener("click", function(e){
+    if(e.target === guide) closeGuide(e);
+  });
+  guide.addEventListener("touchend", function(e){
+    if(e.target === guide) closeGuide(e);
+  }, {passive:false});
+
+  // Keep existing showWechatGuide behavior compatible with the forced display:none close.
+  var observer = new MutationObserver(openStateRepair);
+  observer.observe(guide, {attributes:true, attributeFilter:["class"]});
+
+  if(copyBtn){
+    copyBtn.addEventListener("click", function(){
+      var url="https://zhou-litong-fly.github.io/DestinyCompass/";
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+          navigator.clipboard.writeText(url).then(function(){ alert("链接已复制。"); });
+        }else{
+          var ta=document.createElement("textarea");
+          ta.value=url; ta.style.position="fixed"; ta.style.left="-9999px";
+          document.body.appendChild(ta); ta.select(); document.execCommand("copy");
+          document.body.removeChild(ta); alert("链接已复制。");
+        }
+      }catch(err){ alert(url); }
+    });
+  }
+
+  // Escape key for browsers with a keyboard.
+  document.addEventListener("keydown", function(e){
+    if(e.key==="Escape" && guide.classList.contains("show")) closeGuide(e);
+  });
+})();
+</script>
 
 </body>
 </html>
