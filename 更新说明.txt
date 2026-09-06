@@ -1,12 +1,24 @@
-命运罗盘｜GitHub Pages 深度分析升级版
+命运罗盘｜分享与传播升级版
 
-本版重点：
-- 不同卦象拥有不同的“阶段 / 优势 / 风险 / 策略”画像
-- 同一个卦在事业、财运、感情、家庭、健康、学业、出行中会生成不同解读
-- 健康类继续保持非诊断边界，以现实症状、检查和医生意见为准
+本次增加：
+1. 网页标题与简介优化
+2. Open Graph 分享信息
+3. GitHub Pages 分享封面 share-cover.jpg
+4. 手机桌面/浏览器图标
+5. 分享结果弹窗增加“分享命运罗盘”
+6. 增加“复制网页链接”
+7. 增加可扫码访问的二维码
 
-部署：
-1. 在 GitHub 仓库中用新版 index.html 替换旧 index.html
-2. Commit changes
-3. 等待 GitHub Pages 自动重新部署
-4. 刷新原来的 Pages 链接即可
+当前正式访问地址：
+https://zhou-litong-fly.github.io/DestinyCompass/
+
+手机更新 GitHub：
+把压缩包内的 index.html、share-cover.jpg、favicon.png、
+apple-touch-icon.png、icon-192.png、icon-512.png 上传到仓库根目录，
+选择覆盖旧文件并 Commit changes。
+二维码 PNG 可选上传，不影响网页，因为二维码已经内置在 index.html。
+
+注意：
+微信对普通网页的链接卡片展示仍受微信平台规则和缓存影响；
+GitHub Pages + Open Graph 可以改善多数浏览器/社交平台的预览，
+但不能保证微信像公众号 JS-SDK 那样完全自定义卡片。

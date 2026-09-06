@@ -3,7 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>命运罗盘 · 新版手机版</title>
+<title>命运罗盘｜易学卦象分析工具</title>
+<meta name="description" content="输入所问之事，结合六十四卦、本卦、动爻与变卦进行传统易学文化分析。仅供文化娱乐参考。">
+<meta name="theme-color" content="#05090c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="canonical" href="https://zhou-litong-fly.github.io/DestinyCompass/">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="命运罗盘">
+<meta property="og:title" content="命运罗盘｜易学卦象分析工具">
+<meta property="og:description" content="输入所问之事，结合六十四卦、本卦、动爻与变卦进行传统易学文化分析。仅供文化娱乐参考。">
+<meta property="og:url" content="https://zhou-litong-fly.github.io/DestinyCompass/">
+<meta property="og:image" content="https://zhou-litong-fly.github.io/DestinyCompass/share-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="命运罗盘｜易学卦象分析工具">
+<meta name="twitter:description" content="输入所问之事，结合六十四卦、本卦、动爻与变卦进行传统易学文化分析。仅供文化娱乐参考。">
+<meta name="twitter:image" content="https://zhou-litong-fly.github.io/DestinyCompass/share-cover.jpg">
+
 <style>
 :root{
   --panel:#05090c;--gold:#e0ad50;--gold2:#ffd98b;--line:#6c4924;--text:#ead5a6;--muted:#9a815c
@@ -270,6 +290,12 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
   .yao-line.yin i{width:26px;height:9px}
 }
 
+
+.share-link-panel{margin:12px 0 4px;padding:12px;border:1px solid #6c4924;border-radius:10px;background:#0b0e10;text-align:center}
+.share-link-title{font-size:14px;color:#e0ad50;margin-bottom:8px}
+.share-qr{width:132px;height:132px;background:#fff;border-radius:8px;padding:5px;display:block;margin:0 auto 8px}
+.share-url{font-size:11px;line-height:1.45;color:#a99068;word-break:break-all}
+
 </style>
 </head>
 <body>
@@ -384,10 +410,17 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
     <canvas id="shareCanvas" width="900" height="1660"></canvas>
     <div id="shareHelp" class="share-help">正在检测当前设备的分享方式…</div>
     <div class="share-buttons">
-      <button id="shareImage" class="primary" type="button">分享图片</button>
+      <button id="shareImage" class="primary" type="button">分享结果图</button>
+      <button id="sharePage" type="button">分享命运罗盘</button>
       <button id="openImage" type="button">保存/打开图片</button>
-      <button id="copyResult" type="button">复制文字</button>
+      <button id="copyResult" type="button">复制结果文字</button>
+      <button id="copyLink" type="button">复制网页链接</button>
       <button id="closeShare" type="button" onclick="window.closeShareModal&&window.closeShareModal(event)">关闭</button>
+    </div>
+    <div class="share-link-panel">
+      <div class="share-link-title">扫码进入命运罗盘</div>
+      <img class="share-qr" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATgAAAE4CAIAAABAHXg9AAAGTUlEQVR4nO3dQY5jKRBAwfGo73/lnkX3Fo2QQMkrR6xL3y7bTyxSwOf379//AG/7d/oNAP9PqBAgVAgQKgQIFQKECgFChQChQoBQIUCoECBUCBAqBAgVAoQKAUKFAKFCgFAhQKgQIFQIECoECBUChAoBQoWAX6ce9Pl8Tj3qqtU5xqfe/+7zT52rvPv829/X7c+h/nvbZUWFAKFCgFAhQKgQIFQIECoECBUCjs1RV6buX52ai96eE9afc/v59d/bihUVAoQKAUKFAKFCgFAhQKgQIFQIuD5HXbk955x6zsrU/s+V1+aitz+f135vu6yoECBUCBAqBAgVAoQKAUKFAKFCwNgc9TW7c7+fui905bV9p9/GigoBQoUAoUKAUCFAqBAgVAgQKgSYo/41dW/qqedMzSfr8+EKKyoECBUChAoBQoUAoUKAUCFAqBAwNketzMde24d5+/zbXd/2PU6xokKAUCFAqBAgVAgQKgQIFQKECgHX56ivzf1WTt3n+W33i1b2x9ZZUSFAqBAgVAgQKgQIFQKECgFChYBjc9T6fr9TpuaZu39/e/5ZOSe5wooKAUKFAKFCgFAhQKgQIFQIECoEfCr7J83l/pj6nG+/n6n7VF/7PFesqBAgVAgQKgQIFQKECgFChQChQsDYub637wU9NQd77fzeylx617fNV3dZUSFAqBAgVAgQKgQIFQKECgFChYBj+1GXLzC0f69+P+fU+3zt87k9b7/9uvajwhcRKgQIFQKECgFChQChQoBQIeDYftTX5nKv7duszCdv/19T+zlf23+7y4oKAUKFAKFCgFAhQKgQIFQIECoEHJujvnZu6tR5wqecev9T975WzundNfV7sKJCgFAhQKgQIFQIECoECBUChAoB1/ejrtzeH3hqfnj7fdb/36l9pLef89p+YysqBAgVAoQKAUKFAKFCgFAhQKgQcH0/6u787fb9qLumzq19bR/pytR5ubf3M69MfS9WVAgQKgQIFQKECgFChQChQoBQIeBze25Z2Qd4e3449fe33Z5P3v49VObbVlQIECoECBUChAoBQoUAoUKAUCHg2H7UU16bi556/u7rmpeeVZmXrlhRIUCoECBUCBAqBAgVAoQKAUKFgOtz1J86bzw1d109p/7/rlTODV6ZmsdaUSFAqBAgVAgQKgQIFQKECgFChYBj5/pOqZ/He8rtue7U/Hbqc3tt/6oVFQKECgFChQChQoBQIUCoECBUCBibo97ep7r7ulPzwKl9nrvqc9r6/b1WVAgQKgQIFQKECgFChQChQoBQIeDYub5T95FO3au5+/6n9j3enhPW56VT5wPvsqJCgFAhQKgQIFQIECoECBUChAoB1+9Hndrveup1b88DX5tznpo3nppPvna+7tQ81ooKAUKFAKFCgFAhQKgQIFQIECoEPHc/6mv3nZ563annrNw+V/m1c5tPva5zfYEloUKAUCFAqBAgVAgQKgQIFQKuz1Ffu5fyp577+tr3+No8+bV9rbusqBAgVAgQKgQIFQKECgFChQChQsCxOerUvZe7XpuP1efMu+/ntXn1a7+HFSsqBAgVAoQKAUKFAKFCgFAhQKgQ8Ny5vlOm5sBT89Ld50/Nw+uve4oVFQKECgFChQChQoBQIUCoECBUCPh16kHOv/1j93Oo3IM69fzd1939fF6bl65YUSFAqBAgVAgQKgQIFQKECgFChYBjc9SVqTnV1Pzw9r2st/eLrrw2J39tn+rt78WKCgFChQChQoBQIUCoECBUCBAqBFyfo668dt/p7Xs7p+arU059nrf/r8oc24oKAUKFAKFCgFAhQKgQIFQIECoEjM1RX/PaHPL2ftfbr/vavtnXPrddVlQIECoECBUChAoBQoUAoUKAUCHAHPWw3Xna7ftOT72fU/PJU147t9l+VECoUCBUCBAqBAgVAoQKAUKFgM/teyZfux91an/mrqn7P1duz3tfu+/01OvajwpfRKgQIFQIECoECBUChAoBQoWA63PU11T2W668Nr+dOkd312vz7V1WVAgQKgQIFQKECgFChQChQoBQIeDYHBW4x4oKAUKFAKFCgFAhQKgQIFQIECoECBUChAoBQoUAoUKAUCFAqBAgVAgQKgQIFQKECgFChQChQoBQIUCoECBUCBAqBPwH0zz2k7RX55kAAAAASUVORK5CYII=" alt="命运罗盘二维码">
+      <div class="share-url">https://zhou-litong-fly.github.io/DestinyCompass/</div>
     </div>
   </div>
 </div>
@@ -1071,6 +1104,39 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
       alert("图片处理失败。请重新点击“分享结果”后再试。");
     }
   };
+  
+  document.getElementById("sharePage").onclick=async function(){
+    var url="https://zhou-litong-fly.github.io/DestinyCompass/";
+    var text="输入所问之事，结合六十四卦、本卦、动爻与变卦进行传统易学文化分析。仅供文化娱乐参考。";
+    try{
+      if(navigator.share){
+        await navigator.share({title:"命运罗盘｜易学卦象分析工具",text:text,url:url});
+        return;
+      }
+    }catch(e){if(e&&e.name==="AbortError")return;}
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText&&window.isSecureContext){
+        await navigator.clipboard.writeText(url);
+      }else{
+        var ta=document.createElement("textarea");ta.value=url;ta.style.position="fixed";ta.style.left="-9999px";
+        document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);
+      }
+      alert("网页链接已复制，可以直接粘贴到微信发送。");
+    }catch(e){alert("请长按下方网址复制后发送。");}
+  };
+  document.getElementById("copyLink").onclick=async function(){
+    var url="https://zhou-litong-fly.github.io/DestinyCompass/";
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText&&window.isSecureContext){
+        await navigator.clipboard.writeText(url);
+      }else{
+        var ta=document.createElement("textarea");ta.value=url;ta.style.position="fixed";ta.style.left="-9999px";
+        document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);
+      }
+      alert("命运罗盘网页链接已复制。");
+    }catch(e){alert(url);}
+  };
+
   document.getElementById("copyResult").onclick=async function(){
     var txt=shareText();
     try{
