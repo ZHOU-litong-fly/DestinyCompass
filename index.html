@@ -312,6 +312,8 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
 .wechat-guide-actions{display:flex;gap:10px;margin-top:14px}
 .wechat-guide-actions button{flex:1}
 
+
+.summary{white-space:pre-line;overflow-wrap:anywhere;font-size:16px;line-height:1.85}
 </style>
 </head>
 <body>
@@ -351,7 +353,7 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
   <div class="section-title">选择起卦方式</div>
   <div class="methods">
     <div class="method active" data-m="自动起卦">
-      <div class="micon yin">☯</div><div><b>自动起卦</b><small>系统快速生成完整六爻</small></div><div class="chev">›</div>
+      <div class="micon yin">☯</div><div><b>自动起卦</b><small>按三枚铜钱概率快速生成六爻</small></div><div class="chev">›</div>
     </div>
     <div class="method" data-m="铜钱起卦">
       <div class="micon coins"><i></i><i></i><i></i></div><div><b>铜钱起卦</b><small>模拟抛掷三枚铜钱</small></div><div class="chev">›</div>
@@ -384,7 +386,7 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
   <div class="rcard" style="margin-top:9px"><h3>动爻</h3><div id="mv" class="moving"></div></div>
   <div class="rcard" style="margin-top:9px">
     <h3>卦象总评</h3><div id="ov" class="overall"></div><div id="sum" class="summary"></div>
-    <div class="gauge"><div id="sc" class="score"></div></div>
+
   </div>
   <div class="rcard" style="margin-top:9px"><h3>经典卦辞</h3><div id="judgmentText" class="summary"></div></div>
   <div class="rcard" style="margin-top:9px"><h3>本卦分析</h3><div id="baseAnalysis" class="summary"></div></div>
@@ -404,7 +406,7 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
     <div class="info"><h4>☯ 当前状况</h4><ul id="cur"></ul></div>
     <div class="info good"><h4>♨ 有利因素</h4><ul id="good"></ul></div>
     <div class="info bad"><h4>⚠ 不利因素</h4><ul id="bad"></ul></div>
-    <div class="info"><h4>⌛ 关键时间</h4><ul><li>近期：1～2个月</li><li>中期：3～6个月</li><li>远期：6个月以上</li></ul></div>
+    <div class="info"><h4>⌛ 复盘时点</h4><ul><li>以您实际的截止日期为准</li><li>完成下一步行动后核对结果</li><li>新信息出现时重新评估；卦象不推算日期</li></ul></div>
   </div>
 </section>
 
@@ -545,7 +547,7 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
   };
   function movingUseRule(mv,A,B,ls,ch){
     var n=mv.length, names=mv.map(function(i){return yaoName(i,ls[i-1].yang)});
-    if(n===0)return "六爻皆静：以本卦《"+A.name+"》卦辞与整体卦义为主，表示当前格局相对稳定。";
+    if(n===0)return "六爻皆静：以本卦《"+A.name+"》卦辞与整体卦义为主，不据此推定现实格局稳定。";
     if(n===1)return "一爻动：以本卦“"+names[0]+"”为主要变化点，并辅看之卦《"+B.name+"》作为后续趋势。";
     if(n===2)return "二爻动：两动爻都看，通常以上方动爻为主、下方动爻为辅。重点为“"+names.join("、")+"”。";
     if(n===3)return "三爻动：本卦与之卦并重。本卦《"+A.name+"》看当前根基，之卦《"+B.name+"》看变化后的趋向。";
@@ -671,80 +673,33 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
     return "变卦《"+B.name+"》表示后续"+l.subject+"可能逐步进入“"+p.stage+"”阶段。届时可利用“"+p.strength+"”，同时防范“"+p.risk+"”。";
   }
   function randomBit(){try{var a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]&1}catch(e){return Math.random()<.5?0:1}}
-  function autoLine(){var v=[6,7,8,9][Math.floor(Math.random()*4)];return{value:v,yang:v===7||v===9,moving:v===6||v===9,coins:null}}
+  function autoLine(){var x=coinLine();x.coins=null;return x;}
   function coinLine(){var coins=[],t=0;for(var i=0;i<3;i++){var face=randomBit()?3:2;coins.push(face);t+=face}return{value:t,yang:t===7||t===9,moving:t===6||t===9,coins:coins}}
   function renderCoinTrace(ls){return ls.map(function(x,i){var label=x.value===6?"老阴 · 动":x.value===7?"少阳 · 静":x.value===8?"少阴 · 静":"老阳 · 动";return '<div class="coin-round"><b>第'+(i+1)+'次 · '+["初爻","二爻","三爻","四爻","五爻","上爻"][i]+'</b><br>'+x.coins.map(function(c){return '<span class="coin-face">'+(c===3?'字':'背')+'</span>'}).join('')+'<br>合计 '+x.value+' · '+label+'</div>'}).join('')}
-  function topicAnalysisText(type,text,A,B,mv){var d=topicDetail[type]||topicDetail["其他"];return "您问的是“"+text+"”。\n"+d.base+"\n结合本卦《"+A.name+"》与"+(mv.length?("变卦《"+B.name+"》") : "当前无动爻")+"来看，"+d.good+" "+d.bad;}
-  function topicActionText(type,r){var d=topicDetail[type]||topicDetail["其他"];if(type==="健康平安")return d.act;var lead=(r==="偏凶"||r==="谨慎"||r==="警惕")?"当前以风险控制和补信息为先。":(r==="大吉"||r==="吉")?"当前可适度主动，但仍应保留复核节点。":"当前适合稳中求进，边做边验证。";return lead+d.act;}
-  function baseAnalysisByTopic(type,A){
-    var core=A.name+"卦："+guaMeaning[A.name]+" 上卦"+A.upper.n+"体现“"+A.upper.nature+"”，下卦"+A.lower.n+"体现“"+A.lower.nature+"”。";
-    var map={
-      "事业工作":"把这组卦意落到工作上，当前更应看职责边界、项目推进、上级态度和团队协作。若“主动”特征较强，适合争取资源与表达成果；若“止、险、阻”特征明显，则先处理权限、沟通或节奏问题。",
-      "财运求财":"把这组卦意落到财运上，重点不是单看‘能不能赚钱’，而是收入稳定性、现金流、投入回报与风险承受力。卦势再有利，也不等于收益确定；若有阻滞之象，应优先检查成本、杠杆和资金安全。",
-      "感情婚姻":"把这组卦意落到感情上，应重点观察双方意愿是否一致、互动是否稳定、沟通是否顺畅，以及关系有没有明确边界。卦势偏主动时宜坦诚表达，偏阻滞时则不宜逼迫表态或反复试探。",
-      "家庭关系":"把这组卦意落到家庭关系上，应重点看责任分配、沟通方式和长期累积的情绪。若卦象偏稳定，适合通过明确分工恢复秩序；若变化较强，则应先处理最具体、最容易引发冲突的问题。",
-      "健康平安":"把这组卦意落到健康上，只能作为对‘状态与节奏’的文化提示。更值得关注的是近期睡眠、疲劳、压力、食欲、疼痛、恢复速度及其他持续异常。若卦象偏阻滞或变化较强，更应避免硬撑，必要时及时做正规检查。",
-      "学业考试":"把这组卦意落到学习上，应重点看基础是否扎实、复习节奏是否合理、薄弱环节是否明确，以及临场状态是否稳定。卦势有利时适合集中突破重点，受阻时则更适合调整方法而不是单纯加时长。",
-      "出行远行":"把这组卦意落到出行上，应重点检查交通、天气、证件、体力、时间余量与备用方案。卦势顺时也要留缓冲；若有阻滞或变化之象，更应避免赶行程和忽略安全。",
-      "其他":"把这组卦意落到现实中，重点是识别事情所处阶段、主要矛盾和真正可控的变量。"
-    };
-    return core+"\n"+guaTopicSpecific(type,A)+"\n"+(map[type]||map["其他"]);
+  var questionCases=[
+    {type:"事业工作",re:/跳槽|转职|辞职|换工作|offer/i,label:"转职选择",check:"新岗位职责、书面录用条件、入职时间和现岗位的可改善空间",act:"把现岗位和目标岗位按职责、收入、通勤、稳定性各列一项事实；尚未拿到的条件标记为待确认",signal:"对方给出可核对的录用条件与入职安排",stop:"关键条件反复变化或只有口头承诺"},
+    {type:"事业工作",re:/项目|上线|交付|进度|开发/,label:"项目推进",check:"验收标准、依赖事项、负责人和剩余工期",act:"列出当前最大的一个阻塞，指定负责人与下一次确认时间，先完成一个可验收的小步骤",signal:"阻塞解除且交付物通过约定验收",stop:"依赖未解决、范围继续扩大或验收标准不一致"},
+    {type:"事业工作",re:/升职|晋升|加薪|升迁/,label:"晋升沟通",check:"晋升标准、成果证据、评审窗口和决策人反馈",act:"整理三项可核对的成果，与负责人确认尚缺的条件和评审时间",signal:"负责人明确标准、缺口与下一步安排",stop:"反馈始终模糊或要求与现有职责冲突"},
+    {type:"感情婚姻",re:/复合|分手|挽回|前任/,label:"关系修复",check:"双方是否愿意联系、原有问题是否改善、是否尊重边界",act:"先写清原有分歧与自己能改变的一件事；仅在对方愿意交流时讨论，不反复追问或施压",signal:"双方自愿沟通并持续落实改进",stop:"对方明确拒绝、回避联系或原有问题持续重复"},
+    {type:"感情婚姻",re:/结婚|婚期|领证/,label:"婚姻安排",check:"双方意愿、生活安排、责任分工和分歧处理方式",act:"围绕一项尚未谈妥的现实安排进行沟通，记录已达成与尚未达成的共识",signal:"双方自愿形成具体共识并开始落实",stop:"一方不愿承诺或重大分歧被长期回避"},
+    {type:"学业考试",re:/考试|考过|合格|通过|N[1-5]/i,label:"考试准备",check:"考试日期、目标要求、近期模拟结果和薄弱题型",act:"完成一组限时练习，按错误原因排序，先复习失分最多的一类",signal:"同类题错误减少，限时完成度提高",stop:"只增加学习时长，薄弱项仍无改善"},
+    {type:"家庭关系",re:/孩子|育儿|接送|分工|家务/,label:"家庭分工",check:"每个人可投入的时间、当前负担和已约定的分工",act:"选一项最常引起争执的日常任务，商定负责人、时间与无法完成时的替代安排",signal:"约定能够连续执行，临时争执减少",stop:"任务仍无人承担或明显超出一方承受范围"},
+    {type:"出行远行",re:/旅行|出差|出行|回国|航班/,label:"行程准备",check:"出发时间、证件、交通通知与备用路线",act:"核对预订与证件，给关键转乘留余量，记录一个备用安排",signal:"关键预订与出发条件均已确认",stop:"官方通知或实际条件与原计划不符"}
+  ];
+  function questionCase(type,text){return questionCases.find(function(x){return x.type===type&&x.re.test(text)})||null;}
+  function topicAnalysisText(type,text,A,B,mv){
+    var c=questionCase(type,text),l=topicLens[type]||topicLens["其他"],p=guaProfile[A.name];
+    return "您问的是：“"+text+"”。\n"+(c?"按关键词暂按“"+c.label+"”解读；若不符合原意，请补充问题或调整分类。\n需要核实："+c.check:"当前按“"+type+"”解读。请补充目前进展、主要阻碍与希望完成的时间；需要核实："+l.verify)+"。\n《"+A.name+"》的象义提醒是“"+p.strategy+"”。只有现实情况与这一提醒相符时，才将其用于反思；卦象本身不能证明上述条件已经存在。";
   }
-  function movingAnalysisByTopic(type,mv,ls){
-    var names=mv.map(function(n){return yaoName(n,ls[n-1].yang)});
-    var base=(mv.length?("共有"+mv.length+"个动爻（"+names.join("、")+"）。\n"):"")+movingPositionText(mv,ls);
-    if(!mv.length){
-      var stable={
-        "事业工作":"\n当前工作主题变化不大，先看现有岗位、项目和合作关系是否持续稳定，不必为了求变化而贸然跳槽或改变方向。",
-        "财运求财":"\n当前财务主题变化不大，更适合守住现金流和既有收入结构，不宜因为短期情绪频繁调整投资。",
-        "感情婚姻":"\n当前关系主题较稳定，重点观察双方持续行动和沟通质量，不宜因焦虑而反复试探。",
-        "家庭关系":"\n当前家庭主题相对稳定，适合从固定分工和日常沟通入手逐步改善。",
-        "健康平安":"\n当前状态相对稳定，更适合通过规律作息、休息恢复和持续观察身体信号来判断变化；若已有不适，仍应以医学检查为准。",
-        "学业考试":"\n当前学习状态较稳定，适合按既定计划推进，并通过错题和模拟结果检验效果。",
-        "出行远行":"\n当前行程变量相对少，仍应按计划核对交通、天气和证件，不要省略基本安全准备。",
-        "其他":"\n当前主题相对稳定，先观察现实条件是否持续。"
-      };
-      return base+(stable[type]||stable["其他"]);
-    }
-    var dynamic={
-      "事业工作":"\n动爻代表工作中的变量正在增加，可能落在人员关系、职责调整、项目节点、机会或阻力上。动爻越多，越不适合只凭一时情绪做决定，应观察上级反馈、资源变化和实际结果。",
-      "财运求财":"\n动爻代表资金、收入来源、合作条件或市场判断正在变化。动爻较多时尤其要防追涨、冲动投入和频繁改变策略，先把风险边界和现金流看清。",
-      "感情婚姻":"\n动爻代表关系中的态度、互动频率、现实安排或承诺正在变化。此时应更看对方持续行动，而不是只听一次表态。",
-      "家庭关系":"\n动爻代表家庭角色、责任或情绪状态正在变化。变化越多，越需要先解决具体事项，再处理情绪和立场。",
-      "健康平安":"\n动爻较多可理解为‘状态波动较明显’的文化提示，更应留意睡眠、疲劳、疼痛、食欲、体温等是否出现持续或加重变化。任何明显异常都不应仅凭卦象判断，应及时就医或检查。",
-      "学业考试":"\n动爻代表学习节奏、复习重点或临场状态可能出现调整。此时更适合根据错题、模拟成绩和时间安排及时修正计划。",
-      "出行远行":"\n动爻代表行程中出现临时变化的概率更高，应特别关注改签、延误、天气、路线调整和体力负荷。",
-      "其他":"\n动爻越多，说明现实变量越多，应把卦象提示与新出现的信息、人物态度和条件变化一起观察。"
-    };
-    return base+(dynamic[type]||dynamic["其他"]);
+  function topicActionText(type,text,A){
+    var c=questionCase(type,text),l=topicLens[type]||topicLens["其他"];
+    if(type==="健康平安")return "卦象不提供健康判断或行动依据。请依据实际身体情况与正规医疗意见处理，不按动爻数量判断病情或恢复时间。";
+    if(type==="财运求财")return "卦象不提供收益预测或买卖依据。先整理问题中的金额、期限、已知条件与待确认信息，再依据可核对资料评估。";
+    return c?"先做一件事："+c.act+"。\n继续的条件："+c.signal+"。\n重新评估的条件："+c.stop+"。\n复盘时把实际结果与原先记录比较，不用反复起卦替代核实。":"先记录目前的事实、目标和一个主要障碍，再选一项可以完成并检查结果的小行动。\n复核依据："+l.verify+"。\n出现与预期相反的事实时，调整行动；不要为迎合卦象忽略证据。";
   }
-  function changeAnalysisByTopic(type,B,mv){
-    if(!mv.length){
-      var noChange={
-        "事业工作":"无动爻，因此没有独立的变卦趋势。工作上更适合观察现有职位、团队和项目是否持续稳定。",
-        "财运求财":"无动爻，因此没有独立的变卦趋势。财务上更适合维持现有节奏，关注现金流和收入稳定性。",
-        "感情婚姻":"无动爻，因此没有独立的变卦趋势。关系上更适合观察双方持续互动和现实投入。",
-        "家庭关系":"无动爻，因此没有独立的变卦趋势。家庭上以维持秩序、稳定沟通为主。",
-        "健康平安":"无动爻，因此没有独立的变卦趋势。健康上更适合持续观察状态、规律休息；如有不适，仍以医学判断为准。",
-        "学业考试":"无动爻，因此没有独立的变卦趋势。学习上以执行现有计划并持续复盘为主。",
-        "出行远行":"无动爻，因此没有独立的变卦趋势。行程上按既定计划准备，同时保留基本安全余量。",
-        "其他":"无动爻，因此没有独立的变卦趋势；当前更适合观察现状是否持续。"
-      };
-      return noChange[type]||noChange["其他"];
-    }
-    var prefix="变化后趋向《"+B.name+"》："+guaMeaning[B.name]+" ";
-    var map={
-      "事业工作":"如果当前变化继续发展，后续工作局面可能更多体现“"+B.upper.nature+" / "+B.lower.nature+"”。可据此观察岗位、团队、项目或机会是否逐步朝这一方向演变。",
-      "财运求财":"如果当前变化继续发展，后续财务状态可能更多体现“"+B.upper.nature+" / "+B.lower.nature+"”。重点看收入结构、资金占用、风险和回报是否发生实质变化。",
-      "感情婚姻":"如果当前变化继续发展，后续关系可能更多体现“"+B.upper.nature+" / "+B.lower.nature+"”。应观察双方互动是否变得更稳定、更疏离，或出现新的现实安排。",
-      "家庭关系":"如果当前变化继续发展，后续家庭状态可能更多体现“"+B.upper.nature+" / "+B.lower.nature+"”。重点看责任分配、沟通与家庭秩序是否改善。",
-      "健康平安":"如果当前状态继续变化，后续可把“"+B.upper.nature+" / "+B.lower.nature+"”理解为对恢复节奏或波动状态的文化提示，但不能据此判断疾病轻重。真正的趋势应以症状变化、检查结果和医生意见为准。",
-      "学业考试":"如果当前变化继续发展，后续学习状态可能更多体现“"+B.upper.nature+" / "+B.lower.nature+"”。重点观察效率、薄弱点和模拟结果是否改善。",
-      "出行远行":"如果当前变化继续发展，后续行程可能更多体现“"+B.upper.nature+" / "+B.lower.nature+"”。应据此加强对交通、天气、时间余量和安全的检查。",
-      "其他":"如果当前变量继续发展，后续更可能呈现“"+B.upper.nature+" / "+B.lower.nature+"”的特征。"
-    };
-    return prefix+changeTopicSpecific(type,B)+"\n"+(map[type]||map["其他"]);
-  }
+  function baseAnalysisByTopic(type,A){var p=guaProfile[A.name];return "《"+A.name+"》象义："+guaMeaning[A.name]+"\n可供反思的角度："+p.strength+"。\n需要自查的问题：是否存在“"+p.risk+"”？\n这些是文化象义的现代解释，并非对您现实状况的确认。";}
+  function movingAnalysisByTopic(type,mv,ls){return movingPositionText(mv,ls)+"\n以上为通用爻位解释，不是该卦各爻的爻辞解读。动爻数量不能换算为现实变化概率；无动爻也不能证明现实稳定。";}
+  function changeAnalysisByTopic(type,B,mv){if(!mv.length)return "无动爻，本卦与之卦相同，不另作未来走势推断。";return "将动爻阴阳转换后得到《"+B.name+"》。其象义是："+guaMeaning[B.name]+"\n可以把“"+guaProfile[B.name].strategy+"”作为另一种思考角度；不表示未来必定进入这一阶段。";}
   function tri(ls,off){return (ls[off].yang?1:0)+(ls[off+1].yang?2:0)+(ls[off+2].yang?4:0)}
   function hexInfo(ls){var lo=tri(ls,0),up=tri(ls,3),x=king[up+"-"+lo];return{no:x[0],name:x[1],rating:x[2],upper:trigram[up],lower:trigram[lo]}}
   function lineHTML(yang,moving){return yang?'<div class="yao-line yang'+(moving?" moving":"")+'"></div>':'<div class="yao-line yin'+(moving?" moving":"")+'"><i></i><i></i></div>'}
@@ -753,12 +708,12 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
   function renderPairHexagram(A,B,ls,ch,mv){
     var movingText=mv.length?("动爻："+mv.map(function(n){return yaoName(n,ls[n-1].yang)}).join("、")):"无动爻";
     var legend=mv.length?"本卦中带 ○ / × 标记的爻为动爻。":"当前无动爻，主看本卦整体结构与趋势。";
-    return "<div class=\"pair-hex-wrap\"><div class=\"pair-hex-col\"><div class=\"pair-hex-badge\">本卦</div><div class=\"pair-hex-title\">第"+A.no+"卦 · "+A.name+"</div>"+vis(ls,true,true)+"<div class=\"pair-hex-meta\">上"+A.upper.n+"（"+A.upper.e+"） · 下"+A.lower.n+"（"+A.lower.e+"）</div><div class=\"pair-hex-sub\">当前局势与根基</div></div><div class=\"pair-hex-arrow\">→</div><div class=\"pair-hex-col\"><div class=\"pair-hex-badge\">变卦</div><div class=\"pair-hex-title\">第"+B.no+"卦 · "+B.name+"</div>"+vis(ch,true,false)+"<div class=\"pair-hex-meta\">上"+B.upper.n+"（"+B.upper.e+"） · 下"+B.lower.n+"（"+B.lower.e+"）</div><div class=\"pair-hex-sub\">变化后的趋势</div></div></div><div class=\"pair-hex-tip\">卦象自下而上对应初爻至上爻。"+movingText+"</div><div class=\"pair-hex-legend\">"+legend+"</div>";
+    return "<div class=\"pair-hex-wrap\"><div class=\"pair-hex-col\"><div class=\"pair-hex-badge\">本卦</div><div class=\"pair-hex-title\">第"+A.no+"卦 · "+A.name+"</div>"+vis(ls,true,true)+"<div class=\"pair-hex-meta\">上"+A.upper.n+"（"+A.upper.e+"） · 下"+A.lower.n+"（"+A.lower.e+"）</div><div class=\"pair-hex-sub\">本卦象义参考</div></div><div class=\"pair-hex-arrow\">→</div><div class=\"pair-hex-col\"><div class=\"pair-hex-badge\">变卦</div><div class=\"pair-hex-title\">第"+B.no+"卦 · "+B.name+"</div>"+vis(ch,true,false)+"<div class=\"pair-hex-meta\">上"+B.upper.n+"（"+B.upper.e+"） · 下"+B.lower.n+"（"+B.lower.e+"）</div><div class=\"pair-hex-sub\">之卦象义参考</div></div></div><div class=\"pair-hex-tip\">卦象自下而上对应初爻至上爻。"+movingText+"</div><div class=\"pair-hex-legend\">"+legend+"</div>";
   }
   function list(id,arr){document.getElementById(id).innerHTML=arr.map(function(x){return"<li>"+x+"</li>"}).join("")}
   function score(r){if(r=="大吉")return 92;if(r=="吉")return 84;if(r=="中吉")return 76;if(r=="偏凶")return 43;if(r=="谨慎")return 55;if(r=="转机")return 73;if(r=="先难后易")return 66;if(r=="吉中藏忧")return 72;return 68}
   function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
-  function yaoName(n,yang){var pos=["初","二","三","四","五","上"][n-1];return pos+(yang?"九":"六")}
+  function yaoName(n,yang){var pos=["初","二","三","四","五","上"][n-1],v=yang?"九":"六";return n===1||n===6?pos+v:v+pos;}
   function tendency(r){return r=="偏凶"?"宜守慎行":r=="谨慎"||r=="警惕"?"谨慎观察":r=="转机"?"把握转机":r=="大吉"?"可积极推进":r=="未完"?"耐心收尾":"稳中求进"}
 
   var last=null;
@@ -809,21 +764,21 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
     document.getElementById("xe").textContent="上"+B.upper.n+"（"+B.upper.e+"）· 下"+B.lower.n+"（"+B.lower.e+"）";
     document.getElementById("pairHexagram").innerHTML=renderPairHexagram(A,B,ls,ch,mv);
     document.getElementById("mv").textContent=mv.length?mv.map(function(n){return yaoName(n,ls[n-1].yang)}).join("、"):"无动爻";
-    document.getElementById("ov").textContent=r+" · "+tendency(r);
-    document.getElementById("sum").textContent="本卦看当前状态，动爻看正在发生的变化，变卦看变化后的趋势。以下解读以传统易学象义为文化参考，并结合您所问的“"+type+"”事项进行分析。";
+    document.getElementById("ov").textContent="象义主题 · "+guaProfile[A.name].stage;
+    document.getElementById("sum").textContent="本卦、动爻和之卦提供不同的文化解读角度，不构成对现状或未来的测量。以下解读以传统易学象义为文化参考，并结合您所问的“"+type+"”事项进行分析。";
     document.getElementById("judgmentText").textContent="《"+A.name+"》卦辞："+(guaCi[A.name]||"暂无")+ (mv.length?"\n之卦《"+B.name+"》卦辞："+(guaCi[B.name]||"暂无"):"");
-    document.getElementById("movingRule").textContent=movingUseRule(mv,A,B,ls,ch);
-    document.getElementById("sc").innerHTML=score(r)+"<small>/100</small>";
+    document.getElementById("movingRule").textContent="以下展示一种传统取用思路，不同流派可能不同；当前未收录完整爻辞，不能视为已完成相应爻辞分析。\n"+movingUseRule(mv,A,B,ls,ch);
+
     document.getElementById("baseAnalysis").textContent=baseAnalysisByTopic(type,A);
     document.getElementById("movingAnalysis").textContent=movingAnalysisByTopic(type,mv,ls);
     document.getElementById("changeAnalysis").textContent=changeAnalysisByTopic(type,B,mv);
     document.getElementById("topicAnalysis").textContent=topicAnalysisText(type,text,A,B,mv);
-    document.getElementById("actionAnalysis").textContent=topicActionText(type,r);
+    document.getElementById("actionAnalysis").textContent=topicActionText(type,text,A);
 
     var td=topicDetail[type]||topicDetail["其他"];
-    list("cur",["本卦："+A.name+"，当前评价："+r,td.base,mv.length?"存在"+mv.length+"个动爻，变化因素较明显":"无动爻，当前状态相对稳定"]);
-    list("good",[td.good,"结合“"+A.upper.nature+"”的积极一面","用现实信息验证卦象提示"]);
-    list("bad",[td.bad,"避免把卦象当作确定预测",mv.length>2?"动爻较多，尤其要防过早下结论":"不要因焦虑而反复起卦"]);
+    list("cur",["本卦："+A.name,"象义主题："+guaProfile[A.name].stage,"实际状况请以您提供的事实为准"]);
+    list("good",["可思考："+guaProfile[A.name].strength,"先确认相关资源是否实际具备","用现实信息验证卦象提示"]);
+    list("bad",["需自查："+guaProfile[A.name].risk,"避免把卦象当作确定预测",mv.length>2?"动爻较多，尤其要防过早下结论":"不要因焦虑而反复起卦"]);
 
     last={q:text,a:A.name,b:B.name,t:new Date().toLocaleString(),type:type,moving:mv,lines:ls.map(function(x){return {yang:x.yang,moving:x.moving,value:x.value||0}}),changeLines:ch.map(function(x){return {yang:x.yang,moving:false,value:x.value||0}}),aNo:A.no,bNo:B.no,aUpper:A.upper,aLower:A.lower,bUpper:B.upper,bLower:B.lower};
     document.getElementById("result").scrollIntoView({behavior:"smooth"});
@@ -991,8 +946,8 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
     ctx.fillText("上"+(last.aUpper?last.aUpper.n:"")+"（"+(last.aUpper?last.aUpper.e:"")+"） · 下"+(last.aLower?last.aLower.n:"")+"（"+(last.aLower?last.aLower.e:"")+"）",225,topY+boxA.h+34);
     ctx.fillText("上"+(last.bUpper?last.bUpper.n:"")+"（"+(last.bUpper?last.bUpper.e:"")+"） · 下"+(last.bLower?last.bLower.n:"")+"（"+(last.bLower?last.bLower.e:"")+"）",611,topY+boxB.h+34);
     ctx.font="18px sans-serif";ctx.fillStyle="#987a4f";
-    ctx.fillText("当前局势与根基",225,topY+boxA.h+68);
-    ctx.fillText("变化后的趋势",611,topY+boxB.h+68);
+    ctx.fillText("本卦象义参考",225,topY+boxA.h+68);
+    ctx.fillText("之卦象义参考",611,topY+boxB.h+68);
     ctx.fillText(last.moving&&last.moving.length?"本卦中 ○ / × 为动爻标记":"当前无动爻，主看本卦整体结构",w/2,topY+boxA.h+106);
 
     fillPanel(ctx,82,movingY,736,movingH);
