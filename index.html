@@ -1187,8 +1187,7 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
       await copyTextFallback(url);
       alert("网页链接已复制，可以粘贴到微信发送。");
     }catch(e){
-      alert("请复制这个链接后发送到微信：
-"+url);
+      alert("请复制这个链接后发送到微信：\\n"+url);
     }
   };
   document.getElementById("copyLink").onclick=async function(){
