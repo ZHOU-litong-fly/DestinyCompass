@@ -1,0 +1,16 @@
+命运罗盘｜微信分享修复版
+
+修复重点：
+1. 微信内不再调用不可靠的系统分享 API。
+2. “分享命运罗盘”在微信里会提示：
+   右上角 ··· → 发送给朋友 / 分享到朋友圈。
+3. “分享结果图”在微信里会引导：
+   打开结果图片 → 长按保存 → 再发送到微信/朋友圈。
+4. Safari/Chrome 等支持系统分享的浏览器仍保留原系统分享。
+5. 保留复制链接作为兜底。
+
+更新方法：
+把本版 index.html 上传到 GitHub 仓库 DestinyCompass 根目录并覆盖旧 index.html，
+Commit changes 后等待 GitHub Pages 自动重新部署。
+原访问地址不变：
+https://zhou-litong-fly.github.io/DestinyCompass/
