@@ -1,24 +1,9 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta name="theme-color" content="#090d10">
-<meta name="description" content="命运罗盘｜易学卦象分析工具。支持自动起卦、铜钱起卦、手动输入，并结合本卦、变卦、动爻进行传统易学文化分析。">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="命运罗盘">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="icon" type="image/png" href="./favicon.png">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<link rel="manifest" href="./manifest.webmanifest">
-<meta property="og:type" content="website">
-<meta property="og:title" content="命运罗盘｜易学卦象分析工具">
-<meta property="og:description" content="自动起卦、铜钱起卦、手动输入｜本卦、变卦、动爻解析">
-<meta property="og:image" content="./share-cover.png">
-<meta name="twitter:card" content="summary_large_image">
-
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>命运罗盘｜易学卦象分析工具</title>
+<title>命运罗盘 · 新版手机版</title>
 <style>
 :root{
   --panel:#05090c;--gold:#e0ad50;--gold2:#ffd98b;--line:#6c4924;--text:#ead5a6;--muted:#9a815c
@@ -546,6 +531,96 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
     "出行远行":{base:"当前重点在交通、天气、证件、时间余量、体力和替代方案。",good:"条件顺畅时也应预留缓冲，不把行程排得过满。",bad:"若变化较多，尤其要防临时改签、延误、路线变更或身体疲劳。",act:"出发前核对证件、交通与天气，准备备用路线并留足时间；安全优先于赶进度。"},
     "其他":{base:"当前先识别事情处在哪个阶段，以及真正可控的变量。",good:"有利时可顺势推进，但仍需现实验证。",bad:"受阻时先缩小问题、补充信息、保留退路。",act:"先完成一个可验证的小步骤，再根据反馈调整。"}
   };
+  var guaProfile={
+    "乾":{stage:"主动开拓",strength:"行动力与担当",risk:"过刚、急进或控制欲过强",strategy:"主动推进，但给自己留下复核与调整空间"},
+    "坤":{stage:"承接积累",strength:"稳定、包容与执行",risk:"过度被动或长期压抑自身需求",strategy:"先稳住基础，再借助合作与长期积累推进"},
+    "屯":{stage:"起步受阻",strength:"韧性与从零搭建",risk:"准备不足、急于求成",strategy:"先解决最基础的条件与资源，再谈速度"},
+    "蒙":{stage:"信息不足",strength:"学习与求教",risk:"误判、经验不足",strategy:"补知识、找可靠的人确认，再做决定"},
+    "需":{stage:"等待条件成熟",strength:"耐心与蓄势",risk:"焦虑催促或过早下注",strategy:"把等待期用于准备、验证和积累"},
+    "讼":{stage:"分歧冲突",strength:"规则意识与证据",risk:"争执升级、关系消耗",strategy:"以事实、规则和边界处理，减少情绪对抗"},
+    "师":{stage:"组织执行",strength:"纪律、协作与领导",risk:"职责混乱或指令失衡",strategy:"明确目标、角色和责任，再集中行动"},
+    "比":{stage:"合作靠拢",strength:"信任与连接",risk:"依附错误的人或圈子",strategy:"先辨别可靠性，再决定合作深度"},
+    "小畜":{stage:"小步积累",strength:"节制与渐进",risk:"力量不足却急于放大",strategy:"先积少成多，避免一次投入过重"},
+    "履":{stage:"谨慎前行",strength:"边界感与礼序",risk:"越界、冒险或轻视风险",strategy:"守规则、看边界，一步一步推进"},
+    "泰":{stage:"条件通达",strength:"协调与顺势",risk:"顺利时放松警惕",strategy:"把握窗口，但同步做好后续维护"},
+    "否":{stage:"沟通阻塞",strength:"守正与耐心",risk:"强推无效、内耗加剧",strategy:"减少无效投入，等待关键条件转变"},
+    "同人":{stage:"共同目标形成",strength:"协作与公开沟通",risk:"小圈子或立场偏狭",strategy:"围绕共同目标整合资源"},
+    "大有":{stage:"资源充足",strength:"整合资源与成果",risk:"自满、铺摊过大",strategy:"聚焦高价值方向，把已有优势转成成果"},
+    "谦":{stage:"稳中有进",strength:"谦逊与可信度",risk:"过分退让错失机会",strategy:"低调但不退缩，用结果建立影响力"},
+    "豫":{stage:"气势渐起",strength:"动员与准备",risk:"乐观过度、享受先于执行",strategy:"把积极情绪转化为具体准备"},
+    "随":{stage:"顺势调整",strength:"适应与跟随趋势",risk:"没有原则地随波逐流",strategy:"保留核心原则，同时灵活调整路径"},
+    "蛊":{stage:"旧问题整顿",strength:"修复与治理",risk:"只处理表面、不碰根因",strategy:"先找根因，再逐项修复旧问题"},
+    "临":{stage:"机会靠近",strength:"主动接近与承担",risk:"高估短期机会",strategy:"主动接触，但边推进边验证"},
+    "观":{stage:"观察评估",strength:"全局视角与判断",risk:"只看不做、错过窗口",strategy:"先看清趋势与反馈，再决定行动点"},
+    "噬嗑":{stage:"障碍待处理",strength:"决断与规则",risk:"处理过硬造成次生冲突",strategy:"把问题说清、规则定清、执行到底"},
+    "贲":{stage:"呈现优化",strength:"表达与包装",risk:"重形式轻实质",strategy:"先保证内容，再改善呈现"},
+    "剥":{stage:"资源削弱",strength:"收缩与保全核心",risk:"继续扩张导致损耗",strategy:"减负、止损、保留最重要的部分"},
+    "复":{stage:"回升重启",strength:"恢复与重新开始",risk:"刚有转机就再次冒进",strategy:"从最小可行步骤重新启动"},
+    "无妄":{stage:"守正自然",strength:"真实与坦荡",risk:"妄动、投机或过度算计",strategy:"做真实、正当、可验证的事"},
+    "大畜":{stage:"蓄力储备",strength:"积累资源与能力",risk:"积而不用或过早透支",strategy:"继续储备，等待能放大优势的节点"},
+    "颐":{stage:"养成修复",strength:"输入管理与自我照顾",risk:"摄入失衡、言语失度",strategy:"先管好日常输入、习惯与消耗"},
+    "大过":{stage:"负荷过重",strength:"承担与突破",risk:"结构失衡、硬撑",strategy:"先减压和重构，不要靠意志硬顶"},
+    "坎":{stage:"风险反复",strength:"韧性、警觉与风险意识",risk:"连续陷入同类问题或情绪恐慌",strategy:"先控风险、留退路，再逐步推进"},
+    "离":{stage:"逐渐明朗",strength:"辨别、表达与聚焦",risk:"依赖表象或情绪过热",strategy:"把事实看清，找到可靠依托"},
+    "咸":{stage:"相互感应",strength:"互动与真诚反馈",risk:"被短期情绪牵动",strategy:"看双向回应，不只看单方面感受"},
+    "恒":{stage:"长期稳定",strength:"持续与一致性",risk:"僵化或习惯性拖延",strategy:"保持长期节奏，同时定期校准"},
+    "遯":{stage:"暂避锋芒",strength:"止损与保存实力",risk:"该退不退或一退到底",strategy:"战略性后退，保留重新进入的条件"},
+    "大壮":{stage:"力量增强",strength:"执行力与突破",risk:"力量过大而失控",strategy:"越有优势越要守规则"},
+    "晋":{stage:"上升推进",strength:"展示与进展",risk:"急于求成或争功",strategy:"稳步展示成果并争取支持"},
+    "明夷":{stage:"环境压制",strength:"韬光养晦与内在坚持",risk:"硬碰硬导致受损",strategy:"先保护自己和核心能力，等待环境改善"},
+    "家人":{stage:"内部秩序",strength:"责任与角色清晰",risk:"角色越位、情绪代替规则",strategy:"先把内部规则和责任理顺"},
+    "睽":{stage:"立场分化",strength:"差异中求合作",risk:"把差异扩大成对立",strategy:"求同存异，只在关键点达成一致"},
+    "蹇":{stage:"前路受阻",strength:"绕行、求助与修正",risk:"硬闯、孤军奋战",strategy:"换路径、求助、补条件"},
+    "解":{stage:"压力释放",strength:"松绑与解决遗留问题",risk:"问题刚缓解就停止收尾",strategy:"趁窗口处理遗留问题，恢复秩序"},
+    "损":{stage:"有所舍弃",strength:"取舍与资源优化",risk:"只见损失、不见长期交换",strategy:"舍掉低价值部分，换取更重要的稳定"},
+    "益":{stage:"增益扩展",strength:"投入与成长",risk:"扩张过快、资源分散",strategy:"把新增资源投入最有效的方向"},
+    "夬":{stage:"必须决断",strength:"清晰与果断",risk:"表达过激或决断过猛",strategy:"坚定但不激化，先处理最关键问题"},
+    "姤":{stage:"突发变量",strength:"识别机会与边界",risk:"被突然出现的人事物牵着走",strategy:"先设边界，再判断是否值得深入"},
+    "萃":{stage:"资源汇聚",strength:"组织与协调",risk:"人多事杂、目标不清",strategy:"统一目标，把资源集中起来"},
+    "升":{stage:"循序上升",strength:"持续积累与进阶",risk:"想跳级或走捷径",strategy:"按层级推进，积累可持续优势"},
+    "困":{stage:"空间受限",strength:"守原则与寻找出口",risk:"在压力中失去判断",strategy:"减少消耗，保住关键资源，寻找出口"},
+    "井":{stage:"基础资源",strength:"长期价值与维护",risk:"资源存在却使用低效",strategy:"修好基础设施，再提高利用效率"},
+    "革":{stage:"变革窗口",strength:"更新与重构",risk:"为了变化而变化",strategy:"确认旧模式确实失效，再有步骤地改变"},
+    "鼎":{stage:"结构升级",strength:"整合与提升层级",risk:"只换形式不换能力",strategy:"用新结构承接更高质量的资源和目标"},
+    "震":{stage:"突发震动",strength:"快速反应与稳定心态",risk:"惊慌后做出错误决定",strategy:"先稳定，再处理变化"},
+    "艮":{stage:"停止定界",strength:"边界与沉淀",risk:"该动时仍停住",strategy:"先停止无效消耗，再决定是否重新启动"},
+    "渐":{stage:"渐进发展",strength:"稳定节奏与长期建设",risk:"急于看到结果",strategy:"按阶段推进，用时间换稳定"},
+    "归妹":{stage:"关系或安排不完全对位",strength:"识别现实限制",risk:"承诺过快、角色错位",strategy:"先确认身份、条件和长期匹配度"},
+    "丰":{stage:"阶段高点",strength:"资源、成果与曝光",risk:"高点之后松懈或过度扩张",strategy:"把握高点，同时准备回落后的节奏"},
+    "旅":{stage:"环境未稳",strength:"适应与轻装前行",risk:"过度依赖临时环境",strategy:"降低固定成本，保留机动性"},
+    "巽":{stage:"持续渗透",strength:"柔和、耐心与影响",risk:"过度迁就、缺乏明确立场",strategy:"持续推进，但核心边界要清楚"},
+    "兑":{stage:"沟通互动",strength:"表达、协商与愉悦感",risk:"只求好听、不谈实质",strategy:"把沟通落实成明确行动"},
+    "涣":{stage:"僵局疏解",strength:"疏通与重建连接",risk:"关系或资源过度分散",strategy:"先疏通堵点，再重新聚焦"},
+    "节":{stage:"设限管理",strength:"规则、节制与边界",risk:"限制过度形成压抑",strategy:"建立合理边界，而不是一味收紧"},
+    "中孚":{stage:"诚信建立",strength:"真实与信任",risk:"过度相信口头承诺",strategy:"用持续一致的行动验证信任"},
+    "小过":{stage:"小幅调整",strength:"细节修正与谨慎",risk:"小题大做或冒险做大动作",strategy:"修小错、做微调，不宜一次改变太多"},
+    "既济":{stage:"接近完成",strength:"收尾与成果落地",risk:"最后阶段松懈",strategy:"越接近完成越要检查细节"},
+    "未济":{stage:"尚未完成",strength:"继续推进与调整次序",risk:"最后阶段急躁或次序混乱",strategy:"把剩余步骤排清楚，耐心收尾"}
+  };
+  var topicLens={
+    "事业工作":{subject:"工作局面",stageMap:"岗位、项目与团队",strengthMap:"职场优势",riskMap:"工作风险",verify:"上级反馈、资源变化、职责边界和项目结果"},
+    "财运求财":{subject:"财务局面",stageMap:"收入、现金流与资金安排",strengthMap:"资金管理优势",riskMap:"财务风险",verify:"现金流、真实成本、收益来源和风险敞口"},
+    "感情婚姻":{subject:"关系状态",stageMap:"互动、信任与现实安排",strengthMap:"关系中的有利因素",riskMap:"关系风险",verify:"对方持续行动、沟通质量和现实投入"},
+    "家庭关系":{subject:"家庭状态",stageMap:"角色、责任与家庭秩序",strengthMap:"家庭中的有利因素",riskMap:"家庭风险",verify:"分工是否执行、沟通是否改善和冲突是否减少"},
+    "健康平安":{subject:"身心状态",stageMap:"作息、疲劳、压力与恢复",strengthMap:"有利于恢复的条件",riskMap:"需要留意的状态",verify:"症状变化、睡眠、食欲、体温、疼痛及正规检查结果"},
+    "学业考试":{subject:"学习状态",stageMap:"基础、复习与临场准备",strengthMap:"学习优势",riskMap:"学习风险",verify:"错题率、模拟成绩、时间利用和薄弱点变化"},
+    "出行远行":{subject:"行程状态",stageMap:"交通、天气、体力与时间安排",strengthMap:"出行有利条件",riskMap:"出行风险",verify:"交通信息、天气、证件、备用路线和时间余量"},
+    "其他":{subject:"当前事情",stageMap:"阶段、资源与现实条件",strengthMap:"有利因素",riskMap:"主要风险",verify:"现实反馈和可验证信息"}
+  };
+  function guaTopicSpecific(type,A){
+    var p=guaProfile[A.name]||{stage:"当前阶段",strength:"现有优势",risk:"潜在风险",strategy:"稳中求进"};
+    var l=topicLens[type]||topicLens["其他"];
+    if(type==="健康平安"){
+      return "《"+A.name+"》在健康类问题中可理解为一种状态节奏的文化提示：目前更接近“"+p.stage+"”。可借鉴的正面含义是“"+p.strength+"”，需要特别留意的是“"+p.risk+"”。落实到现实，应观察"+l.verify+"；卦象不能用于判断疾病名称或严重程度。";
+    }
+    return "《"+A.name+"》落到“"+type+"”上，当前"+l.subject+"更接近“"+p.stage+"”。"+l.strengthMap+"在于“"+p.strength+"”，而"+l.riskMap+"主要是“"+p.risk+"”。更合适的处理方式是："+p.strategy+"，并用"+l.verify+"持续验证。";
+  }
+  function changeTopicSpecific(type,B){
+    var p=guaProfile[B.name]||{stage:"新的阶段",strength:"新的优势",risk:"新的风险",strategy:"继续观察"};
+    var l=topicLens[type]||topicLens["其他"];
+    if(type==="健康平安")return "变卦《"+B.name+"》提示后续状态可能更接近“"+p.stage+"”。这只适合作为文化上的节奏提醒；真正的健康变化应依据"+l.verify+"判断。";
+    return "变卦《"+B.name+"》表示后续"+l.subject+"可能逐步进入“"+p.stage+"”阶段。届时可利用“"+p.strength+"”，同时防范“"+p.risk+"”。";
+  }
   function randomBit(){try{var a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]&1}catch(e){return Math.random()<.5?0:1}}
   function autoLine(){var v=[6,7,8,9][Math.floor(Math.random()*4)];return{value:v,yang:v===7||v===9,moving:v===6||v===9,coins:null}}
   function coinLine(){var coins=[],t=0;for(var i=0;i<3;i++){var face=randomBit()?3:2;coins.push(face);t+=face}return{value:t,yang:t===7||t===9,moving:t===6||t===9,coins:coins}}
@@ -564,7 +639,7 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
       "出行远行":"把这组卦意落到出行上，应重点检查交通、天气、证件、体力、时间余量与备用方案。卦势顺时也要留缓冲；若有阻滞或变化之象，更应避免赶行程和忽略安全。",
       "其他":"把这组卦意落到现实中，重点是识别事情所处阶段、主要矛盾和真正可控的变量。"
     };
-    return core+"\n"+(map[type]||map["其他"]);
+    return core+"\n"+guaTopicSpecific(type,A)+"\n"+(map[type]||map["其他"]);
   }
   function movingAnalysisByTopic(type,mv,ls){
     var names=mv.map(function(n){return yaoName(n,ls[n-1].yang)});
@@ -619,7 +694,7 @@ textarea:focus{border-color:#b47b31;box-shadow:0 0 0 2px rgba(187,126,46,.08)}
       "出行远行":"如果当前变化继续发展，后续行程可能更多体现“"+B.upper.nature+" / "+B.lower.nature+"”。应据此加强对交通、天气、时间余量和安全的检查。",
       "其他":"如果当前变量继续发展，后续更可能呈现“"+B.upper.nature+" / "+B.lower.nature+"”的特征。"
     };
-    return prefix+(map[type]||map["其他"]);
+    return prefix+changeTopicSpecific(type,B)+"\n"+(map[type]||map["其他"]);
   }
   function tri(ls,off){return (ls[off].yang?1:0)+(ls[off+1].yang?2:0)+(ls[off+2].yang?4:0)}
   function hexInfo(ls){var lo=tri(ls,0),up=tri(ls,3),x=king[up+"-"+lo];return{no:x[0],name:x[1],rating:x[2],upper:trigram[up],lower:trigram[lo]}}
