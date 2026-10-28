@@ -6,11 +6,13 @@
 import { runTraditionalEngineSelfTests, locateZiwei, arrangeFourteenMajorStars, fiveElementsBureau, locateTianfu, sexagenaryIndex } from './traditional-core.js';
 import { ZIWEI_REFERENCE_TABLE } from './ziwei-reference-table.js';
 import { runTianjiPolicySelfTests } from './tianji-reference-policy.js';
+import { runAuxiliaryStarSelfTests, locateZuofuYoubi, locateWenchangWenqu, locateLucunQingyangTuoluo } from './auxiliary-stars.js';
 
 export function runZiweiRegressionSuite() {
   const suites = [
     { name: '传统核心规则', result: runTraditionalEngineSelfTests() },
-    { name: '《天纪》参考口径边界', result: runTianjiPolicySelfTests() }
+    { name: '《天纪》参考口径边界', result: runTianjiPolicySelfTests() },
+    { name: '辅星基础定位', result: runAuxiliaryStarSelfTests() }
   ];
   const exhaustive = [];
   // 对固定参考表逐项比对，而非仅检查输出范围。
@@ -44,6 +46,23 @@ export function runZiweiRegressionSuite() {
     const stars = arrangeFourteenMajorStars(branch).starsByBranch.flatMap(p => p.stars);
     exhaustive.push({ name: '十四主星布列：紫微支' + branch, pass: stars.length === 14 && new Set(stars).size === 14 });
     exhaustive.push({ name: '紫府轴对称：紫微支' + branch, pass: locateTianfu(branch) === ((4 - branch + 12) % 12) });
+  }
+  // 辅星定位的穷举范围检查：所有月份、时辰与年干均应落在十二地支内。
+  for (let month = 1; month <= 12; month++) {
+    const stars = locateZuofuYoubi(month);
+    exhaustive.push({ name: '左辅位置范围：月' + month, pass: stars.zuofuBranchIndex >= 0 && stars.zuofuBranchIndex < 12 });
+    exhaustive.push({ name: '右弼位置范围：月' + month, pass: stars.youbiBranchIndex >= 0 && stars.youbiBranchIndex < 12 });
+  }
+  for (let hour = 0; hour < 12; hour++) {
+    const stars = locateWenchangWenqu(hour);
+    exhaustive.push({ name: '文昌位置范围：时' + hour, pass: stars.wenchangBranchIndex >= 0 && stars.wenchangBranchIndex < 12 });
+    exhaustive.push({ name: '文曲位置范围：时' + hour, pass: stars.wenquBranchIndex >= 0 && stars.wenquBranchIndex < 12 });
+  }
+  for (let stem = 0; stem < 10; stem++) {
+    const stars = locateLucunQingyangTuoluo(stem);
+    exhaustive.push({ name: '禄存位置范围：年干' + stem, pass: stars.lucunBranchIndex >= 0 && stars.lucunBranchIndex < 12 });
+    exhaustive.push({ name: '擎羊位置范围：年干' + stem, pass: stars.qingyangBranchIndex >= 0 && stars.qingyangBranchIndex < 12 });
+    exhaustive.push({ name: '陀罗位置范围：年干' + stem, pass: stars.tuoluoBranchIndex >= 0 && stars.tuoluoBranchIndex < 12 });
   }
   // 六十甲子组合有效性：干支索引同阴阳才应存在于六十甲子。
   for (let stem = 0; stem < 10; stem++) {
