@@ -86,7 +86,7 @@ function render(chart,form){
  const fields=[
  ['排盘体系',form.system==='compare'?'双体系对比':form.system==='traditional'?'通用传统体系':'《天纪》参考模式'],
  ['命主',form.person||'未填写'],['性别',form.gender],['公历日期',get(chart,['solarDate','公历日期'],form.date)],['农历日期',get(chart,['lunarDate','农历日期'],'—')],
- ['四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],hourLabel(form.effectiveTimeIndex))],['晚子时口径',form.lateZiRule==='next-day'?'23点按次日换日':'23点保留当日'],['闰月口径',form.calendar==='lunar'?(form.leapMonth?(form.leapRule==='next-month'?'整月归下月':form.leapRule==='split'?'十五分界':form.leapRule==='prev-month'?'整月归前月':'闰月本月'): '非闰月'):'不适用'],['排盘采用日期',form.usedDate],['真太阳时',form.solarInfo?form.solarInfo.solarDate+' '+form.solarInfo.solarTime:'未校正'],['经度修正',form.solarInfo?form.solarInfo.longitudeCorrectionMinutes+' 分钟':'—'],['均时差',form.solarInfo?form.solarInfo.eotMinutes+' 分钟':'—'],['命宫',get(chart,['soul','mingShen.mingBranch','命宫'],'—')],['身宫',get(chart,['body','mingShen.shenBranch','身宫'],'—')]
+ [chart.yearPillarOnly?'年柱（独立历法）':'四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],hourLabel(form.effectiveTimeIndex))],['晚子时口径',form.lateZiRule==='next-day'?'23点按次日换日':'23点保留当日'],['闰月口径',form.calendar==='lunar'?(form.leapMonth?(form.leapRule==='next-month'?'整月归下月':form.leapRule==='split'?'十五分界':form.leapRule==='prev-month'?'整月归前月':'闰月本月'): '非闰月'):'不适用'],['排盘采用日期',form.usedDate],['真太阳时',form.solarInfo?form.solarInfo.solarDate+' '+form.solarInfo.solarTime:'未校正'],['经度修正',form.solarInfo?form.solarInfo.longitudeCorrectionMinutes+' 分钟':'—'],['均时差',form.solarInfo?form.solarInfo.eotMinutes+' 分钟':'—'],['命宫',get(chart,['soul','mingShen.mingBranch','命宫'],'—')],['身宫',get(chart,['body','mingShen.shenBranch','身宫'],'—')]
  ];
  $('summary').innerHTML=fields.map(([k,v])=>'<div class="stat"><span>'+escapeHTML(k)+'</span><strong>'+escapeHTML(textValue(v)||'—')+'</strong></div>').join('');
  const ps=findPalaces(chart); $('palaces').innerHTML=ps.length?ps.map(palaceHTML).join(''):'<div class="center">未能读取宫位结构，请展开原始信息核对。</div>';
@@ -166,6 +166,7 @@ async function chartForIndependentProfile(input,profile){
   solarDate:resolved.solarDate,
   lunarDate:resolved.lunarDate.year+'-'+String(resolved.lunarDate.month).padStart(2,'0')+'-'+String(resolved.lunarDate.day).padStart(2,'0')+(resolved.lunarDate.isLeapMonth?'（闰月）':''),
   chineseDate:resolved.yearGan+resolved.yearZhi,
+  yearPillarOnly:true,
   time:hourLabel(resolved.hourBranchIndex),
   soul:raw.mingShen.mingBranch,
   body:raw.mingShen.shenBranch,
