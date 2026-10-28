@@ -165,6 +165,7 @@ async function runRuleSelfTests(){
  check('闰月整月归下月',effectiveLunarDate(2023,2,10,'next-month'),{date:'2023-3-10',leap:false,fixLeap:false});
  check('闰月整月归前月',effectiveLunarDate(2023,2,10,'prev-month'),{date:'2023-1-10',leap:false,fixLeap:false});
  check('十五分界保留闰月并启用分界',effectiveLunarDate(2023,2,15,'split'),{date:'2023-2-15',leap:true,fixLeap:true});
+ suiteSummaries.push({name:'基础日期/闰月规则',passed:tests.filter(t=>t.pass).length,total:tests.length});
  const out=document.getElementById('ruleTests');
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
