@@ -3,18 +3,20 @@
  * 运行方式：在支持 ES modules 的环境中导入本文件并执行 runZiweiRegressionSuite()。
  * 这些测试验证核心数学规则和结构，不代替完整命例校盘。
  */
-import { runTraditionalEngineSelfTests, locateZiwei, arrangeFourteenMajorStars, fiveElementsBureau, locateTianfu, sexagenaryIndex } from './traditional-core.js';
+import { runTraditionalEngineSelfTests, locateZiwei, arrangeFourteenMajorStars, fiveElementsBureau, locateTianfu, sexagenaryIndex, locateMingShen } from './traditional-core.js';
 import { ZIWEI_REFERENCE_TABLE } from './ziwei-reference-table.js';
 import { runTianjiPolicySelfTests } from './tianji-reference-policy.js';
 import { runAuxiliaryStarSelfTests, locateZuofuYoubi, locateWenchangWenqu, locateLucunQingyangTuoluo, locateTiankuiTianyue, locateTianma, locateDikongDijie, locateHuoxingLingxing } from './auxiliary-stars.js';
 import { runTraditionalChartSelfTests } from './traditional-chart.js';
+import { runTianjiEngineSelfTests, calculateTianjiBureau } from './tianji-engine.js';
 
 export function runZiweiRegressionSuite() {
   const suites = [
     { name: '传统核心规则', result: runTraditionalEngineSelfTests() },
     { name: '《天纪》参考口径边界', result: runTianjiPolicySelfTests() },
     { name: '辅星基础定位', result: runAuxiliaryStarSelfTests() },
-    { name: '独立传统命盘组装', result: runTraditionalChartSelfTests() }
+    { name: '独立传统命盘组装', result: runTraditionalChartSelfTests() },
+    { name: '《天纪》独立规则引擎', result: runTianjiEngineSelfTests() }
   ];
   const exhaustive = [];
   // 对固定参考表逐项比对，而非仅检查输出范围。
@@ -86,6 +88,26 @@ export function runZiweiRegressionSuite() {
       const stars = locateHuoxingLingxing(yearBranch, hour);
       exhaustive.push({ name: '火星位置范围：年支' + yearBranch + '时' + hour, pass: stars.huoxingBranchIndex >= 0 && stars.huoxingBranchIndex < 12 });
       exhaustive.push({ name: '铃星位置范围：年支' + yearBranch + '时' + hour, pass: stars.lingxingBranchIndex >= 0 && stars.lingxingBranchIndex < 12 });
+    }
+  }
+  // Cross-check independent five-elements-bureau formulas for all 60 valid year pillars,
+  // 12 lunar months and 12 birth hours: 60 * 12 * 12 = 8640 cases.
+  for (let stem = 0; stem < 10; stem++) {
+    for (let yearBranch = 0; yearBranch < 12; yearBranch++) {
+      if ((stem % 2) !== (yearBranch % 2)) continue;
+      for (let month = 1; month <= 12; month++) {
+        for (let hour = 0; hour < 12; hour++) {
+          const { mingBranchIndex } = locateMingShen(month, hour);
+          const tianjiBureau = calculateTianjiBureau(stem, mingBranchIndex).bureau;
+          const traditionalBureau = fiveElementsBureau(stem, mingBranchIndex).bureau;
+          exhaustive.push({
+            name: '双引擎五行局交叉核验：年干' + stem + '年支' + yearBranch + '月' + month + '时' + hour,
+            pass: tianjiBureau === traditionalBureau,
+            actual: tianjiBureau,
+            expected: traditionalBureau
+          });
+        }
+      }
     }
   }
   // 六十甲子组合有效性：干支索引同阴阳才应存在于六十甲子。
