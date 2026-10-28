@@ -212,7 +212,8 @@ async function runRuleSelfTests(){
    ['传统核心安星',traditionalMod.runTraditionalEngineSelfTests()],
    ['辅星定位',auxMod.runAuxiliaryStarSelfTests()],
    ['《天纪》参考口径',policyMod.runTianjiPolicySelfTests()],
-   ['独立传统命盘组装',chartMod.runTraditionalChartSelfTests()],\n   ['标准命例交叉核验',await standardMod.runStandardCaseSuite()]
+   ['独立传统命盘组装',chartMod.runTraditionalChartSelfTests()],
+   ['标准命例交叉核验',await standardMod.runStandardCaseSuite()]
   ];
   for(const [suite,result] of suites)for(const t of result.tests)tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
  }catch(err){
