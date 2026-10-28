@@ -69,6 +69,13 @@ function getLunarParts(lunar) {
   const eight = lunar.getEightChar();
   const yearGan = lunar.getYearGan ? lunar.getYearGan() : eight.getYearGan();
   const yearZhi = lunar.getYearZhi ? lunar.getYearZhi() : eight.getYearZhi();
+  const monthGan = eight.getMonthGan();
+  const monthZhi = eight.getMonthZhi();
+  const dayGan = eight.getDayGan();
+  const dayZhi = eight.getDayZhi();
+  const timeGan = eight.getTimeGan();
+  const timeZhi = eight.getTimeZhi();
+  const fourPillars = [yearGan+yearZhi, monthGan+monthZhi, dayGan+dayZhi, timeGan+timeZhi].join(' ');
   return {
     lunarYear:lunar.getYear(),
     lunarMonth:Math.abs(lunar.getMonth()),
@@ -76,7 +83,9 @@ function getLunarParts(lunar) {
     isLeapMonth:typeof lunar.getMonth==='function' && lunar.getMonth()<0,
     yearStemIndex:stemIndex(yearGan),
     yearBranchIndex:branchIndex(yearZhi),
-    yearGan,yearZhi
+    yearGan,yearZhi,
+    monthGan,monthZhi,dayGan,dayZhi,timeGan,timeZhi,
+    fourPillars
   };
 }
 
