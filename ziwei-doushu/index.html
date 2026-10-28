@@ -187,7 +187,7 @@ function compactChartHTML(chart,meta,title){
 function renderComparison(a,b,input){
  let box=document.getElementById('comparisonResult');
  if(!box){box=document.createElement('div');box.id='comparisonResult';$('result').appendChild(box);}
- box.innerHTML='<div class="card"><h2>双规则命盘对比</h2><div class="system-note">说明：下方是真正分别计算出的两份命盘，但目前两边共用 iztro 基础排盘引擎，差异来自明确配置的晚子时与闰月规则；这还不是两套完全独立的流派算法。相同输入和相同规则时，结果相同是正常现象。</div><div class="compare-grid">'+compactChartHTML(a.chart,a,'《天纪》参考口径')+compactChartHTML(b.chart,b,'通用对照口径')+'</div></div>';
+ box.innerHTML='<div class="card"><h2>双引擎命盘对比</h2><div class="system-note">说明：左侧由 iztro 参考引擎生成，右侧由项目内独立传统实验引擎生成；两侧算法实现不同，但右侧尚未通过完整标准命例逐盘验证。《天纪》专属规则也尚未得到原始资料完整核实，因此左侧仅标记为参考盘，不宣称完整复现《天纪》。请将结果用于算法核对，不视为准确性保证。</div><div class="compare-grid">'+compactChartHTML(a.chart,a,'iztro 参考盘（《天纪》口径待核验）')+compactChartHTML(b.chart,b,'独立传统实验盘')+'</div></div>';
 }
 function runRuleSelfTests(){
  const tests=[];
@@ -210,7 +210,7 @@ $('chartForm').addEventListener('submit',async e=>{
   let primary,form;
   if($('system').value==='compare'){
     const tianjiProfile={lateZiRule:'current-day',leapRule:'next-month'};
-    const traditionalProfile={lateZiRule:'current-day',leapRule:'split'};
+    const traditionalProfile={lateZiRule:'next-day',leapRule:'split'};
     const a=chartForProfile(api,input,tianjiProfile);
     const b=await chartForIndependentProfile(input,traditionalProfile);
     primary=a;form={...input,...tianjiProfile,system:'compare',solarInfo:a.solarInfo,usedDate:a.usedDate,effectiveTimeIndex:a.effectiveTimeIndex};
