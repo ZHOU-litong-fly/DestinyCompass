@@ -79,13 +79,26 @@ function render(chart,form){
  const fields=[
  ['排盘体系',form.system==='compare'?'双体系对比':form.system==='traditional'?'通用传统体系':'《天纪》参考模式'],
  ['命主',form.person||'未填写'],['性别',form.gender],['公历日期',get(chart,['solarDate','公历日期'],form.date)],['农历日期',get(chart,['lunarDate','农历日期'],'—')],
- ['四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],'—')],['命宫',get(chart,['soul','命宫'],'—')],['身宫',get(chart,['body','身宫'],'—')]
+ ['四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],hourLabel(form.solarInfo?form.solarInfo.timeIndex:Number($('hour').value)))],['真太阳时',form.solarInfo?form.solarInfo.solarDate+' '+form.solarInfo.solarTime:'未校正'],['经度修正',form.solarInfo?form.solarInfo.longitudeCorrectionMinutes+' 分钟':'—'],['均时差',form.solarInfo?form.solarInfo.eotMinutes+' 分钟':'—'],['命宫',get(chart,['soul','命宫'],'—')],['身宫',get(chart,['body','身宫'],'—')]
  ];
  $('summary').innerHTML=fields.map(([k,v])=>'<div class="stat"><span>'+escapeHTML(k)+'</span><strong>'+escapeHTML(textValue(v)||'—')+'</strong></div>').join('');
  const ps=findPalaces(chart); $('palaces').innerHTML=ps.length?ps.map(palaceHTML).join(''):'<div class="center">未能读取宫位结构，请展开原始信息核对。</div>';
- $('raw').textContent=JSON.stringify(chart,null,2); $('error').textContent='';
+ $('raw').textContent=JSON.stringify({input:form,solarTimeCorrection:form.solarInfo,chart},null,2); $('error').textContent='';
  $('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
+function trueSolarCorrection(dateStr,timeStr,longitude,utcOffset){
+ const [y,m,d]=dateStr.split('-').map(Number),[hh,mm]=timeStr.split(':').map(Number);
+ const dayOfYear=Math.floor((Date.UTC(y,m-1,d)-Date.UTC(y,0,0))/86400000);
+ const gamma=2*Math.PI/365*(dayOfYear-1+(hh+mm/60-12)/24);
+ const eot=229.18*(0.000075+0.001868*Math.cos(gamma)-0.032077*Math.sin(gamma)-0.014615*Math.cos(2*gamma)-0.040849*Math.sin(2*gamma));
+ const longitudeCorrection=4*(longitude-15*utcOffset);
+ const corrected=new Date(Date.UTC(y,m-1,d,hh,mm)+(longitudeCorrection+eot)*60000);
+ const solarDate=corrected.getUTCFullYear()+'-'+String(corrected.getUTCMonth()+1).padStart(2,'0')+'-'+String(corrected.getUTCDate()).padStart(2,'0');
+ const sh=corrected.getUTCHours(),sm=corrected.getUTCMinutes();
+ const timeIndex=sh===23?12:sh===0?0:Math.floor((sh+1)/2);
+ return {solarDate,solarTime:String(sh).padStart(2,'0')+':'+String(sm).padStart(2,'0'),timeIndex,eotMinutes:Number(eot.toFixed(2)),longitudeCorrectionMinutes:Number(longitudeCorrection.toFixed(2)),totalCorrectionMinutes:Number((longitudeCorrection+eot).toFixed(2))};
+}
+function hourLabel(i){return ['早子时','丑时','寅时','卯时','辰时','巳时','午时','未时','申时','酉时','戌时','亥时','晚子时'][i]||'未知';}
 let astroLib=null;
 async function loadEngine(){
  if(astroLib)return astroLib;
@@ -98,14 +111,22 @@ $('chartForm').addEventListener('submit',async e=>{
  e.preventDefault();$('error').textContent='正在加载排盘引擎并计算……';
  try{
  const api=await loadEngine();const date=$('birthDate').value;if(!date)throw new Error('请填写出生日期。');
- const ti=Number($('hour').value),gender=normalizeGender($('gender').value),type=calendar.value;
- let chart;
- if(type==='lunar') chart=api.astro.byLunar(date,ti,gender,$('leap').value==='true',true,'zh-CN');
- else chart=api.astro.bySolar(date,ti,gender,true,'zh-CN');
- render(chart,{person:$('person').value.trim(),gender,date,place:$('place').value.trim(),system:$('system').value});
+ const gender=normalizeGender($('gender').value),type=calendar.value;let ti=Number($('hour').value),chart,usedDate=date,solarInfo=null;
+ if(type==='lunar'){chart=api.astro.byLunar(date,ti,gender,$('leap').value==='true',true,'zh-CN');}
+ else{
+ const lat=$('latitude').value.trim(),lon=$('longitude').value.trim(),time=$('birthTime').value;
+ if(lat!==''&&lon!==''){
+ const la=Number(lat),lo=Number(lon),offset=Number($('utcOffset').value);
+ if(!Number.isFinite(la)||la < -90||la > 90||!Number.isFinite(lo)||lo < -180||lo > 180)throw new Error('经纬度超出有效范围。');
+ solarInfo=trueSolarCorrection(date,time,lo,offset);usedDate=solarInfo.solarDate;ti=solarInfo.timeIndex;
+ }else if(lat!==''||lon!=='')throw new Error('请同时填写纬度和经度，或清空两项以跳过真太阳时校正。');
+ else{const hh=Number((time||'12:00').split(':')[0]);ti=hh===23?12:hh===0?0:Math.floor((hh+1)/2);}
+ chart=api.astro.bySolar(usedDate,ti,gender,true,'zh-CN');
+ }
+ render(chart,{person:$('person').value.trim(),gender,date,place:$('place').value.trim(),system:$('system').value,solarInfo,usedDate,time:$('birthTime').value,utcOffset:$('utcOffset').value,latitude:$('latitude').value,longitude:$('longitude').value,calendar:type});
  }catch(err){$('error').textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
 });
-$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('leapWrap').hidden=true;$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;});
+$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='9';$('leapWrap').hidden=true;$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;});
 $('download').addEventListener('click',()=>{if(!lastChart)return;const blob=new Blob([JSON.stringify(lastChart,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ziwei-chart.json';a.click();URL.revokeObjectURL(url);});
 $('print').addEventListener('click',()=>window.print());
 </script>
