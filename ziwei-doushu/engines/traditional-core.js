@@ -45,6 +45,20 @@ export function sexagenaryIndex(stemIndex,branchIndex){
  return -1;
 }
 
+/** 按农历月份与时辰地支独立定位命宫、身宫。 */
+export function locateMingShen(lunarMonth,hourBranchIndex){
+ assertIntRange(lunarMonth,1,12,'农历月份');
+ assertIntRange(hourBranchIndex,0,11,'时辰地支索引');
+ const monthBranchIndex=mod(2+(lunarMonth-1),12); // 寅起正月，顺数至生月
+ const mingBranchIndex=mod(monthBranchIndex-hourBranchIndex,12); // 逆数至生时
+ const shenBranchIndex=mod(monthBranchIndex+hourBranchIndex,12); // 顺数至生时
+ return {
+  monthBranchIndex,monthBranch:BRANCHES[monthBranchIndex],
+  mingBranchIndex,mingBranch:BRANCHES[mingBranchIndex],
+  shenBranchIndex,shenBranch:BRANCHES[shenBranchIndex]
+ };
+}
+
 /** 由宫干支的纳音五行确定五行局数。 */
 export function fiveElementsBureau(yearStemIndex,mingBranchIndex){
  const stem=palaceStemIndex(yearStemIndex,mingBranchIndex);
@@ -94,7 +108,9 @@ export function runTraditionalEngineSelfTests(){
  const check=(name,actual,expected)=>tests.push({name,actual,expected,pass:JSON.stringify(actual)===JSON.stringify(expected)});
  check('甲年寅宫起丙',yinPalaceStemIndex(0),2);
  check('乙年寅宫起戊',yinPalaceStemIndex(1),4);
- check('甲年命宫在子，宫干为甲',palaceStemIndex(0,0),0);\n check('农历五月子时命身同在午', [locateMingShen(5,0).mingBranch,locateMingShen(5,0).shenBranch], ['午','午']);\n check('农历三月午时命身同在戌', [locateMingShen(3,6).mingBranch,locateMingShen(3,6).shenBranch], ['戌','戌']);
+ check('甲年命宫在子，宫干为甲',palaceStemIndex(0,0),0);
+ check('农历五月子时命身同在午', [locateMingShen(5,0).mingBranch,locateMingShen(5,0).shenBranch], ['午','午']);
+ check('农历三月午时命身同在戌', [locateMingShen(3,6).mingBranch,locateMingShen(3,6).shenBranch], ['戌','戌']);
  check('甲子纳音金局',fiveElementsBureau(0,0).bureau,4);
  check('甲年命宫在寅，丙寅纳音火六局',fiveElementsBureau(0,2).bureau,6);
  check('水二局初一紫微在丑',locateZiwei(1,2).branch,'丑');
