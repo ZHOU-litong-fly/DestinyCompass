@@ -25,15 +25,19 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <div class="field"><label for="person">姓名（选填）</label><input id="person" maxlength="40" placeholder="命主"></div>
 <div class="field"><label for="gender">性别</label><select id="gender"><option value="男">男</option><option value="女">女</option></select></div>
 <div class="field"><label for="birthDate">公历出生日期</label><input id="birthDate" type="date" required value="1990-01-01"></div>
-<div class="field"><label for="hour">出生时辰</label><select id="hour">
+<div class="field"><label for="birthTime">当地出生时间</label><input id="birthTime" type="time" value="12:00" required></div>
+<div class="field"><label for="hour">出生时辰（备用）</label><select id="hour">
 <option value="0">早子时（00:00–00:59）</option><option value="1">丑时（01:00–02:59）</option><option value="2">寅时（03:00–04:59）</option><option value="3">卯时（05:00–06:59）</option><option value="4">辰时（07:00–08:59）</option><option value="5">巳时（09:00–10:59）</option><option value="6">午时（11:00–12:59）</option><option value="7">未时（13:00–14:59）</option><option value="8">申时（15:00–16:59）</option><option value="9">酉时（17:00–18:59）</option><option value="10">戌时（19:00–20:59）</option><option value="11">亥时（21:00–22:59）</option><option value="12">晚子时（23:00–23:59）</option>
 </select></div>
 <div class="field"><label for="place">出生地点（选填）</label><input id="place" maxlength="80" placeholder="例如：甘肃天水 / 东京"></div>
+<div class="field"><label for="utcOffset">出生时区 UTC 偏移</label><select id="utcOffset"><option value="-8">UTC−8</option><option value="-5">UTC−5</option><option value="0">UTC±0</option><option value="1">UTC+1</option><option value="5.5">UTC+5:30</option><option value="6">UTC+6</option><option value="7">UTC+7</option><option value="8">UTC+8（中国）</option><option value="9" selected>UTC+9（日本）</option><option value="10">UTC+10</option><option value="12">UTC+12</option></select></div>
+<div class="field"><label for="latitude">纬度（北正南负）</label><input id="latitude" type="number" min="-90" max="90" step="0.0001" placeholder="例如：34.58"></div>
+<div class="field"><label for="longitude">经度（东正西负）</label><input id="longitude" type="number" min="-180" max="180" step="0.0001" placeholder="例如：105.72"></div>
 <div class="field"><label for="calendar">历法</label><select id="calendar"><option value="solar">公历</option><option value="lunar">农历</option></select></div>
 <div class="field" id="leapWrap" hidden><label for="leap">是否闰月</label><select id="leap"><option value="false">非闰月</option><option value="true">闰月</option></select></div>
 <div class="field"><label for="system">排盘体系</label><select id="system"><option value="tianji">倪海厦《天纪》参考模式</option><option value="traditional">通用传统紫微斗数</option><option value="compare">双体系对比模式</option></select></div>
 </div><div id="systemNote" class="hint">《天纪》参考模式：当前先使用已接入的基础排盘引擎。涉及倪海厦特有口径的规则，待逐项核实后再独立实现，避免未经验证就宣称完全复现。</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
-<div class="hint">说明：此版本使用开源排盘引擎 iztro。出生地点目前仅记录，不会自动进行真太阳时换算；出生时间不确定时，建议分别排相邻时辰核对。</div><div id="error" class="error" role="alert"></div></form></section>
+<div class="hint">说明：此版本使用开源排盘引擎 iztro。填写当地出生时间、UTC 偏移和经纬度后可自动校正真太阳时；历史夏令时需手动选择出生当日实际 UTC 偏移。农历输入暂不校正。</div><div id="error" class="error" role="alert"></div></form></section>
 <section id="result" hidden>
 <div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div><div id="systemStatus" class="system-note"></div></div>
 <div class="card"><h2>十二宫命盘</h2><div class="palace-grid" id="palaces"></div><p class="hint">宫位按排盘引擎返回的数据展示。不同门派的闰月、晚子时、四化及亮度规则可能存在差异。</p></div>
