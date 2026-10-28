@@ -7,12 +7,14 @@ import { runTraditionalEngineSelfTests, locateZiwei, arrangeFourteenMajorStars, 
 import { ZIWEI_REFERENCE_TABLE } from './ziwei-reference-table.js';
 import { runTianjiPolicySelfTests } from './tianji-reference-policy.js';
 import { runAuxiliaryStarSelfTests, locateZuofuYoubi, locateWenchangWenqu, locateLucunQingyangTuoluo, locateTiankuiTianyue, locateTianma, locateDikongDijie, locateHuoxingLingxing } from './auxiliary-stars.js';
+import { runTraditionalChartSelfTests } from './traditional-chart.js';
 
 export function runZiweiRegressionSuite() {
   const suites = [
     { name: '传统核心规则', result: runTraditionalEngineSelfTests() },
     { name: '《天纪》参考口径边界', result: runTianjiPolicySelfTests() },
-    { name: '辅星基础定位', result: runAuxiliaryStarSelfTests() }
+    { name: '辅星基础定位', result: runAuxiliaryStarSelfTests() },
+    { name: '独立传统命盘组装', result: runTraditionalChartSelfTests() }
   ];
   const exhaustive = [];
   // 对固定参考表逐项比对，而非仅检查输出范围。
