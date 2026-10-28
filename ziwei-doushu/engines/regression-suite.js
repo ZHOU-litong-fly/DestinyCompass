@@ -8,7 +8,7 @@ import { ZIWEI_REFERENCE_TABLE } from './ziwei-reference-table.js';
 import { runTianjiPolicySelfTests } from './tianji-reference-policy.js';
 import { runAuxiliaryStarSelfTests, locateZuofuYoubi, locateWenchangWenqu, locateLucunQingyangTuoluo, locateTiankuiTianyue, locateTianma, locateDikongDijie, locateHuoxingLingxing } from './auxiliary-stars.js';
 import { runTraditionalChartSelfTests } from './traditional-chart.js';
-import { runTianjiEngineSelfTests, calculateTianjiBureau } from './tianji-engine.js';
+import { runTianjiEngineSelfTests, calculateTianjiBureau, locateTianjiMingShen, locateTianjiZiwei, arrangeTianjiMajorStars } from './tianji-engine.js';
 
 export function runZiweiRegressionSuite() {
   const suites = [
@@ -90,21 +90,36 @@ export function runZiweiRegressionSuite() {
       exhaustive.push({ name: '铃星位置范围：年支' + yearBranch + '时' + hour, pass: stars.lingxingBranchIndex >= 0 && stars.lingxingBranchIndex < 12 });
     }
   }
-  // Cross-check independent five-elements-bureau formulas for all 60 valid year pillars,
+  // Cross-check independent Ming/Shen palace, bureau, Ziwei position and major-star formulas for all 60 valid year pillars,
   // 12 lunar months and 12 birth hours: 60 * 12 * 12 = 8640 cases.
   for (let stem = 0; stem < 10; stem++) {
     for (let yearBranch = 0; yearBranch < 12; yearBranch++) {
       if ((stem % 2) !== (yearBranch % 2)) continue;
       for (let month = 1; month <= 12; month++) {
         for (let hour = 0; hour < 12; hour++) {
-          const { mingBranchIndex } = locateMingShen(month, hour);
-          const tianjiBureau = calculateTianjiBureau(stem, mingBranchIndex).bureau;
-          const traditionalBureau = fiveElementsBureau(stem, mingBranchIndex).bureau;
+          const tianjiMingShen = locateTianjiMingShen(month, hour);
+          const traditionalMingShen = locateMingShen(month, hour);
+          const tianjiBureau = calculateTianjiBureau(stem, tianjiMingShen.mingBranchIndex).bureau;
+          const traditionalBureau = fiveElementsBureau(stem, traditionalMingShen.mingBranchIndex).bureau;
+          const tianjiZiwei = locateTianjiZiwei(15, tianjiBureau);
+          const traditionalZiwei = locateZiwei(15, traditionalBureau);
+          const tianjiStars = arrangeTianjiMajorStars(tianjiZiwei.branchIndex).starsByBranch
+            .map((stars, branchIndex) => [branchIndex, stars]);
+          const traditionalStars = arrangeFourteenMajorStars(traditionalZiwei.branchIndex).starsByBranch
+            .map(({ branchIndex, stars }) => [branchIndex, stars]);
+          const actual = [
+            tianjiMingShen.mingBranchIndex, tianjiMingShen.shenBranchIndex,
+            tianjiBureau, tianjiZiwei.branchIndex, tianjiStars
+          ];
+          const expected = [
+            traditionalMingShen.mingBranchIndex, traditionalMingShen.shenBranchIndex,
+            traditionalBureau, traditionalZiwei.branchIndex, traditionalStars
+          ];
           exhaustive.push({
-            name: '双引擎五行局交叉核验：年干' + stem + '年支' + yearBranch + '月' + month + '时' + hour,
-            pass: tianjiBureau === traditionalBureau,
-            actual: tianjiBureau,
-            expected: traditionalBureau
+            name: '双引擎核心公式交叉核验：年干' + stem + '年支' + yearBranch + '月' + month + '时' + hour,
+            pass: JSON.stringify(actual) === JSON.stringify(expected),
+            actual,
+            expected
           });
         }
       }
