@@ -168,27 +168,29 @@ async function runRuleSelfTests(){
  const out=document.getElementById('ruleTests');
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
-  const [calendarMod,coreMod,traditionalMod,auxMod,policyMod,chartMod,tianjiMod,standardMod]=await Promise.all([
-   import('./engines/calendar-layer.js'),import('./engines/core-rules.js'),
-   import('./engines/traditional-core.js'),import('./engines/auxiliary-stars.js'),
-   import('./engines/tianji-reference-policy.js'),import('./engines/traditional-chart.js'),import('./engines/tianji-engine.js'),import('./engines/standard-cases.js')
+  const [calendarMod,standardMod,regressionMod]=await Promise.all([
+   import('./engines/calendar-layer.js'),
+   import('./engines/standard-cases.js'),
+   import('./engines/regression-suite.js')
   ]);
   const suites=[
+   ['统一算法回归套件',regressionMod.runZiweiRegressionSuite()],
    ['历法适配层',calendarMod.runCalendarLayerSelfTests()],
    ['历法公开参考命例',await calendarMod.runCalendarReferenceCases()],
-   ['基础规则',coreMod.runCoreRuleSelfTests()],
-   ['传统核心安星',traditionalMod.runTraditionalEngineSelfTests()],
-   ['辅星定位',auxMod.runAuxiliaryStarSelfTests()],
-   ['《天纪》参考口径',policyMod.runTianjiPolicySelfTests()],
-   ['独立传统命盘组装',chartMod.runTraditionalChartSelfTests()],
-   ['《天纪》独立实验引擎',tianjiMod.runTianjiEngineSelfTests()],
    ['标准命例交叉核验',await standardMod.runStandardCaseSuite()]
   ];
-  for(const [suite,result] of suites)for(const t of result.tests)tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
+  for(const [suite,result] of suites){
+   if(result.exhaustive){
+    for(const t of result.suites.flatMap(s=>s.result.tests))tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
+    for(const t of result.exhaustive.tests)tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
+   }else{
+    for(const t of result.tests)tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
+   }
+  }
  }catch(err){
   tests.push({name:'模块集成测试加载',pass:false,actual:err?.message||String(err),expected:'所有算法模块成功加载并运行'});
  }
- out.innerHTML='<h3>规则自检结果：'+tests.filter(t=>t.pass).length+'/'+tests.length+' 通过</h3><p class="hint">包含历法参考转换、基础安星、辅星与命盘组装模块测试。通过不代表完整命例准确性已经得到证明。</p>'+tests.map(t=>'<div class="test-row '+(t.pass?'pass':'fail')+'"><strong>'+(t.pass?'通过':'失败')+' · '+escapeHTML(t.name)+'</strong><div>实际：'+escapeHTML(JSON.stringify(t.actual))+'</div><div>预期：'+escapeHTML(JSON.stringify(t.expected))+'</div></div>').join('');
+ out.innerHTML='<h3>规则自检结果：'+tests.filter(t=>t.pass).length+'/'+tests.length+' 通过</h3><p class="hint">包含独立双引擎回归、五行局交叉核验、历法转换与标准命例测试。通过不代表完整命盘预测准确性已经得到证明。</p>'+tests.map(t=>'<div class="test-row '+(t.pass?'pass':'fail')+'"><strong>'+(t.pass?'通过':'失败')+' · '+escapeHTML(t.name)+'</strong><div>实际：'+escapeHTML(JSON.stringify(t.actual))+'</div><div>预期：'+escapeHTML(JSON.stringify(t.expected))+'</div></div>').join('');
 }
 $('chartForm').addEventListener('submit',async e=>{
  e.preventDefault();$('error').textContent='正在加载排盘引擎并计算……';
