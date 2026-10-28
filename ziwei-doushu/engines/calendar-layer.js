@@ -67,15 +67,19 @@ function normalizeLeapMonth(year,month,day,rule,isLeap,Lunar,LunarYear,LunarMont
 }
 function getLunarParts(lunar) {
   const eight = lunar.getEightChar();
-  const yearGan = lunar.getYearGan ? lunar.getYearGan() : eight.getYearGan();
-  const yearZhi = lunar.getYearZhi ? lunar.getYearZhi() : eight.getYearZhi();
-  const monthGan = eight.getMonthGan();
-  const monthZhi = eight.getMonthZhi();
-  const dayGan = eight.getDayGan();
-  const dayZhi = eight.getDayZhi();
-  const timeGan = eight.getTimeGan();
-  const timeZhi = eight.getTimeZhi();
-  const fourPillars = [yearGan+yearZhi, monthGan+monthZhi, dayGan+dayZhi, timeGan+timeZhi].join(' ');
+  // 直接读取历法库已经计算好的完整干支柱，避免个别版本的单字 accessor 返回异常值。
+  const yearPillar = String(eight.getYear ? eight.getYear() : lunar.getYearInGanZhiExact());
+  const monthPillar = String(eight.getMonth ? eight.getMonth() : lunar.getMonthInGanZhiExact());
+  const dayPillar = String(eight.getDay ? eight.getDay() : lunar.getDayInGanZhiExact2());
+  const timePillar = String(eight.getTime ? eight.getTime() : lunar.getTimeInGanZhi());
+  const validPillar = value => /^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/.test(value);
+  for (const [label, value] of [['年柱',yearPillar],['月柱',monthPillar],['日柱',dayPillar],['时柱',timePillar]]) {
+    if (!validPillar(value)) throw new Error('历法库返回的'+label+'异常：'+value+'。请刷新后重试。');
+  }
+  const yearGan = yearPillar[0], yearZhi = yearPillar[1];
+  const monthGan = monthPillar[0], monthZhi = monthPillar[1];
+  const dayGan = dayPillar[0], dayZhi = dayPillar[1];
+  const timeGan = timePillar[0], timeZhi = timePillar[1];
   return {
     lunarYear:lunar.getYear(),
     lunarMonth:Math.abs(lunar.getMonth()),
@@ -83,9 +87,8 @@ function getLunarParts(lunar) {
     isLeapMonth:typeof lunar.getMonth==='function' && lunar.getMonth()<0,
     yearStemIndex:stemIndex(yearGan),
     yearBranchIndex:branchIndex(yearZhi),
-    yearGan,yearZhi,
-    monthGan,monthZhi,dayGan,dayZhi,timeGan,timeZhi,
-    fourPillars
+    yearGan,yearZhi,monthGan,monthZhi,dayGan,dayZhi,timeGan,timeZhi,
+    fourPillars:[yearPillar,monthPillar,dayPillar,timePillar].join(' ')
   };
 }
 
