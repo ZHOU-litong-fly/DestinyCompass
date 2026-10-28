@@ -67,15 +67,31 @@ function normalizeLeapMonth(year,month,day,rule,isLeap,Lunar,LunarYear,LunarMont
 }
 function getLunarParts(lunar) {
   const eight = lunar.getEightChar();
-  // 直接读取历法库已经计算好的完整干支柱，避免个别版本的单字 accessor 返回异常值。
-  const yearPillar = String(eight.getYear ? eight.getYear() : lunar.getYearInGanZhiExact());
-  const monthPillar = String(eight.getMonth ? eight.getMonth() : lunar.getMonthInGanZhiExact());
-  const dayPillar = String(eight.getDay ? eight.getDay() : lunar.getDayInGanZhiExact2());
-  const timePillar = String(eight.getTime ? eight.getTime() : lunar.getTimeInGanZhi());
-  const validPillar = value => /^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/.test(value);
-  for (const [label, value] of [['年柱',yearPillar],['月柱',monthPillar],['日柱',dayPillar],['时柱',timePillar]]) {
-    if (!validPillar(value)) throw new Error('历法库返回的'+label+'异常：'+value+'。请刷新后重试。');
-  }
+  const validPillar = value => /^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/.test(String(value || '').trim());
+  // 不再只信任单一 API：优先使用 Lunar 的完整干支接口，失败时回退到 EightChar，
+  // 每个候选值都先做干支格式校验，避免 NaN/undefined 被拼进命盘。
+  const choosePillar = (label, candidates) => {
+    for (const candidate of candidates) {
+      try {
+        const value = typeof candidate === 'function' ? candidate() : candidate;
+        const normalized = String(value || '').trim();
+        if (validPillar(normalized)) return normalized;
+      } catch (_) {}
+    }
+    throw new Error('历法库无法计算'+label+'，请检查出生日期、时间或历法库加载情况。');
+  };
+  const yearPillar = choosePillar('年柱', [
+    () => lunar.getYearInGanZhiExact?.(), () => eight.getYear?.()
+  ]);
+  const monthPillar = choosePillar('月柱', [
+    () => lunar.getMonthInGanZhiExact?.(), () => eight.getMonth?.(), () => lunar.getMonthInGanZhi?.()
+  ]);
+  const dayPillar = choosePillar('日柱', [
+    () => lunar.getDayInGanZhiExact2?.(), () => eight.getDay?.(), () => lunar.getDayInGanZhi?.()
+  ]);
+  const timePillar = choosePillar('时柱', [
+    () => lunar.getTimeInGanZhi?.(), () => eight.getTime?.()
+  ]);
   const yearGan = yearPillar[0], yearZhi = yearPillar[1];
   const monthGan = monthPillar[0], monthZhi = monthPillar[1];
   const dayGan = dayPillar[0], dayZhi = dayPillar[1];
