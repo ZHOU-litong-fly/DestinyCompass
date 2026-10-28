@@ -10,7 +10,7 @@
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1a2b45 0,#0b1220 55%);color:#f3f0e8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.5}
 .wrap{max-width:1100px;margin:auto;padding:22px 16px 40px}.hero{text-align:center;padding:22px 8px 18px}.seal{display:inline-block;border:1px solid var(--gold);color:var(--gold);padding:4px 10px;letter-spacing:3px;font-size:12px}.hero h1{font-size:clamp(28px,5vw,42px);letter-spacing:4px;margin:12px 0 4px}.hero p{color:var(--muted);margin:0;font-size:14px}
 .card{background:linear-gradient(145deg,rgba(22,36,57,.96),rgba(15,26,43,.96));border:1px solid var(--line);border-radius:16px;padding:20px;margin:14px 0;box-shadow:0 12px 35px #0002}
-h2{font-size:18px;margin:0 0 16px;color:var(--gold)}.formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}.field input,.field select{width:100%;min-height:44px;background:#0c1728;color:#f6f2e9;border:1px solid #42536b;border-radius:9px;padding:9px 10px;font-size:15px;min-width:0}.field input:focus,.field select:focus{outline:2px solid #d9b86f;border-color:transparent}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer}.primary{background:var(--gold);color:#182033}.secondary{background:#25364e;color:#fff;border:1px solid #4a5c73}.hint{font-size:12px;color:var(--muted);margin-top:12px}.error{color:#ffb7b7;margin-top:10px;white-space:pre-wrap}
+h2{font-size:18px;margin:0 0 16px;color:var(--gold)}.formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}.field input,.field select{width:100%;min-height:44px;background:#0c1728;color:#f6f2e9;border:1px solid #42536b;border-radius:9px;padding:9px 10px;font-size:15px;min-width:0}.field input:focus,.field select:focus{outline:2px solid #d9b86f;border-color:transparent}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer}.primary{background:var(--gold);color:#182033}.secondary{background:#25364e;color:#fff;border:1px solid #4a5c73}.hint{font-size:12px;color:var(--muted);margin-top:12px}.system-note{border:1px solid #8b7444;background:#2a2519;color:#f0dba6;padding:12px;border-radius:10px;margin:12px 0;font-size:13px}.system-pill{display:inline-block;border:1px solid #8b7444;border-radius:999px;padding:3px 8px;color:var(--gold);font-size:11px;margin:2px 4px 2px 0}.error{color:#ffb7b7;margin-top:10px;white-space:pre-wrap}
 .summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat{padding:12px;border:1px solid var(--line);border-radius:10px;background:#0c1728}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;margin-top:5px;font-size:15px;overflow-wrap:anywhere}
 .palace-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.palace{min-height:142px;border:1px solid #4a5b72;border-radius:10px;padding:10px;background:linear-gradient(160deg,#182941,#101c2e);overflow-wrap:anywhere}.palace .name{font-weight:700;color:var(--gold);font-size:14px;display:flex;justify-content:space-between;gap:4px}.palace .branch{font-size:11px;color:var(--muted)}.stars{font-size:13px;line-height:1.8;margin-top:8px}.major{color:#f3d28b}.minor{color:#c9d8ee}.tags{font-size:11px;color:#eaa5a5;margin-top:6px}.center{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px dashed #65748a;border-radius:10px;padding:14px;color:var(--muted);font-size:13px;min-height:142px}
 details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;color:var(--gold)}pre{white-space:pre-wrap;word-break:break-word;color:#c8d5e8;font-size:12px;max-height:400px;overflow:auto}.footer{text-align:center;color:#8492a8;font-size:12px;padding:20px 4px}
@@ -31,10 +31,11 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <div class="field"><label for="place">出生地点（选填）</label><input id="place" maxlength="80" placeholder="例如：甘肃天水 / 东京"></div>
 <div class="field"><label for="calendar">历法</label><select id="calendar"><option value="solar">公历</option><option value="lunar">农历</option></select></div>
 <div class="field" id="leapWrap" hidden><label for="leap">是否闰月</label><select id="leap"><option value="false">非闰月</option><option value="true">闰月</option></select></div>
-</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
+<div class="field"><label for="system">排盘体系</label><select id="system"><option value="tianji">倪海厦《天纪》参考模式</option><option value="traditional">通用传统紫微斗数</option><option value="compare">双体系对比模式</option></select></div>
+</div><div id="systemNote" class="hint">《天纪》参考模式：当前先使用已接入的基础排盘引擎。涉及倪海厦特有口径的规则，待逐项核实后再独立实现，避免未经验证就宣称完全复现。</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
 <div class="hint">说明：此版本使用开源排盘引擎 iztro。出生地点目前仅记录，不会自动进行真太阳时换算；出生时间不确定时，建议分别排相邻时辰核对。</div><div id="error" class="error" role="alert"></div></form></section>
 <section id="result" hidden>
-<div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div></div>
+<div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div><div id="systemStatus" class="system-note"></div></div>
 <div class="card"><h2>十二宫命盘</h2><div class="palace-grid" id="palaces"></div><p class="hint">宫位按排盘引擎返回的数据展示。不同门派的闰月、晚子时、四化及亮度规则可能存在差异。</p></div>
 <div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button></div></div>
 </section>
@@ -43,6 +44,13 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <script type="module">
 const $=id=>document.getElementById(id);
 const calendar=$('calendar'); calendar.addEventListener('change',()=>{$('leapWrap').hidden=calendar.value!=='lunar';});
+const systemNotes={
+ tianji:'《天纪》参考模式：当前使用已接入的基础排盘引擎作为底盘。倪海厦体系的特殊规则必须逐项根据可靠资料核验后才会启用。',
+ traditional:'通用传统模式：当前使用 iztro 开源引擎计算。具体流派对闰月、子时、四化等规则仍可能有差异。',
+ compare:'双体系对比：当前阶段先并列展示两套规则配置与核验状态。尚未完成独立规则实现前，不会伪造两套不同的命盘结果。'
+};
+$('system').addEventListener('change',()=>{$('systemNote').textContent=systemNotes[$('system').value];});
+$('systemNote').textContent=systemNotes[$('system').value];
 let lastChart=null;
 const normalizeGender=g=>g==='男'?'男':'女';
 const get=(obj,keys,fallback='')=>{for(const k of keys){if(obj&&obj[k]!==undefined&&obj[k]!==null)return obj[k]}return fallback};
@@ -61,7 +69,15 @@ function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':
 function findPalaces(chart){let p=get(chart,['palaces','十二宫','houses'],[]);if(Array.isArray(p))return p;if(p&&typeof p==='object')return Object.values(p);return []}
 function render(chart,form){
  lastChart=chart; $('result').hidden=false;
+ const sys=form.system||'tianji';
+ const status={
+ tianji:'<span class="system-pill">《天纪》参考模式</span>当前显示的是基础引擎计算结果。尚未验证的《天纪》专属规则不会被标记为已实现。',
+ traditional:'<span class="system-pill">通用传统体系</span>当前由 iztro 引擎生成。遇到不同门派规则时，请以所选口径及命例核验为准。',
+ compare:'<span class="system-pill">《天纪》参考模式</span><span class="system-pill">通用传统体系</span>双体系界面已建立，但目前尚未完成独立算法配置与逐项命例验证，因此不会把同一份计算结果伪装成两套不同结果。下一阶段将核对差异规则，再启用真正的并排对照。'
+ };
+ $('systemStatus').innerHTML=status[sys];
  const fields=[
+ ['排盘体系',form.system==='compare'?'双体系对比':form.system==='traditional'?'通用传统体系':'《天纪》参考模式'],
  ['命主',form.person||'未填写'],['性别',form.gender],['公历日期',get(chart,['solarDate','公历日期'],form.date)],['农历日期',get(chart,['lunarDate','农历日期'],'—')],
  ['四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],'—')],['命宫',get(chart,['soul','命宫'],'—')],['身宫',get(chart,['body','身宫'],'—')]
  ];
@@ -86,10 +102,10 @@ $('chartForm').addEventListener('submit',async e=>{
  let chart;
  if(type==='lunar') chart=api.astro.byLunar(date,ti,gender,$('leap').value==='true',true,'zh-CN');
  else chart=api.astro.bySolar(date,ti,gender,true,'zh-CN');
- render(chart,{person:$('person').value.trim(),gender,date,place:$('place').value.trim()});
+ render(chart,{person:$('person').value.trim(),gender,date,place:$('place').value.trim(),system:$('system').value});
  }catch(err){$('error').textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
 });
-$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('leapWrap').hidden=true;$('result').hidden=true;$('error').textContent='';lastChart=null;});
+$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('leapWrap').hidden=true;$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;});
 $('download').addEventListener('click',()=>{if(!lastChart)return;const blob=new Blob([JSON.stringify(lastChart,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ziwei-chart.json';a.click();URL.revokeObjectURL(url);});
 $('print').addEventListener('click',()=>window.print());
 </script>
