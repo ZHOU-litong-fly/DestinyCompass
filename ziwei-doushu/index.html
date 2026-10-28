@@ -158,7 +158,7 @@ function renderComparison(a,b,input){
  box.innerHTML='<div class="card"><h2>双引擎命盘对比</h2><div class="system-note">说明：左侧由独立《天机道》规则实验引擎生成，右侧由项目内通用传统实验引擎生成，两侧不共享核心排星算法。闰月整月归下月有公开《天机道》文本依据；晚子时、部分辅煞星与四化细则仍需原始资料逐条核验。两侧均需更多标准命例验证，请勿将算法一致性视为预测准确性保证。</div><div class="compare-grid">'+compactChartHTML(a.chart,a,'《天纪》规则实验盘')+compactChartHTML(b.chart,b,'通用传统实验盘')+'</div></div>';
 }
 async function runRuleSelfTests(){
- const tests=[];
+ const tests=[],suiteSummaries=[];
  const check=(name,actual,expected)=>tests.push({name,pass:JSON.stringify(actual)===JSON.stringify(expected),actual,expected});
  check('日期跨月：2024-01-31 + 1 天',shiftDate('2024-01-31',1),'2024-02-01');
  check('闰年跨日：2024-02-28 + 1 天',shiftDate('2024-02-28',1),'2024-02-29');
@@ -180,17 +180,18 @@ async function runRuleSelfTests(){
    ['标准命例交叉核验',await standardMod.runStandardCaseSuite()]
   ];
   for(const [suite,result] of suites){
+   let suiteTests;
    if(result.exhaustive){
-    for(const t of result.suites.flatMap(s=>s.result.tests))tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
-    for(const t of result.exhaustive.tests)tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
-   }else{
-    for(const t of result.tests)tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
-   }
+    suiteTests=[...result.suites.flatMap(s=>s.result.tests),...result.exhaustive.tests];
+   }else suiteTests=result.tests;
+   for(const t of suiteTests)tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
+   suiteSummaries.push({name:suite,passed:suiteTests.filter(t=>t.pass).length,total:suiteTests.length});
   }
  }catch(err){
   tests.push({name:'模块集成测试加载',pass:false,actual:err?.message||String(err),expected:'所有算法模块成功加载并运行'});
  }
- out.innerHTML='<h3>规则自检结果：'+tests.filter(t=>t.pass).length+'/'+tests.length+' 通过</h3><p class="hint">包含独立双引擎回归、五行局交叉核验、历法转换与标准命例测试。通过不代表完整命盘预测准确性已经得到证明。</p>'+tests.map(t=>'<div class="test-row '+(t.pass?'pass':'fail')+'"><strong>'+(t.pass?'通过':'失败')+' · '+escapeHTML(t.name)+'</strong><div>实际：'+escapeHTML(JSON.stringify(t.actual))+'</div><div>预期：'+escapeHTML(JSON.stringify(t.expected))+'</div></div>').join('');
+ const failed=tests.filter(t=>!t.pass);
+ out.innerHTML='<h3>规则自检结果：'+(tests.length-failed.length)+'/'+tests.length+' 通过</h3><p class="hint">包含独立双引擎回归、命宫/身宫/五行局/紫微与十四主星交叉核验、历法转换和标准命例测试。通过不代表完整命盘预测准确性已经得到证明。</p>'+suiteSummaries.map(s=>'<div class="test-row '+(s.passed===s.total?'pass':'fail')+'"><strong>'+(s.passed===s.total?'通过':'失败')+' · '+escapeHTML(s.name)+'</strong><div>'+s.passed+'/'+s.total+' 项通过</div></div>').join('')+(failed.length?'<h3>失败详情（'+failed.length+' 项）</h3>'+failed.map(t=>'<div class="test-row fail"><strong>失败 · '+escapeHTML(t.name)+'</strong><div>实际：'+escapeHTML(JSON.stringify(t.actual))+'</div><div>预期：'+escapeHTML(JSON.stringify(t.expected))+'</div></div>').join(''):'<p class="hint">所有检查通过。详细的逐项成功记录已折叠，避免手机页面生成数千行内容。</p>');
 }
 $('chartForm').addEventListener('submit',async e=>{
  e.preventDefault();$('error').textContent='正在加载排盘引擎并计算……';
