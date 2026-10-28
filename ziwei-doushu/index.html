@@ -38,15 +38,15 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <div class="field"><label for="system">排盘体系</label><select id="system"><option value="tianji">倪海厦《天纪》参考模式</option><option value="traditional">通用传统紫微斗数</option><option value="compare">双体系对比模式</option></select></div>
 <div class="field"><label for="lateZiRule">晚子时（23:00–23:59）</label><select id="lateZiRule"><option value="next-day" selected>按次日换日（默认）</option><option value="current-day">日柱保留当日</option></select></div>
 <div class="field" id="leapRuleWrap" hidden><label for="leapRule">闰月处理口径</label><select id="leapRule"><option value="next-month" selected>整月归下月（默认）</option><option value="split">初一至十五归前月，十六以后归下月</option><option value="prev-month">整月归前月</option><option value="origin-month">按闰月本月处理</option></select></div>
-</div><div id="systemNote" class="hint">《天纪》参考模式：《天纪》参考模式使用现有 iztro 引擎与待核验口径；通用传统模式将使用本项目独立实验引擎。两者算法状态会分别标注。</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
-<div class="hint">说明：参考模式使用 iztro；通用传统模式使用本项目独立实验引擎与 lunar-javascript 历法转换。晚子时默认按次日换日，可切换保留当日；闰月默认整月归下月。填写公历当地出生时间、UTC 偏移和经纬度后可校正真太阳时；历史时区及夏令时需手动核对。</div><div id="error" class="error" role="alert"></div></form></section>
+</div><div id="systemNote" class="hint">《天纪》规则实验引擎与通用传统实验引擎已接入；《天纪》部分规则仍需原始资料核验。</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
+<div class="hint">说明：两种排盘模式均使用项目内独立核心算法；公历/农历转换通过 lunar-javascript 完成。晚子时默认按次日换日，可切换保留当日；闰月默认整月归下月。填写公历当地出生时间、UTC 偏移和经纬度后可校正真太阳时；历史时区及夏令时需手动核对。</div><div id="error" class="error" role="alert"></div></form></section>
 <section id="result" hidden>
 <div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div><div id="systemStatus" class="system-note"></div></div>
 <div class="card"><h2>十二宫命盘</h2><div class="palace-grid" id="palaces"></div><p class="hint">宫位按排盘引擎返回的数据展示。不同门派的闰月、晚子时、四化及亮度规则可能存在差异。</p></div>
 <div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button><button class="btn secondary" id="runRuleTests" type="button" hidden>运行规则自检</button></div></div>
 <div id="ruleTests" class="card" hidden></div>
 </section>
-<footer class="footer">仅供传统文化学习与娱乐参考，不构成对现实人生的确定性预测。<br>参考引擎：iztro · 独立传统实验引擎：项目内算法模块</footer>
+<footer class="footer">仅供传统文化学习与娱乐参考，不构成对现实人生的确定性预测。<br>《天纪》规则实验引擎 · 通用传统独立实验引擎</footer>
 </main>
 <script type="module">
 const $=id=>document.getElementById(id);
