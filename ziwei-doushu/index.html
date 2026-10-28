@@ -38,23 +38,23 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <div class="field"><label for="system">排盘体系</label><select id="system"><option value="tianji">倪海厦《天纪》参考模式</option><option value="traditional">通用传统紫微斗数</option><option value="compare">双体系对比模式</option></select></div>
 <div class="field"><label for="lateZiRule">晚子时（23:00–23:59）</label><select id="lateZiRule"><option value="next-day" selected>按次日换日（默认）</option><option value="current-day">日柱保留当日</option></select></div>
 <div class="field" id="leapRuleWrap" hidden><label for="leapRule">闰月处理口径</label><select id="leapRule"><option value="next-month" selected>整月归下月（默认）</option><option value="split">初一至十五归前月，十六以后归下月</option><option value="prev-month">整月归前月</option><option value="origin-month">按闰月本月处理</option></select></div>
-</div><div id="systemNote" class="hint">《天纪》参考模式：当前先使用已接入的基础排盘引擎。涉及倪海厦特有口径的规则，待逐项核实后再独立实现，避免未经验证就宣称完全复现。</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
-<div class="hint">说明：此版本使用开源排盘引擎 iztro。晚子时默认按次日换日，可切换保留当日；闰月默认整月归下月，可选择十五分界、整月归前月或按闰月本月处理。填写公历当地出生时间、UTC 偏移和经纬度后可校正真太阳时；农历输入暂不校正真太阳时。</div><div id="error" class="error" role="alert"></div></form></section>
+</div><div id="systemNote" class="hint">《天纪》参考模式：《天纪》参考模式使用现有 iztro 引擎与待核验口径；通用传统模式将使用本项目独立实验引擎。两者算法状态会分别标注。</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
+<div class="hint">说明：参考模式使用 iztro；通用传统模式使用本项目独立实验引擎与 lunar-javascript 历法转换。晚子时默认按次日换日，可切换保留当日；闰月默认整月归下月。填写公历当地出生时间、UTC 偏移和经纬度后可校正真太阳时；历史时区及夏令时需手动核对。</div><div id="error" class="error" role="alert"></div></form></section>
 <section id="result" hidden>
 <div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div><div id="systemStatus" class="system-note"></div></div>
 <div class="card"><h2>十二宫命盘</h2><div class="palace-grid" id="palaces"></div><p class="hint">宫位按排盘引擎返回的数据展示。不同门派的闰月、晚子时、四化及亮度规则可能存在差异。</p></div>
 <div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button><button class="btn secondary" id="runRuleTests" type="button" hidden>运行规则自检</button></div></div>
 <div id="ruleTests" class="card" hidden></div>
 </section>
-<footer class="footer">仅供传统文化学习与娱乐参考，不构成对现实人生的确定性预测。<br>排盘引擎：iztro · 本工具为独立网页模块</footer>
+<footer class="footer">仅供传统文化学习与娱乐参考，不构成对现实人生的确定性预测。<br>参考引擎：iztro · 独立传统实验引擎：项目内算法模块</footer>
 </main>
 <script type="module">
 const $=id=>document.getElementById(id);
 const calendar=$('calendar'); calendar.addEventListener('change',()=>{$('leapWrap').hidden=calendar.value!=='lunar';$('leapRuleWrap').hidden=calendar.value!=='lunar';document.querySelector('label[for="birthDate"]').textContent=calendar.value==='lunar'?'农历出生日期（YYYY-MM-DD）':'公历出生日期';});
 const systemNotes={
- tianji:'《天纪》参考模式：当前使用已接入的基础排盘引擎作为底盘。倪海厦体系的特殊规则必须逐项根据可靠资料核验后才会启用。',
- traditional:'通用传统模式：当前使用 iztro 开源引擎计算。具体流派对闰月、子时、四化等规则仍可能有差异。',
- compare:'双体系对比：当前阶段先并列展示两套规则配置与核验状态。尚未完成独立规则实现前，不会伪造两套不同的命盘结果。'
+ tianji:'《天纪》参考模式：使用 iztro 作为参考底盘，口径配置尚未由倪海厦原始资料完整核实，不代表完整复现《天纪》。',
+ traditional:'通用传统模式：使用本项目不调用 iztro 的独立实验引擎；历法转换使用 lunar-javascript，安星规则仍需标准命例逐盘核验。',
+ compare:'双引擎对比：左侧为 iztro 参考盘，右侧为本项目独立传统实验盘。右侧尚未完成标准命例验盘；《天纪》专属算法仍未得到原始资料完整验证。'
 };
 $('system').addEventListener('change',()=>{$('systemNote').textContent=systemNotes[$('system').value];});
 $('systemNote').textContent=systemNotes[$('system').value];
@@ -67,7 +67,7 @@ function palaceHTML(p){
  const name=textValue(get(p,['name','earthlyBranch','branch','宫名'],'宫位'));
  const branch=textValue(get(p,['heavenlyStem','stem','干支'],''));
  const major=list(get(p,['majorStars','majorStar','主星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
- const minor=list(get(p,['minorStars','minorStar','辅星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
+ const minor=list(get(p,['minorStars','minorStar','auxiliaryStars','辅星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
  const adjective=list(get(p,['adjectiveStars','miscStars','杂曜'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
  const tags=[get(p,['decadal','大限'],null),get(p,['yearly','流年'],null)].filter(Boolean).map(textValue).join(' · ');
  return '<article class="palace"><div class="name"><span>'+escapeHTML(name)+'</span><span class="branch">'+escapeHTML(branch)+'</span></div><div class="stars">'+(major.length?'<div class="major">'+major.map(escapeHTML).join('、')+'</div>':'')+(minor.length?'<div class="minor">'+minor.map(escapeHTML).join('、')+'</div>':'')+(adjective.length?'<div>'+adjective.map(escapeHTML).join('、')+'</div>':'')+(!major.length&&!minor.length&&!adjective.length?'<span class="branch">星曜信息见原始数据</span>':'')+'</div>'+(tags?'<div class="tags">'+escapeHTML(tags)+'</div>':'')+'</article>';
@@ -80,13 +80,13 @@ function render(chart,form){
  const status={
  tianji:'<span class="system-pill">《天纪》参考模式</span>当前显示的是基础引擎计算结果。尚未验证的《天纪》专属规则不会被标记为已实现。',
  traditional:'<span class="system-pill">通用传统体系</span>当前由 iztro 引擎生成。遇到不同门派规则时，请以所选口径及命例核验为准。',
- compare:'<span class="system-pill">《天纪》参考模式</span><span class="system-pill">通用传统体系</span>双体系界面已建立，但目前尚未完成独立算法配置与逐项命例验证。已开始核对上游公开规则：该项目将晚子时“当日”与闰月“整月归下月”标为《天纪》参考口径；本网页尚未执行这些差异，不会伪造第二份命盘。'
+ compare:'<span class="system-pill">iztro 参考盘</span><span class="system-pill">独立传统实验盘</span>现在会分别运行两个不同的算法实现。独立传统引擎仍属实验版本，尚未完成标准命例逐盘验证；《天纪》专属规则未被宣称为已完整实现。'
  };
  $('systemStatus').innerHTML=status[sys];
  const fields=[
  ['排盘体系',form.system==='compare'?'双体系对比':form.system==='traditional'?'通用传统体系':'《天纪》参考模式'],
  ['命主',form.person||'未填写'],['性别',form.gender],['公历日期',get(chart,['solarDate','公历日期'],form.date)],['农历日期',get(chart,['lunarDate','农历日期'],'—')],
- ['四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],hourLabel(form.effectiveTimeIndex))],['晚子时口径',form.lateZiRule==='next-day'?'23点按次日换日':'23点保留当日'],['闰月口径',form.calendar==='lunar'?(form.leapMonth?(form.leapRule==='next-month'?'整月归下月':form.leapRule==='split'?'十五分界':form.leapRule==='prev-month'?'整月归前月':'闰月本月'): '非闰月'):'不适用'],['排盘采用日期',form.usedDate],['真太阳时',form.solarInfo?form.solarInfo.solarDate+' '+form.solarInfo.solarTime:'未校正'],['经度修正',form.solarInfo?form.solarInfo.longitudeCorrectionMinutes+' 分钟':'—'],['均时差',form.solarInfo?form.solarInfo.eotMinutes+' 分钟':'—'],['命宫',get(chart,['soul','命宫'],'—')],['身宫',get(chart,['body','身宫'],'—')]
+ ['四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],hourLabel(form.effectiveTimeIndex))],['晚子时口径',form.lateZiRule==='next-day'?'23点按次日换日':'23点保留当日'],['闰月口径',form.calendar==='lunar'?(form.leapMonth?(form.leapRule==='next-month'?'整月归下月':form.leapRule==='split'?'十五分界':form.leapRule==='prev-month'?'整月归前月':'闰月本月'): '非闰月'):'不适用'],['排盘采用日期',form.usedDate],['真太阳时',form.solarInfo?form.solarInfo.solarDate+' '+form.solarInfo.solarTime:'未校正'],['经度修正',form.solarInfo?form.solarInfo.longitudeCorrectionMinutes+' 分钟':'—'],['均时差',form.solarInfo?form.solarInfo.eotMinutes+' 分钟':'—'],['命宫',get(chart,['soul','mingShen.mingBranch','命宫'],'—')],['身宫',get(chart,['body','mingShen.shenBranch','身宫'],'—')]
  ];
  $('summary').innerHTML=fields.map(([k,v])=>'<div class="stat"><span>'+escapeHTML(k)+'</span><strong>'+escapeHTML(textValue(v)||'—')+'</strong></div>').join('');
  const ps=findPalaces(chart); $('palaces').innerHTML=ps.length?ps.map(palaceHTML).join(''):'<div class="center">未能读取宫位结构，请展开原始信息核对。</div>';
@@ -145,6 +145,35 @@ function chartForProfile(api, input, profile){
  }
  return {chart:api.astro.bySolar(usedDate,ti,gender,true,'zh-CN'),usedDate,solarInfo,effectiveTimeIndex:ti};
 }
+async function chartForIndependentProfile(input,profile){
+ const {resolveBirthCalendar}=await import('./engines/calendar-layer.js');
+ const {buildTraditionalChart}=await import('./engines/traditional-chart.js');
+ let date=input.date,time=input.time,ti=Number(input.hourIndex),solarInfo=null;
+ if(input.calendar==='solar'){
+  const hh=Number((input.time||'12:00').split(':')[0]);
+  if(input.latitude!==''&&input.longitude!==''){
+   const la=Number(input.latitude),lo=Number(input.longitude),offset=Number(input.utcOffset);
+   if(!Number.isFinite(la)||la < -90||la > 90||!Number.isFinite(lo)||lo < -180||lo > 180)throw new Error('经纬度超出有效范围。');
+   solarInfo=trueSolarCorrection(input.date,input.time,lo,offset);
+   date=solarInfo.solarDate;time=solarInfo.solarTime;ti=solarInfo.timeIndex;
+  }else if(input.latitude!==''||input.longitude!=='')throw new Error('请同时填写纬度和经度，或清空两项以跳过真太阳时校正。');
+  else ti=hh===23?12:hh===0?0:Math.floor((hh+1)/2);
+ }
+ const resolved=await resolveBirthCalendar({calendar:input.calendar,date,time,hourIndex:ti,leapMonth:input.leapMonth},profile);
+ const raw=buildTraditionalChart(resolved);
+ const view={
+  ...raw,
+  solarDate:resolved.solarDate,
+  lunarDate:resolved.lunarDate.year+'-'+String(resolved.lunarDate.month).padStart(2,'0')+'-'+String(resolved.lunarDate.day).padStart(2,'0')+(resolved.lunarDate.isLeapMonth?'（闰月）':''),
+  chineseDate:resolved.yearGan+resolved.yearZhi,
+  time:hourLabel(resolved.hourBranchIndex),
+  soul:raw.mingShen.mingBranch,
+  body:raw.mingShen.shenBranch,
+  fiveElementsClass:raw.bureau.bureauName,
+  palaces:raw.palaces.map(p=>({...p,minorStars:p.auxiliaryStars}))
+ };
+ return {chart:view,usedDate:resolved.solarDate,solarInfo,effectiveTimeIndex:resolved.hourBranchIndex,...profile,calendar:input.calendar,leapMonth:input.leapMonth};
+}
 function compactChartHTML(chart,meta,title){
  const ps=findPalaces(chart);
  const info=[
@@ -180,15 +209,22 @@ $('chartForm').addEventListener('submit',async e=>{
   const selected={lateZiRule:$('lateZiRule').value,leapRule:$('leapRule').value};
   let primary,form;
   if($('system').value==='compare'){
-    const tianjiProfile={lateZiRule:'next-day',leapRule:'next-month'};
+    const tianjiProfile={lateZiRule:'current-day',leapRule:'next-month'};
     const traditionalProfile={lateZiRule:'current-day',leapRule:'split'};
-    const a=chartForProfile(api,input,tianjiProfile),b=chartForProfile(api,input,traditionalProfile);
+    const a=chartForProfile(api,input,tianjiProfile);
+    const b=await chartForIndependentProfile(input,traditionalProfile);
     primary=a;form={...input,...tianjiProfile,system:'compare',solarInfo:a.solarInfo,usedDate:a.usedDate,effectiveTimeIndex:a.effectiveTimeIndex};
     render(a.chart,form);
     renderComparison({...a,...tianjiProfile,calendar:input.calendar,leapMonth:input.leapMonth},{...b,...traditionalProfile,calendar:input.calendar,leapMonth:input.leapMonth},input);
+    lastChart={mode:'compare',iztroReference:a.chart,independentTraditional:b.chart,metadata:{input,referencePolicy:tianjiProfile,traditionalPolicy:traditionalProfile}};
+  }else if($('system').value==='traditional'){
+    primary=await chartForIndependentProfile(input,selected);
+    form={...input,...selected,system:'traditional',solarInfo:primary.solarInfo,usedDate:primary.usedDate,effectiveTimeIndex:primary.effectiveTimeIndex};
+    render(primary.chart,form);
+    const box=document.getElementById('comparisonResult');if(box)box.remove();
   }else{
     primary=chartForProfile(api,input,selected);
-    form={...input,...selected,system:$('system').value,solarInfo:primary.solarInfo,usedDate:primary.usedDate,effectiveTimeIndex:primary.effectiveTimeIndex};
+    form={...input,...selected,system:'tianji',solarInfo:primary.solarInfo,usedDate:primary.usedDate,effectiveTimeIndex:primary.effectiveTimeIndex};
     render(primary.chart,form);
     const box=document.getElementById('comparisonResult');if(box)box.remove();
   }
