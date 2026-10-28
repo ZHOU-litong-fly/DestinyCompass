@@ -36,19 +36,19 @@ export function calculateTianjiBureau(yearStemIndex,mingBranchIndex){
  const stemIndex=getPalaceStem(yearStemIndex,mingBranchIndex);
  return {...bureauByStemBranch(stemIndex,mingBranchIndex),stemIndex,stem:STEMS[stemIndex],branchIndex:mingBranchIndex,branch:BRANCHES[mingBranchIndex]};
 }
-function locateMingShen(month,hour){
+export function locateTianjiMingShen(month,hour){
  range(month,1,12,'农历月份');range(hour,0,11,'时辰');
  const monthBranch=mod(2+month-1,12);
  return {mingBranchIndex:mod(monthBranch-hour,12),shenBranchIndex:mod(monthBranch+hour,12)};
 }
-function locateZiwei(day,bureau){
+export function locateTianjiZiwei(day,bureau){
  range(day,1,30,'农历日期');if(![2,3,4,5,6].includes(bureau))throw new RangeError('五行局必须为2至6');
  const remainder=day%bureau,supplement=mod(-remainder,bureau),quotient=(day+supplement)/bureau;
  const counted=mod(2+quotient-1,12),branchIndex=mod(counted+(supplement%2?-supplement:supplement),12);
  return {branchIndex,branch:BRANCHES[branchIndex],supplement,quotient};
 }
 function locateTianfu(ziwei){range(ziwei,0,11,'紫微星位置');return mod(4-ziwei,12);}
-function arrangeMajorStars(ziwei){
+export function arrangeTianjiMajorStars(ziwei){
  const tianfu=locateTianfu(ziwei),stars=Array.from({length:12},()=>[]);
  for(const [name,offset] of [['紫微',0],['天机',-1],['太阳',-3],['武曲',-4],['天同',-5],['廉贞',-8]])stars[mod(ziwei+offset,12)].push(name);
  for(const [name,offset] of [['天府',0],['太阴',1],['贪狼',2],['巨门',3],['天相',4],['天梁',5],['七杀',6],['破军',10]])stars[mod(tianfu+offset,12)].push(name);
@@ -78,10 +78,10 @@ export function buildTianjiChart(input){
  const {yearStemIndex,yearBranchIndex,lunarMonth,lunarDay,hourBranchIndex}=input;
  range(yearStemIndex,0,9,'年干');range(yearBranchIndex,0,11,'年支');range(lunarMonth,1,12,'农历月份');range(lunarDay,1,30,'农历日期');range(hourBranchIndex,0,11,'时辰');
  if(sexagenary(yearStemIndex,yearBranchIndex)<0)throw new RangeError('年干支不是有效六十甲子组合');
- const ms=locateMingShen(lunarMonth,hourBranchIndex);
+ const ms=locateTianjiMingShen(lunarMonth,hourBranchIndex);
  const bureau=calculateTianjiBureau(yearStemIndex,ms.mingBranchIndex);
- const ziwei=locateZiwei(lunarDay,bureau.bureau);
- const major=arrangeMajorStars(ziwei.branchIndex);
+ const ziwei=locateTianjiZiwei(lunarDay,bureau.bureau);
+ const major=arrangeTianjiMajorStars(ziwei.branchIndex);
  const auxiliary=locateAuxiliary({lunarMonth,hourBranchIndex,yearStemIndex,yearBranchIndex});
  const palaces=PALACES.map((name,i)=>{
   const branchIndex=mod(ms.mingBranchIndex-i,12),stemIndex=getPalaceStem(yearStemIndex,branchIndex);
