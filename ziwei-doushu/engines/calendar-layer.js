@@ -36,10 +36,16 @@ function branchIndex(zhi) {
   if(i<0) throw new Error('历法库返回了无法识别的年支：'+zhi);
   return i;
 }
-function normalizeLeapMonth(year,month,day,rule,isLeap,Lunar,LunarYear) {
-  if(!isLeap) return {year,month,day,isLeapMonth:false,policy:rule,sourceMonth:month};
+function normalizeLeapMonth(year,month,day,rule,isLeap,Lunar,LunarYear,LunarMonth) {
+  if(!isLeap) {
+    const ordinaryMonth=LunarMonth.fromYm(year,month);
+    if(!ordinaryMonth || day>ordinaryMonth.getDayCount()) throw new RangeError('该农历月份没有第'+day+'天');
+    return {year,month,day,isLeapMonth:false,policy:rule,sourceMonth:month};
+  }
   const leapMonth = LunarYear.fromYear(year).getLeapMonth();
   if(leapMonth!==month) throw new RangeError('所选闰月与该农历年份的实际闰月不一致；该年闰月为'+(leapMonth||'无'));
+  const sourceLeapMonth=LunarMonth.fromYm(year,-month);
+  if(!sourceLeapMonth || day>sourceLeapMonth.getDayCount()) throw new RangeError('该闰月没有第'+day+'天');
   let targetYear=year,targetMonth=month,targetDay=day,targetLeap=false;
   if(rule==='origin-month') {
     targetLeap=true;
@@ -55,10 +61,8 @@ function normalizeLeapMonth(year,month,day,rule,isLeap,Lunar,LunarYear) {
       if(targetMonth===13){targetYear++;targetMonth=1;}
     }
   }
-  const targetMonthDays = targetLeap ? Lunar.fromYmd(targetYear,-targetMonth,1) : Lunar.fromYmd(targetYear,targetMonth,1);
-  if(!targetMonthDays || targetDay<1 || targetDay>30) throw new RangeError('农历日期超出范围');
-  const actualMonth = Lunar.fromYmd(targetYear,targetLeap?-targetMonth:targetMonth,1);
-  if(typeof actualMonth.getSolar!=='function' || !actualMonth.getSolar()) throw new RangeError('无法识别所选农历月份');
+  const actualMonth = LunarMonth.fromYm(targetYear,targetLeap?-targetMonth:targetMonth);
+  if(!actualMonth || targetDay<1 || targetDay>actualMonth.getDayCount()) throw new RangeError('目标农历月份没有第'+targetDay+'天');
   return {year:targetYear,month:targetMonth,day:targetDay,isLeapMonth:targetLeap,policy:rule,sourceMonth:month};
 }
 function getLunarParts(lunar) {
@@ -88,7 +92,8 @@ export async function resolveBirthCalendar(input,policy={lateZiRule:'next-day',l
   const Solar=api.Solar || api.default?.Solar;
   const Lunar=api.Lunar || api.default?.Lunar;
   const LunarYear=api.LunarYear || api.default?.LunarYear;
-  if(!Solar || !Lunar || !LunarYear) throw new Error('无法加载历法转换库 lunar-javascript');
+  const LunarMonth=api.LunarMonth || api.default?.LunarMonth;
+  if(!Solar || !Lunar || !LunarYear || !LunarMonth) throw new Error('无法加载历法转换库 lunar-javascript');
   const p=parseDate(input.date,input.calendar!=='lunar');
   let solarDate=input.date, requestedLunar=null;
   const hourParts=String(input.time||'12:00').split(':').map(Number);
@@ -97,7 +102,7 @@ export async function resolveBirthCalendar(input,policy={lateZiRule:'next-day',l
   if(input.calendar==='lunar') {
     const month=p.month,day=p.day;
     if(month<1||month>12||day<1||day>30) throw new RangeError('农历月份必须为1至12，日期必须为1至30');
-    const normalized=normalizeLeapMonth(p.year,month,day,policy.leapRule,!!input.leapMonth,Lunar,LunarYear);
+    const normalized=normalizeLeapMonth(p.year,month,day,policy.leapRule,!!input.leapMonth,Lunar,LunarYear,LunarMonth);
     const lunarMonth=normalized.isLeapMonth?-normalized.month:normalized.month;
     const lunar=Lunar.fromYmdHms(normalized.year,lunarMonth,normalized.day,hour,minute,0);
     solarDate=getSolarDate(lunar.getSolar());
