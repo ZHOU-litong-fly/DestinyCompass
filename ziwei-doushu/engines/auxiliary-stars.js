@@ -56,7 +56,6 @@ export function locateTiankuiTianyue(yearStemIndex) {
 /** 天马按生年地支三合局。 */
 export function locateTianma(yearBranchIndex) {
   assertRange(yearBranchIndex,0,11,'生年地支索引');
-  const group = Math.floor(yearBranchIndex % 4);
   const byBranch = new Map([
     [0,2], [4,2], [8,2],       // 申子辰 -> 寅
     [2,8], [6,8], [10,8],      // 寅午戌 -> 申
