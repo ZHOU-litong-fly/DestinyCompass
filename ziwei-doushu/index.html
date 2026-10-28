@@ -35,7 +35,7 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <div class="field"><label for="longitude">经度（东正西负）</label><input id="longitude" type="number" min="-180" max="180" step="0.0001" placeholder="例如：105.72"></div>
 <div class="field"><label for="calendar">历法</label><select id="calendar"><option value="solar">公历</option><option value="lunar">农历</option></select></div>
 <div class="field" id="leapWrap" hidden><label for="leap">是否闰月</label><select id="leap"><option value="false">非闰月</option><option value="true">闰月</option></select></div>
-<div class="field"><label for="system">排盘体系</label><select id="system"><option value="tianji">倪海厦《天纪》参考模式</option><option value="traditional">通用传统紫微斗数</option><option value="compare">双体系对比模式</option></select></div>
+<div class="field"><label for="system">排盘体系</label><select id="system"><option value="tianji">《天纪》规则实验引擎</option><option value="traditional">通用传统紫微斗数</option><option value="compare">双体系对比模式</option></select></div>
 <div class="field"><label for="lateZiRule">晚子时（23:00–23:59）</label><select id="lateZiRule"><option value="next-day" selected>按次日换日（默认）</option><option value="current-day">日柱保留当日</option></select></div>
 <div class="field" id="leapRuleWrap" hidden><label for="leapRule">闰月处理口径</label><select id="leapRule"><option value="next-month" selected>整月归下月（默认）</option><option value="split">初一至十五归前月，十六以后归下月</option><option value="prev-month">整月归前月</option><option value="origin-month">按闰月本月处理</option></select></div>
 </div><div id="systemNote" class="hint">《天纪》规则实验引擎与通用传统实验引擎已接入；《天纪》部分规则仍需原始资料核验。</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
@@ -86,7 +86,7 @@ function render(chart,form){
  };
  $('systemStatus').innerHTML=status[sys];
  const fields=[
- ['排盘体系',form.system==='compare'?'双体系对比':form.system==='traditional'?'通用传统体系':'《天纪》参考模式'],
+ ['排盘体系',form.system==='compare'?'双体系对比':form.system==='traditional'?'通用传统体系':'《天纪》规则实验引擎'],
  ['命主',form.person||'未填写'],['性别',form.gender],['公历日期',get(chart,['solarDate','公历日期'],form.date)],['农历日期',get(chart,['lunarDate','农历日期'],'—')],
  [chart.yearPillarOnly?'年柱（独立历法）':'四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],hourLabel(form.effectiveTimeIndex))],['晚子时口径',form.lateZiRule==='next-day'?'23点按次日换日':'23点保留当日'],['闰月口径',form.calendar==='lunar'?(form.leapMonth?(form.leapRule==='next-month'?'整月归下月':form.leapRule==='split'?'十五分界':form.leapRule==='prev-month'?'整月归前月':'闰月本月'): '非闰月'):'不适用'],['排盘采用日期',form.usedDate],['真太阳时',form.solarInfo?form.solarInfo.solarDate+' '+form.solarInfo.solarTime:'未校正'],['经度修正',form.solarInfo?form.solarInfo.longitudeCorrectionMinutes+' 分钟':'—'],['均时差',form.solarInfo?form.solarInfo.eotMinutes+' 分钟':'—'],['命宫',get(chart,['soul','mingShen.mingBranch','命宫'],'—')],['身宫',get(chart,['body','mingShen.shenBranch','身宫'],'—')]
  ];
