@@ -1,0 +1,24 @@
+# 紫微斗数独立排盘工具
+
+这是一个独立的静态网页模块，采用开源排盘库 [iztro](https://github.com/SylarLong/iztro) 生成紫微斗数命盘。
+
+## 使用
+- 在 GitHub Pages 发布后打开本目录的网页。
+- 选择性别、出生日期、时辰和公历/农历后，点击“生成命盘”。
+- 可展开原始命盘 JSON、导出 JSON 或打印为 PDF。
+
+## 当前版本说明
+- 纯前端静态网页，不需要自建服务器或 API Key。
+- 通过 esm.sh 加载 iztro，因此首次排盘需要网络连接。
+- 出生地点目前仅作为备注；尚未接入真太阳时自动校正。
+- 闰月、晚子时等排盘口径可能因流派而异，正式使用前建议用已知命例进行交叉核验。
+
+## 许可与来源
+- 排盘引擎：iztro，来源：https://github.com/SylarLong/iztro
+- 上游项目：Renhuai123/ziwei-doushu（参考其排盘工具与文档）：https://github.com/Renhuai123/ziwei-doushu
+- 本网页是独立实现，不复制上游项目的整套前端、断语库或大型解读数据集。
+- 使用时请同时遵守相关依赖和上游资料的许可证要求。
+
+## GitHub Pages
+如果本目录位于已有 GitHub Pages 仓库中，访问路径通常为：
+`https://<用户名>.github.io/<仓库名>/ziwei-doushu/`
