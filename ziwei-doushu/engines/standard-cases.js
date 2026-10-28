@@ -36,7 +36,7 @@ export async function runStandardCaseSuite() {
       if(tianji!==traditional)bureauMismatches++;
     }
   }
-  check('两套五行局公式 8640 组合交叉核验',bureauMismatches,0);
+  check('两套五行局公式 8640 组合交叉核验',[bureauChecks,bureauMismatches],[8640,0]);
   const second=await resolveBirthCalendar(
     {calendar:'solar',date:'2023-02-19',time:'23:00',hourIndex:12,leapMonth:false},
     {lateZiRule:'current-day',leapRule:'next-month'}
