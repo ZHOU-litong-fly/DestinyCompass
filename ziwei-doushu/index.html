@@ -146,7 +146,7 @@ $('chartForm').addEventListener('submit',async e=>{
  render(chart,{person:$('person').value.trim(),gender,date,place:$('place').value.trim(),system:$('system').value,solarInfo,usedDate,time:$('birthTime').value,utcOffset:$('utcOffset').value,latitude:$('latitude').value,longitude:$('longitude').value,calendar:type,lateZiRule,leapRule,leapMonth,effectiveTimeIndex:ti});
  }catch(err){$('error').textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
 });
-$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='9';$('leapWrap').hidden=true;$('leapRuleWrap').hidden=true;$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;});
+$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='9';$('leapWrap').hidden=true;$('leapRuleWrap').hidden=true;document.querySelector('label[for="birthDate"]').textContent='公历出生日期';$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;});
 $('download').addEventListener('click',()=>{if(!lastChart)return;const blob=new Blob([JSON.stringify(lastChart,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ziwei-chart.json';a.click();URL.revokeObjectURL(url);});
 $('print').addEventListener('click',()=>window.print());
 </script>
