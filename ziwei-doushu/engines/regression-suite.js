@@ -6,7 +6,7 @@
 import { runTraditionalEngineSelfTests, locateZiwei, arrangeFourteenMajorStars, fiveElementsBureau, locateTianfu, sexagenaryIndex } from './traditional-core.js';
 import { ZIWEI_REFERENCE_TABLE } from './ziwei-reference-table.js';
 import { runTianjiPolicySelfTests } from './tianji-reference-policy.js';
-import { runAuxiliaryStarSelfTests, locateZuofuYoubi, locateWenchangWenqu, locateLucunQingyangTuoluo } from './auxiliary-stars.js';
+import { runAuxiliaryStarSelfTests, locateZuofuYoubi, locateWenchangWenqu, locateLucunQingyangTuoluo, locateTiankuiTianyue, locateTianma, locateDikongDijie, locateHuoxingLingxing } from './auxiliary-stars.js';
 
 export function runZiweiRegressionSuite() {
   const suites = [
@@ -63,6 +63,28 @@ export function runZiweiRegressionSuite() {
     exhaustive.push({ name: '禄存位置范围：年干' + stem, pass: stars.lucunBranchIndex >= 0 && stars.lucunBranchIndex < 12 });
     exhaustive.push({ name: '擎羊位置范围：年干' + stem, pass: stars.qingyangBranchIndex >= 0 && stars.qingyangBranchIndex < 12 });
     exhaustive.push({ name: '陀罗位置范围：年干' + stem, pass: stars.tuoluoBranchIndex >= 0 && stars.tuoluoBranchIndex < 12 });
+  }
+  // 新增辅煞星位置的全输入范围检查。
+  for (let stem = 0; stem < 10; stem++) {
+    const stars = locateTiankuiTianyue(stem);
+    exhaustive.push({ name: '天魁位置范围：年干' + stem, pass: stars.tiankuiBranchIndex >= 0 && stars.tiankuiBranchIndex < 12 });
+    exhaustive.push({ name: '天钺位置范围：年干' + stem, pass: stars.tianyueBranchIndex >= 0 && stars.tianyueBranchIndex < 12 });
+  }
+  for (let branch = 0; branch < 12; branch++) {
+    const star = locateTianma(branch);
+    exhaustive.push({ name: '天马位置范围：年支' + branch, pass: star.tianmaBranchIndex >= 0 && star.tianmaBranchIndex < 12 });
+  }
+  for (let hour = 0; hour < 12; hour++) {
+    const stars = locateDikongDijie(hour);
+    exhaustive.push({ name: '地空位置范围：时' + hour, pass: stars.dikongBranchIndex >= 0 && stars.dikongBranchIndex < 12 });
+    exhaustive.push({ name: '地劫位置范围：时' + hour, pass: stars.dijieBranchIndex >= 0 && stars.dijieBranchIndex < 12 });
+  }
+  for (let yearBranch = 0; yearBranch < 12; yearBranch++) {
+    for (let hour = 0; hour < 12; hour++) {
+      const stars = locateHuoxingLingxing(yearBranch, hour);
+      exhaustive.push({ name: '火星位置范围：年支' + yearBranch + '时' + hour, pass: stars.huoxingBranchIndex >= 0 && stars.huoxingBranchIndex < 12 });
+      exhaustive.push({ name: '铃星位置范围：年支' + yearBranch + '时' + hour, pass: stars.lingxingBranchIndex >= 0 && stars.lingxingBranchIndex < 12 });
+    }
   }
   // 六十甲子组合有效性：干支索引同阴阳才应存在于六十甲子。
   for (let stem = 0; stem < 10; stem++) {
