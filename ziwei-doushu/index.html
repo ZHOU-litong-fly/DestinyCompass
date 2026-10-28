@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101a2c">
+<title>紫微排盘｜命盘工具</title>
+<style>
+:root{--bg:#0b1220;--panel:#121e31;--panel2:#17263d;--gold:#e8c77b;--muted:#a8b4c7;--line:#34445b;--red:#e7a1a1}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1a2b45 0,#0b1220 55%);color:#f3f0e8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.5}
+.wrap{max-width:1100px;margin:auto;padding:22px 16px 40px}.hero{text-align:center;padding:22px 8px 18px}.seal{display:inline-block;border:1px solid var(--gold);color:var(--gold);padding:4px 10px;letter-spacing:3px;font-size:12px}.hero h1{font-size:clamp(28px,5vw,42px);letter-spacing:4px;margin:12px 0 4px}.hero p{color:var(--muted);margin:0;font-size:14px}
+.card{background:linear-gradient(145deg,rgba(22,36,57,.96),rgba(15,26,43,.96));border:1px solid var(--line);border-radius:16px;padding:20px;margin:14px 0;box-shadow:0 12px 35px #0002}
+h2{font-size:18px;margin:0 0 16px;color:var(--gold)}.formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}.field input,.field select{width:100%;min-height:44px;background:#0c1728;color:#f6f2e9;border:1px solid #42536b;border-radius:9px;padding:9px 10px;font-size:15px;min-width:0}.field input:focus,.field select:focus{outline:2px solid #d9b86f;border-color:transparent}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:10px;padding:12px 20px;font-weight:700;font-size:15px;cursor:pointer}.primary{background:var(--gold);color:#182033}.secondary{background:#25364e;color:#fff;border:1px solid #4a5c73}.hint{font-size:12px;color:var(--muted);margin-top:12px}.error{color:#ffb7b7;margin-top:10px;white-space:pre-wrap}
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat{padding:12px;border:1px solid var(--line);border-radius:10px;background:#0c1728}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;margin-top:5px;font-size:15px;overflow-wrap:anywhere}
+.palace-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.palace{min-height:142px;border:1px solid #4a5b72;border-radius:10px;padding:10px;background:linear-gradient(160deg,#182941,#101c2e);overflow-wrap:anywhere}.palace .name{font-weight:700;color:var(--gold);font-size:14px;display:flex;justify-content:space-between;gap:4px}.palace .branch{font-size:11px;color:var(--muted)}.stars{font-size:13px;line-height:1.8;margin-top:8px}.major{color:#f3d28b}.minor{color:#c9d8ee}.tags{font-size:11px;color:#eaa5a5;margin-top:6px}.center{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px dashed #65748a;border-radius:10px;padding:14px;color:var(--muted);font-size:13px;min-height:142px}
+details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;color:var(--gold)}pre{white-space:pre-wrap;word-break:break-word;color:#c8d5e8;font-size:12px;max-height:400px;overflow:auto}.footer{text-align:center;color:#8492a8;font-size:12px;padding:20px 4px}
+@media(max-width:700px){.wrap{padding:12px 10px 28px}.card{padding:15px}.formgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.palace-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.palace{padding:8px;min-height:130px}.palace .name{font-size:12px}.stars{font-size:12px}.center{min-height:100px;font-size:11px}}
+@media(max-width:390px){.palace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.formgrid{grid-template-columns:1fr}.hero h1{letter-spacing:2px}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="hero"><div class="seal">传统命理 · 排盘工具</div><h1>紫微斗数</h1><p>输入出生资料，生成十二宫命盘与基础星盘信息</p></header>
+<section class="card"><h2>出生资料</h2>
+<form id="chartForm"><div class="formgrid">
+<div class="field"><label for="person">姓名（选填）</label><input id="person" maxlength="40" placeholder="命主"></div>
+<div class="field"><label for="gender">性别</label><select id="gender"><option value="男">男</option><option value="女">女</option></select></div>
+<div class="field"><label for="birthDate">公历出生日期</label><input id="birthDate" type="date" required value="1990-01-01"></div>
+<div class="field"><label for="hour">出生时辰</label><select id="hour">
+<option value="0">早子时（00:00–00:59）</option><option value="1">丑时（01:00–02:59）</option><option value="2">寅时（03:00–04:59）</option><option value="3">卯时（05:00–06:59）</option><option value="4">辰时（07:00–08:59）</option><option value="5">巳时（09:00–10:59）</option><option value="6">午时（11:00–12:59）</option><option value="7">未时（13:00–14:59）</option><option value="8">申时（15:00–16:59）</option><option value="9">酉时（17:00–18:59）</option><option value="10">戌时（19:00–20:59）</option><option value="11">亥时（21:00–22:59）</option><option value="12">晚子时（23:00–23:59）</option>
+</select></div>
+<div class="field"><label for="place">出生地点（选填）</label><input id="place" maxlength="80" placeholder="例如：甘肃天水 / 东京"></div>
+<div class="field"><label for="calendar">历法</label><select id="calendar"><option value="solar">公历</option><option value="lunar">农历</option></select></div>
+<div class="field" id="leapWrap" hidden><label for="leap">是否闰月</label><select id="leap"><option value="false">非闰月</option><option value="true">闰月</option></select></div>
+</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
+<div class="hint">说明：此版本使用开源排盘引擎 iztro。出生地点目前仅记录，不会自动进行真太阳时换算；出生时间不确定时，建议分别排相邻时辰核对。</div><div id="error" class="error" role="alert"></div></form></section>
+<section id="result" hidden>
+<div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div></div>
+<div class="card"><h2>十二宫命盘</h2><div class="palace-grid" id="palaces"></div><p class="hint">宫位按排盘引擎返回的数据展示。不同门派的闰月、晚子时、四化及亮度规则可能存在差异。</p></div>
+<div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button></div></div>
+</section>
+<footer class="footer">仅供传统文化学习与娱乐参考，不构成对现实人生的确定性预测。<br>排盘引擎：iztro · 本工具为独立网页模块</footer>
+</main>
+<script type="module">
+const $=id=>document.getElementById(id);
+const calendar=$('calendar'); calendar.addEventListener('change',()=>{$('leapWrap').hidden=calendar.value!=='lunar';});
+let lastChart=null;
+const normalizeGender=g=>g==='男'?'男':'女';
+const get=(obj,keys,fallback='')=>{for(const k of keys){if(obj&&obj[k]!==undefined&&obj[k]!==null)return obj[k]}return fallback};
+function textValue(v){if(v===undefined||v===null)return '';if(Array.isArray(v))return v.map(textValue).filter(Boolean).join('、');if(typeof v==='object')return get(v,['name','text','星名','type'],JSON.stringify(v));return String(v)}
+function list(v){if(v===undefined||v===null)return [];return Array.isArray(v)?v:[v]}
+function palaceHTML(p){
+ const name=textValue(get(p,['name','earthlyBranch','branch','宫名'],'宫位'));
+ const branch=textValue(get(p,['heavenlyStem','stem','干支'],''));
+ const major=list(get(p,['majorStars','majorStar','主星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
+ const minor=list(get(p,['minorStars','minorStar','辅星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
+ const adjective=list(get(p,['adjectiveStars','miscStars','杂曜'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
+ const tags=[get(p,['decadal','大限'],null),get(p,['yearly','流年'],null)].filter(Boolean).map(textValue).join(' · ');
+ return '<article class="palace"><div class="name"><span>'+escapeHTML(name)+'</span><span class="branch">'+escapeHTML(branch)+'</span></div><div class="stars">'+(major.length?'<div class="major">'+major.map(escapeHTML).join('、')+'</div>':'')+(minor.length?'<div class="minor">'+minor.map(escapeHTML).join('、')+'</div>':'')+(adjective.length?'<div>'+adjective.map(escapeHTML).join('、')+'</div>':'')+(!major.length&&!minor.length&&!adjective.length?'<span class="branch">星曜信息见原始数据</span>':'')+'</div>'+(tags?'<div class="tags">'+escapeHTML(tags)+'</div>':'')+'</article>';
+}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function findPalaces(chart){let p=get(chart,['palaces','十二宫','houses'],[]);if(Array.isArray(p))return p;if(p&&typeof p==='object')return Object.values(p);return []}
+function render(chart,form){
+ lastChart=chart; $('result').hidden=false;
+ const fields=[
+ ['命主',form.person||'未填写'],['性别',form.gender],['公历日期',get(chart,['solarDate','公历日期'],form.date)],['农历日期',get(chart,['lunarDate','农历日期'],'—')],
+ ['四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],'—')],['命宫',get(chart,['soul','命宫'],'—')],['身宫',get(chart,['body','身宫'],'—')]
+ ];
+ $('summary').innerHTML=fields.map(([k,v])=>'<div class="stat"><span>'+escapeHTML(k)+'</span><strong>'+escapeHTML(textValue(v)||'—')+'</strong></div>').join('');
+ const ps=findPalaces(chart); $('palaces').innerHTML=ps.length?ps.map(palaceHTML).join(''):'<div class="center">未能读取宫位结构，请展开原始信息核对。</div>';
+ $('raw').textContent=JSON.stringify(chart,null,2); $('error').textContent='';
+ $('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+let astroLib=null;
+async function loadEngine(){
+ if(astroLib)return astroLib;
+ const mod=await import('https://esm.sh/iztro@2.6.2?bundle');
+ astroLib=mod.astro?mod:mod.default?.astro?mod.default:null;
+ if(!astroLib)throw new Error('已下载引擎模块，但未能读取 astro 接口。');
+ return astroLib;
+}
+$('chartForm').addEventListener('submit',async e=>{
+ e.preventDefault();$('error').textContent='正在加载排盘引擎并计算……';
+ try{
+ const api=await loadEngine();const date=$('birthDate').value;if(!date)throw new Error('请填写出生日期。');
+ const ti=Number($('hour').value),gender=normalizeGender($('gender').value),type=calendar.value;
+ let chart;
+ if(type==='lunar') chart=api.astro.byLunar(date,ti,gender,$('leap').value==='true',true,'zh-CN');
+ else chart=api.astro.bySolar(date,ti,gender,true,'zh-CN');
+ render(chart,{person:$('person').value.trim(),gender,date,place:$('place').value.trim()});
+ }catch(err){$('error').textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
+});
+$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('leapWrap').hidden=true;$('result').hidden=true;$('error').textContent='';lastChart=null;});
+$('download').addEventListener('click',()=>{if(!lastChart)return;const blob=new Blob([JSON.stringify(lastChart,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ziwei-chart.json';a.click();URL.revokeObjectURL(url);});
+$('print').addEventListener('click',()=>window.print());
+</script>
+</body></html>
