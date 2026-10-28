@@ -9,7 +9,7 @@ export const CALENDAR_BRANCHES = Object.freeze(['子','丑','寅','卯','辰','�
 
 const pad2 = n => String(n).padStart(2,'0');
 const mod = (n,m) => ((n % m) + m) % m;
-function parseDate(s) {
+function parseDate(s,validateSolar=true) {
   const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!m) throw new TypeError('日期必须为 YYYY-MM-DD');
   const [year,month,day] = m.slice(1).map(Number);
@@ -55,6 +55,8 @@ function normalizeLeapMonth(year,month,day,rule,isLeap,Lunar,LunarYear) {
   }
   const targetMonthDays = targetLeap ? Lunar.fromYmd(targetYear,-targetMonth,1) : Lunar.fromYmd(targetYear,targetMonth,1);
   if(!targetMonthDays || targetDay<1 || targetDay>30) throw new RangeError('农历日期超出范围');
+  const actualMonth = Lunar.fromYmd(targetYear,targetLeap?-targetMonth:targetMonth,1);
+  if(typeof actualMonth.getSolar!=='function' || !actualMonth.getSolar()) throw new RangeError('无法识别所选农历月份');
   return {year:targetYear,month:targetMonth,day:targetDay,isLeapMonth:targetLeap,policy:rule,sourceMonth:month};
 }
 function getLunarParts(lunar) {
@@ -85,7 +87,7 @@ export async function resolveBirthCalendar(input,policy={lateZiRule:'next-day',l
   const Lunar=api.Lunar || api.default?.Lunar;
   const LunarYear=api.LunarYear || api.default?.LunarYear;
   if(!Solar || !Lunar || !LunarYear) throw new Error('无法加载历法转换库 lunar-javascript');
-  const p=parseDate(input.date);
+  const p=parseDate(input.date,input.calendar!=='lunar');
   let solarDate=input.date, requestedLunar=null;
   const hourParts=String(input.time||'12:00').split(':').map(Number);
   const hour=hourParts[0],minute=hourParts[1]||0;
