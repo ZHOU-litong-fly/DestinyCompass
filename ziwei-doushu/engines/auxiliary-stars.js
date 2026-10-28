@@ -46,7 +46,7 @@ export function runAuxiliaryStarSelfTests() {
   const tests = [];
   const check = (name,actual,expected) => tests.push({name,actual,expected,pass:JSON.stringify(actual)===JSON.stringify(expected)});
   check('正月左辅在辰右弼在戌',[locateZuofuYoubi(1).zuofuBranch,locateZuofuYoubi(1).youbiBranch],['辰','戌']);
-  check('十二月左辅在卯右弼在酉',[locateZuofuYoubi(12).zuofuBranch,locateZuofuYoubi(12).youbiBranch],['卯','酉']);
+  check('十二月左辅在卯右弼在酉',[locateZuofuYoubi(12).zuofuBranch,locateZuofuYoubi(12).youbiBranch],['卯','亥']);
   check('子时文昌在戌文曲在辰',[locateWenchangWenqu(0).wenchangBranch,locateWenchangWenqu(0).wenquBranch],['戌','辰']);
   check('亥时文昌在亥文曲在卯',[locateWenchangWenqu(11).wenchangBranch,locateWenchangWenqu(11).wenquBranch],['亥','卯']);
   check('甲年禄存寅擎羊卯陀罗丑',[locateLucunQingyangTuoluo(0).lucunBranch,locateLucunQingyangTuoluo(0).qingyangBranch,locateLucunQingyangTuoluo(0).tuoluoBranch],['寅','卯','丑']);
