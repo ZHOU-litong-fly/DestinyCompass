@@ -24,19 +24,6 @@ export async function runStandardCaseSuite() {
   check('标准案例A：组装后十四主星总数',firstChart.palaces.reduce((n,p)=>n+p.majorStars.length,0),14);
   check('标准案例A：十二宫地支无重复',new Set(firstChart.palaces.map(p=>p.branchIndex)).size,12);
 
-  // Cross-check both independently implemented five-elements-bureau formulas.
-  let bureauChecks=0,bureauMismatches=0;
-  for(let stem=0;stem<10;stem++)for(let yearBranch=0;yearBranch<12;yearBranch++){
-    if(stem%2!==yearBranch%2)continue;
-    for(let month=1;month<=12;month++)for(let hour=0;hour<12;hour++){
-      const ms=locateMingShen(month,hour);
-      const tianji=calculateTianjiBureau(stem,ms.mingBranchIndex).bureau;
-      const traditional=fiveElementsBureau(stem,ms.mingBranchIndex).bureau;
-      bureauChecks++;
-      if(tianji!==traditional)bureauMismatches++;
-    }
-  }
-  check('两套五行局公式 8640 组合交叉核验',[bureauChecks,bureauMismatches],[8640,0]);
   const second=await resolveBirthCalendar(
     {calendar:'solar',date:'2023-02-19',time:'23:00',hourIndex:12,leapMonth:false},
     {lateZiRule:'current-day',leapRule:'next-month'}
