@@ -50,7 +50,7 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 </main>
 <script type="module">
 const $=id=>document.getElementById(id);
-const calendar=$('calendar'); calendar.addEventListener('change',()=>{$('leapWrap').hidden=calendar.value!=='lunar';$('leapRuleWrap').hidden=calendar.value!=='lunar';document.querySelector('label[for="birthDate"]').textContent=calendar.value==='lunar'?'农历出生日期（YYYY-MM-DD）':'公历出生日期';});
+const calendar=$('calendar'); function updateCalendarInput(){const lunar=calendar.value==='lunar';$('leapWrap').hidden=!lunar;$('leapRuleWrap').hidden=!lunar;document.querySelector('label[for="birthDate"]').textContent=lunar?'农历出生日期（YYYY-MM-DD）':'公历出生日期';$('birthDate').type=lunar?'text':'date';$('birthDate').placeholder=lunar?'例如：1990-02-30':'';$('birthDate').inputMode=lunar?'numeric':'text';} calendar.addEventListener('change',updateCalendarInput);
 const systemNotes={
  tianji:'《天纪》参考模式：使用 iztro 作为参考底盘，口径配置尚未由倪海厦原始资料完整核实，不代表完整复现《天纪》。',
  traditional:'通用传统模式：使用本项目不调用 iztro 的独立实验引擎；历法转换使用 lunar-javascript，安星规则仍需标准命例逐盘核验。',
@@ -233,7 +233,7 @@ $('chartForm').addEventListener('submit',async e=>{
  }catch(err){$('error').textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
 });
 $('runRuleTests').addEventListener('click',runRuleSelfTests);
-$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='9';$('leapWrap').hidden=true;$('leapRuleWrap').hidden=true;document.querySelector('label[for="birthDate"]').textContent='公历出生日期';$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;const cr=document.getElementById('comparisonResult');if(cr)cr.remove();$('ruleTests').hidden=true;$('ruleTests').innerHTML='';$('runRuleTests').hidden=true;});
+$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='9';$('leapWrap').hidden=true;$('leapRuleWrap').hidden=true;document.querySelector('label[for="birthDate"]').textContent='公历出生日期';$('birthDate').type='date';$('birthDate').placeholder='';$('birthDate').inputMode='text';$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;const cr=document.getElementById('comparisonResult');if(cr)cr.remove();$('ruleTests').hidden=true;$('ruleTests').innerHTML='';$('runRuleTests').hidden=true;});
 $('download').addEventListener('click',()=>{if(!lastChart)return;const blob=new Blob([JSON.stringify(lastChart,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ziwei-chart.json';a.click();URL.revokeObjectURL(url);});
 $('print').addEventListener('click',()=>window.print());
 </script>
