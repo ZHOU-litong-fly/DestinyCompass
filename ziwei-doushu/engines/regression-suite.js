@@ -3,7 +3,7 @@
  * 运行方式：在支持 ES modules 的环境中导入本文件并执行 runZiweiRegressionSuite()。
  * 这些测试验证核心数学规则和结构，不代替完整命例校盘。
  */
-import { runTraditionalEngineSelfTests, locateZiwei, arrangeFourteenMajorStars, fiveElementsBureau } from './traditional-core.js';
+import { runTraditionalEngineSelfTests, locateZiwei, arrangeFourteenMajorStars, fiveElementsBureau, locateTianfu, sexagenaryIndex } from './traditional-core.js';
 import { runTianjiPolicySelfTests } from './tianji-reference-policy.js';
 
 export function runZiweiRegressionSuite() {
@@ -34,6 +34,14 @@ export function runZiweiRegressionSuite() {
   for (let branch = 0; branch < 12; branch++) {
     const stars = arrangeFourteenMajorStars(branch).starsByBranch.flatMap(p => p.stars);
     exhaustive.push({ name: '十四主星布列：紫微支' + branch, pass: stars.length === 14 && new Set(stars).size === 14 });
+    exhaustive.push({ name: '紫府轴对称：紫微支' + branch, pass: locateTianfu(branch) === ((4 - branch + 12) % 12) });
+  }
+  // 六十甲子组合有效性：干支索引同阴阳才应存在于六十甲子。
+  for (let stem = 0; stem < 10; stem++) {
+    for (let branch = 0; branch < 12; branch++) {
+      const valid = (stem % 2) === (branch % 2);
+      exhaustive.push({ name: '六十甲子干支奇偶校验：' + stem + '/' + branch, pass: (sexagenaryIndex(stem, branch) >= 0) === valid });
+    }
   }
   const exhaustiveResult = { name: '穷举边界检查', passed: exhaustive.filter(t => t.pass).length, total: exhaustive.length, tests: exhaustive };
   const passed = suites.reduce((sum, s) => sum + s.result.passed, 0) + exhaustiveResult.passed;
