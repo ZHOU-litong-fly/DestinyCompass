@@ -14,7 +14,7 @@ h2{font-size:18px;margin:0 0 16px;color:var(--gold)}.formgrid{display:grid;grid-
 .summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat{padding:12px;border:1px solid var(--line);border-radius:10px;background:#0c1728}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;margin-top:5px;font-size:15px;overflow-wrap:anywhere}
 .palace-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.palace{min-height:142px;border:1px solid #4a5b72;border-radius:10px;padding:10px;background:linear-gradient(160deg,#182941,#101c2e);overflow-wrap:anywhere}.palace .name{font-weight:700;color:var(--gold);font-size:14px;display:flex;justify-content:space-between;gap:4px}.palace .branch{font-size:11px;color:var(--muted)}.stars{font-size:13px;line-height:1.8;margin-top:8px}.major{color:#f3d28b}.minor{color:#c9d8ee}.tags{font-size:11px;color:#eaa5a5;margin-top:6px}.center{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px dashed #65748a;border-radius:10px;padding:14px;color:var(--muted);font-size:13px;min-height:142px}
 details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;color:var(--gold)}pre{white-space:pre-wrap;word-break:break-word;color:#c8d5e8;font-size:12px;max-height:400px;overflow:auto}.footer{text-align:center;color:#8492a8;font-size:12px;padding:20px 4px}
-@media(max-width:700px){.wrap{padding:12px 10px 28px}.card{padding:15px}.formgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.palace-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.palace{padding:8px;min-height:130px}.palace .name{font-size:12px}.stars{font-size:12px}.center{min-height:100px;font-size:11px}}
+.compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.compare-side{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:#0c1728}.compare-side h3{color:var(--gold);font-size:17px;margin:0 0 12px}.compare-side h4{font-size:14px;color:var(--muted);margin:14px 0 8px}.compare-side .palace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.test-row{padding:9px 0;border-bottom:1px solid var(--line);font-size:12px;overflow-wrap:anywhere}.test-row.pass strong{color:#9de0ad}.test-row.fail strong{color:#ffb7b7}@media(max-width:700px){.compare-grid{grid-template-columns:1fr}.compare-side .palace-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:390px){.compare-side .palace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.wrap{padding:12px 10px 28px}.card{padding:15px}.formgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.palace-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.palace{padding:8px;min-height:130px}.palace .name{font-size:12px}.stars{font-size:12px}.center{min-height:100px;font-size:11px}}
 @media(max-width:390px){.palace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.formgrid{grid-template-columns:1fr}.hero h1{letter-spacing:2px}}
 </style>
 </head>
@@ -43,7 +43,8 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <section id="result" hidden>
 <div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div><div id="systemStatus" class="system-note"></div></div>
 <div class="card"><h2>十二宫命盘</h2><div class="palace-grid" id="palaces"></div><p class="hint">宫位按排盘引擎返回的数据展示。不同门派的闰月、晚子时、四化及亮度规则可能存在差异。</p></div>
-<div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button></div></div>
+<div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button><button class="btn secondary" id="runRuleTests" type="button" hidden>运行规则自检</button></div></div>
+<div id="ruleTests" class="card" hidden></div>
 </section>
 <footer class="footer">仅供传统文化学习与娱乐参考，不构成对现实人生的确定性预测。<br>排盘引擎：iztro · 本工具为独立网页模块</footer>
 </main>
@@ -116,36 +117,86 @@ async function loadEngine(){
  if(!astroLib)throw new Error('已下载引擎模块，但未能读取 astro 接口。');
  return astroLib;
 }
+function chartForProfile(api, input, profile){
+ const gender=input.gender, type=input.calendar;
+ let ti=Number(input.hourIndex), usedDate=input.date, solarInfo=null;
+ if(type==='lunar'){
+   const lm=input.date.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+   if(!lm)throw new Error('农历日期请按 YYYY-MM-DD 输入。');
+   const y=Number(lm[1]),m=Number(lm[2]),d=Number(lm[3]);
+   if(m<1||m>12||d<1||d>30)throw new Error('农历月份或日期超出有效范围。');
+   let lunarInput=input.date, leapArg=input.leapMonth, fixLeap=true;
+   if(input.leapMonth){
+     const effective=effectiveLunarDate(y,m,d,profile.leapRule);
+     lunarInput=effective.date;leapArg=effective.leap;fixLeap=effective.fixLeap;
+   }
+   const base=api.astro.byLunar(lunarInput,0,gender,leapArg,fixLeap,'zh-CN');
+   usedDate=normalizeDateString(base.solarDate);
+   if(ti===12){if(profile.lateZiRule==='next-day')usedDate=shiftDate(usedDate,1);ti=0;}
+ }else{
+   const lat=input.latitude,lon=input.longitude,time=input.time;
+   if(lat!==''&&lon!==''){
+     const la=Number(lat),lo=Number(lon),offset=Number(input.utcOffset);
+     if(!Number.isFinite(la)||la < -90||la > 90||!Number.isFinite(lo)||lo < -180||lo > 180)throw new Error('经纬度超出有效范围。');
+     solarInfo=trueSolarCorrection(input.date,time,lo,offset);usedDate=solarInfo.solarDate;ti=solarInfo.timeIndex;
+   }else if(lat!==''||lon!=='')throw new Error('请同时填写纬度和经度，或清空两项以跳过真太阳时校正。');
+   else{const hh=Number((time||'12:00').split(':')[0]);ti=hh===23?12:hh===0?0:Math.floor((hh+1)/2);}
+   if(ti===12){if(profile.lateZiRule==='next-day')usedDate=shiftDate(usedDate,1);ti=0;}
+ }
+ return {chart:api.astro.bySolar(usedDate,ti,gender,true,'zh-CN'),usedDate,solarInfo,effectiveTimeIndex:ti};
+}
+function compactChartHTML(chart,meta,title){
+ const ps=findPalaces(chart);
+ const info=[
+  ['采用日期',meta.usedDate],
+  ['晚子时',meta.lateZiRule==='next-day'?'按次日换日':'保留当日'],
+  ['闰月',meta.calendar==='lunar'&&meta.leapMonth?(meta.leapRule==='next-month'?'整月归下月':meta.leapRule==='split'?'十五分界':meta.leapRule==='prev-month'?'整月归前月':'按闰月本月'):'不适用'],
+  ['命宫',get(chart,['soul','命宫'],'—')],['身宫',get(chart,['body','身宫'],'—')],['五行局',get(chart,['fiveElementsClass','五行局'],'—')]
+ ];
+ return '<section class="compare-side"><h3>'+escapeHTML(title)+'</h3><div class="summary">'+info.map(([k,v])=>'<div class="stat"><span>'+escapeHTML(k)+'</span><strong>'+escapeHTML(textValue(v)||'—')+'</strong></div>').join('')+'</div><h4>十二宫与星曜</h4><div class="palace-grid">'+(ps.length?ps.map(palaceHTML).join(''):'<p>无法读取宫位。</p>')+'</div></section>';
+}
+function renderComparison(a,b,input){
+ let box=document.getElementById('comparisonResult');
+ if(!box){box=document.createElement('div');box.id='comparisonResult';$('result').appendChild(box);}
+ box.innerHTML='<div class="card"><h2>双规则命盘对比</h2><div class="system-note">说明：下方是真正分别计算出的两份命盘，但目前两边共用 iztro 基础排盘引擎，差异来自明确配置的晚子时与闰月规则；这还不是两套完全独立的流派算法。相同输入和相同规则时，结果相同是正常现象。</div><div class="compare-grid">'+compactChartHTML(a.chart,a,'《天纪》参考口径')+compactChartHTML(b.chart,b,'通用对照口径')+'</div></div>';
+}
+function runRuleSelfTests(){
+ const tests=[];
+ const test=(name,actual,expected)=>tests.push({name,pass:JSON.stringify(actual)===JSON.stringify(expected),actual,expected});
+ test('日期跨月：2024-01-31 + 1 天',shiftDate('2024-01-31',1),'2024-02-01');
+ test('闰年跨日：2024-02-28 + 1 天',shiftDate('2024-02-28',1),'2024-02-29');
+ test('闰月整月归下月',effectiveLunarDate(2023,2,10,'next-month'),{date:'2023-3-10',leap:false,fixLeap:false});
+ test('闰月整月归前月',effectiveLunarDate(2023,2,10,'prev-month'),{date:'2023-1-10',leap:false,fixLeap:false});
+ test('十五分界保留闰月并启用分界',effectiveLunarDate(2023,2,15,'split'),{date:'2023-2-15',leap:true,fixLeap:true});
+ const out=document.getElementById('ruleTests');
+ out.hidden=false;out.innerHTML='<h3>规则自检结果：'+tests.filter(t=>t.pass).length+'/'+tests.length+' 通过</h3>'+tests.map(t=>'<div class="test-row '+(t.pass?'pass':'fail')+'"><strong>'+(t.pass?'通过':'失败')+' · '+escapeHTML(t.name)+'</strong><div>实际：'+escapeHTML(JSON.stringify(t.actual))+'</div><div>预期：'+escapeHTML(JSON.stringify(t.expected))+'</div></div>').join('');
+}
 $('chartForm').addEventListener('submit',async e=>{
  e.preventDefault();$('error').textContent='正在加载排盘引擎并计算……';
  try{
- const api=await loadEngine();const date=$('birthDate').value;if(!date)throw new Error('请填写出生日期。');
- const gender=normalizeGender($('gender').value),type=calendar.value,lateZiRule=$('lateZiRule').value,leapRule=$('leapRule').value,leapMonth=$('leap').value==='true';
- let ti=Number($('hour').value),chart,usedDate=date,solarInfo=null;
- if(type==='lunar'){
-   const lm=date.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/);if(!lm)throw new Error('农历日期请按 YYYY-MM-DD 输入。');
-   const lunarYear=Number(lm[1]),lunarMonth=Number(lm[2]),lunarDay=Number(lm[3]);
-   if(lunarMonth<1||lunarMonth>12||lunarDay<1||lunarDay>30)throw new Error('农历月份或日期超出有效范围。');
-   let lunarInput=date,leapArg=leapMonth,fixLeap=true;
-   if(leapMonth){const effective=effectiveLunarDate(lunarYear,lunarMonth,lunarDay,leapRule);lunarInput=effective.date;leapArg=effective.leap;fixLeap=effective.fixLeap;}
-   const lunarBase=api.astro.byLunar(lunarInput,0,gender,leapArg,fixLeap,'zh-CN');
-   usedDate=normalizeDateString(lunarBase.solarDate);
-   if(ti===12){if(lateZiRule==='next-day')usedDate=shiftDate(usedDate,1);ti=0;}
-   chart=api.astro.bySolar(usedDate,ti,gender,true,'zh-CN');
- }else{
-   const lat=$('latitude').value.trim(),lon=$('longitude').value.trim(),time=$('birthTime').value;
-   if(lat!==''&&lon!==''){
-     const la=Number(lat),lo=Number(lon),offset=Number($('utcOffset').value);
-     if(!Number.isFinite(la)||la < -90||la > 90||!Number.isFinite(lo)||lo < -180||lo > 180)throw new Error('经纬度超出有效范围。');
-     solarInfo=trueSolarCorrection(date,time,lo,offset);usedDate=solarInfo.solarDate;ti=solarInfo.timeIndex;
-   }else if(lat!==''||lon!=='')throw new Error('请同时填写纬度和经度，或清空两项以跳过真太阳时校正。');
-   else{const hh=Number((time||'12:00').split(':')[0]);ti=hh===23?12:hh===0?0:Math.floor((hh+1)/2);}
-   if(ti===12){if(lateZiRule==='next-day')usedDate=shiftDate(usedDate,1);ti=0;}
-   chart=api.astro.bySolar(usedDate,ti,gender,true,'zh-CN');
- }
- render(chart,{person:$('person').value.trim(),gender,date,place:$('place').value.trim(),system:$('system').value,solarInfo,usedDate,time:$('birthTime').value,utcOffset:$('utcOffset').value,latitude:$('latitude').value,longitude:$('longitude').value,calendar:type,lateZiRule,leapRule,leapMonth,effectiveTimeIndex:ti});
+  const api=await loadEngine(),date=$('birthDate').value;
+  if(!date)throw new Error('请填写出生日期。');
+  const input={gender:normalizeGender($('gender').value),calendar:calendar.value,date,time:$('birthTime').value,utcOffset:$('utcOffset').value,latitude:$('latitude').value.trim(),longitude:$('longitude').value.trim(),hourIndex:Number($('hour').value),leapMonth:$('leap').value==='true',person:$('person').value.trim(),place:$('place').value.trim()};
+  const selected={lateZiRule:$('lateZiRule').value,leapRule:$('leapRule').value};
+  let primary,form;
+  if($('system').value==='compare'){
+    const tianjiProfile={lateZiRule:'next-day',leapRule:'next-month'};
+    const traditionalProfile={lateZiRule:'current-day',leapRule:'split'};
+    const a=chartForProfile(api,input,tianjiProfile),b=chartForProfile(api,input,traditionalProfile);
+    primary=a;form={...input,...tianjiProfile,system:'compare',solarInfo:a.solarInfo,usedDate:a.usedDate,effectiveTimeIndex:a.effectiveTimeIndex};
+    render(a.chart,form);
+    renderComparison({...a,...tianjiProfile,calendar:input.calendar,leapMonth:input.leapMonth},{...b,...traditionalProfile,calendar:input.calendar,leapMonth:input.leapMonth},input);
+  }else{
+    primary=chartForProfile(api,input,selected);
+    form={...input,...selected,system:$('system').value,solarInfo:primary.solarInfo,usedDate:primary.usedDate,effectiveTimeIndex:primary.effectiveTimeIndex};
+    render(primary.chart,form);
+    const box=document.getElementById('comparisonResult');if(box)box.remove();
+  }
+  const testButton=document.getElementById('runRuleTests');testButton.hidden=false;
+  $('error').textContent='';
  }catch(err){$('error').textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
 });
+$('runRuleTests').addEventListener('click',runRuleSelfTests);
 $('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='9';$('leapWrap').hidden=true;$('leapRuleWrap').hidden=true;document.querySelector('label[for="birthDate"]').textContent='公历出生日期';$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;});
 $('download').addEventListener('click',()=>{if(!lastChart)return;const blob=new Blob([JSON.stringify(lastChart,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ziwei-chart.json';a.click();URL.revokeObjectURL(url);});
 $('print').addEventListener('click',()=>window.print());
