@@ -31,6 +31,11 @@ function bureauByStemBranch(stem,branch){
  const bureau={木:3,金:4,水:2,火:6,土:5}[element];
  return {element,bureau,bureauName:({2:'水二局',3:'木三局',4:'金四局',5:'土五局',6:'火六局'})[bureau],value,stemValue,branchValue};
 }
+export function calculateTianjiBureau(yearStemIndex,mingBranchIndex){
+ range(yearStemIndex,0,9,'年干');range(mingBranchIndex,0,11,'命宫地支');
+ const stemIndex=getPalaceStem(yearStemIndex,mingBranchIndex);
+ return {...bureauByStemBranch(stemIndex,mingBranchIndex),stemIndex,stem:STEMS[stemIndex],branchIndex:mingBranchIndex,branch:BRANCHES[mingBranchIndex]};
+}
 function locateMingShen(month,hour){
  range(month,1,12,'农历月份');range(hour,0,11,'时辰');
  const monthBranch=mod(2+month-1,12);
@@ -74,8 +79,7 @@ export function buildTianjiChart(input){
  range(yearStemIndex,0,9,'年干');range(yearBranchIndex,0,11,'年支');range(lunarMonth,1,12,'农历月份');range(lunarDay,1,30,'农历日期');range(hourBranchIndex,0,11,'时辰');
  if(sexagenary(yearStemIndex,yearBranchIndex)<0)throw new RangeError('年干支不是有效六十甲子组合');
  const ms=locateMingShen(lunarMonth,hourBranchIndex);
- const palaceStem=getPalaceStem(yearStemIndex,ms.mingBranchIndex);
- const bureau=bureauByStemBranch(palaceStem,ms.mingBranchIndex);
+ const bureau=calculateTianjiBureau(yearStemIndex,ms.mingBranchIndex);
  const ziwei=locateZiwei(lunarDay,bureau.bureau);
  const major=arrangeMajorStars(ziwei.branchIndex);
  const auxiliary=locateAuxiliary({lunarMonth,hourBranchIndex,yearStemIndex,yearBranchIndex});
