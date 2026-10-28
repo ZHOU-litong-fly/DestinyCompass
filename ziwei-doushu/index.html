@@ -168,10 +168,10 @@ async function runRuleSelfTests(){
  const out=document.getElementById('ruleTests');
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
-  const [calendarMod,coreMod,traditionalMod,auxMod,policyMod,chartMod,standardMod]=await Promise.all([
+  const [calendarMod,coreMod,traditionalMod,auxMod,policyMod,chartMod,tianjiMod,standardMod]=await Promise.all([
    import('./engines/calendar-layer.js'),import('./engines/core-rules.js'),
    import('./engines/traditional-core.js'),import('./engines/auxiliary-stars.js'),
-   import('./engines/tianji-reference-policy.js'),import('./engines/traditional-chart.js'),import('./engines/standard-cases.js')
+   import('./engines/tianji-reference-policy.js'),import('./engines/traditional-chart.js'),import('./engines/tianji-engine.js'),import('./engines/standard-cases.js')
   ]);
   const suites=[
    ['历法适配层',calendarMod.runCalendarLayerSelfTests()],
@@ -181,6 +181,7 @@ async function runRuleSelfTests(){
    ['辅星定位',auxMod.runAuxiliaryStarSelfTests()],
    ['《天纪》参考口径',policyMod.runTianjiPolicySelfTests()],
    ['独立传统命盘组装',chartMod.runTraditionalChartSelfTests()],
+   ['《天纪》独立实验引擎',tianjiMod.runTianjiEngineSelfTests()],
    ['标准命例交叉核验',await standardMod.runStandardCaseSuite()]
   ];
   for(const [suite,result] of suites)for(const t of result.tests)tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
