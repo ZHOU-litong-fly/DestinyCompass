@@ -77,7 +77,7 @@ function render(chart,form){
  const status={
  tianji:'<span class="system-pill">《天纪》参考模式</span>当前显示的是基础引擎计算结果。尚未验证的《天纪》专属规则不会被标记为已实现。',
  traditional:'<span class="system-pill">通用传统体系</span>当前由 iztro 引擎生成。遇到不同门派规则时，请以所选口径及命例核验为准。',
- compare:'<span class="system-pill">《天纪》参考模式</span><span class="system-pill">通用传统体系</span>双体系界面已建立，但目前尚未完成独立算法配置与逐项命例验证，因此不会把同一份计算结果伪装成两套不同结果。下一阶段将核对差异规则，再启用真正的并排对照。'
+ compare:'<span class="system-pill">《天纪》参考模式</span><span class="system-pill">通用传统体系</span>双体系界面已建立，但目前尚未完成独立算法配置与逐项命例验证。已开始核对上游公开规则：该项目将晚子时“当日”与闰月“整月归下月”标为《天纪》参考口径；本网页尚未执行这些差异，不会伪造第二份命盘。'
  };
  $('systemStatus').innerHTML=status[sys];
  const fields=[
