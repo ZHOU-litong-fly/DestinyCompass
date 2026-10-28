@@ -11,7 +11,9 @@ export function runZiweiRegressionSuite() {
     { name: '传统核心规则', result: runTraditionalEngineSelfTests() },
     { name: '《天纪》参考口径边界', result: runTianjiPolicySelfTests() }
   ];
-  const exhaustive = [];\n  // 对固定参考表逐项比对，而非仅检查输出范围。\n  for (const bureau of [2,3,4,5,6]) {\n    for (let day = 1; day <= 30; day++) {\n      const actual = locateZiwei(day, bureau).branch;\n      const expected = ZIWEI_REFERENCE_TABLE[bureau][day - 1];\n      exhaustive.push({ name: '参考表比对：' + bureau + '局第' + day + '日', pass: actual === expected, actual, expected });\n    }\n  }
+  const exhaustive = [];
+  // 对固定参考表逐项比对，而非仅检查输出范围。
+  for (const bureau of [2,3,4,5,6]) {\n    for (let day = 1; day <= 30; day++) {\n      const actual = locateZiwei(day, bureau).branch;\n      const expected = ZIWEI_REFERENCE_TABLE[bureau][day - 1];\n      exhaustive.push({ name: '参考表比对：' + bureau + '局第' + day + '日', pass: actual === expected, actual, expected });\n    }\n  }
   for (const bureau of [2,3,4,5,6]) {
     for (let day = 1; day <= 30; day++) {
       const result = locateZiwei(day, bureau);
