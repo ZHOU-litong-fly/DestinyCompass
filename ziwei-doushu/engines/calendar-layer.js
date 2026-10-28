@@ -13,8 +13,10 @@ function parseDate(s,validateSolar=true) {
   const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!m) throw new TypeError('日期必须为 YYYY-MM-DD');
   const [year,month,day] = m.slice(1).map(Number);
-  const d = new Date(Date.UTC(year,month-1,day));
-  if (d.getUTCFullYear()!==year || d.getUTCMonth()!==month-1 || d.getUTCDate()!==day) throw new RangeError('公历日期无效');
+  if(validateSolar){
+    const d = new Date(Date.UTC(year,month-1,day));
+    if (d.getUTCFullYear()!==year || d.getUTCMonth()!==month-1 || d.getUTCDate()!==day) throw new RangeError('公历日期无效');
+  }
   return {year,month,day};
 }
 function shiftSolarDate(date,days) {
@@ -142,5 +144,28 @@ export function runCalendarLayerSelfTests() {
   check('拒绝无效公历日期',invalidDateRejected,true);
   let invalidStemRejected=false;try{stemIndex('未知')}catch{invalidStemRejected=true;}
   check('拒绝未知天干',invalidStemRejected,true);
+  return {passed:tests.filter(t=>t.pass).length,total:tests.length,tests};
+}
+
+/**
+ * Fixed calendar reference cases. The 1986-05-29 <-> 1986-04-21 pair is from
+ * the lunar-javascript project's published README example; these tests validate
+ * calendar conversion only, not Zi Wei chart correctness.
+ */
+export async function runCalendarReferenceCases() {
+  const api=await import('https://esm.sh/lunar-javascript?bundle');
+  const Solar=api.Solar || api.default?.Solar;
+  const Lunar=api.Lunar || api.default?.Lunar;
+  const LunarYear=api.LunarYear || api.default?.LunarYear;
+  const tests=[];
+  const check=(name,actual,expected)=>tests.push({name,actual,expected,pass:JSON.stringify(actual)===JSON.stringify(expected)});
+  const solar=Solar.fromYmd(1986,5,29);
+  const lunar=solar.getLunar();
+  check('公开参考例：1986-05-29 对应农历四月廿一',[lunar.getYear(),Math.abs(lunar.getMonth()),lunar.getDay()],[1986,4,21]);
+  const back=Lunar.fromYmd(1986,4,21).getSolar();
+  check('公开参考例：农历1986-04-21 转公历',[getSolarDate(back)],['1986-05-29']);
+  check('2023年闰二月识别',LunarYear.fromYear(2023).getLeapMonth(),2);
+  const leap=Lunar.fromYmd(2023,-2,1);
+  check('2023闰二月初一能转换为公历',/^2023-03-22$/.test(getSolarDate(leap.getSolar())),true);
   return {passed:tests.filter(t=>t.pass).length,total:tests.length,tests};
 }
