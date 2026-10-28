@@ -111,7 +111,7 @@ function hourLabel(i){return ['早子时','丑时','寅时','卯时','辰时','�
 function shiftDate(dateStr, days){const [y,m,d]=dateStr.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d+days));return dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0');}
 function effectiveLunarDate(year,month,day,rule){if(rule==='split')return {date:year+'-'+month+'-'+day,leap:true,fixLeap:true};let y=year,m=month;if(rule==='next-month'){m++;if(m===13){m=1;y++;}}else if(rule==='prev-month'){m--;if(m===0){m=12;y--;}}return {date:y+'-'+m+'-'+day,leap:false,fixLeap:false};}
 async function chartForIndependentProfile(input,profile,enginePath='./engines/traditional-chart.js',builderName='buildTraditionalChart'){
- const {resolveBirthCalendar}=await import('./engines/calendar-layer.js');
+ const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-3');
  const engine=await import(enginePath);
  const buildChart=engine[builderName];
  if(typeof buildChart!=='function')throw new Error('未找到所选独立排盘引擎：'+builderName);
@@ -170,7 +170,7 @@ async function runRuleSelfTests(){
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
   const [calendarMod,standardMod,regressionMod]=await Promise.all([
-   import('./engines/calendar-layer.js'),
+   import('./engines/calendar-layer.js?v=20261029-3'),
    import('./engines/standard-cases.js'),
    import('./engines/regression-suite.js')
   ]);
