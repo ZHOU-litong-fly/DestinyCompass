@@ -36,8 +36,10 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <div class="field"><label for="calendar">历法</label><select id="calendar"><option value="solar">公历</option><option value="lunar">农历</option></select></div>
 <div class="field" id="leapWrap" hidden><label for="leap">是否闰月</label><select id="leap"><option value="false">非闰月</option><option value="true">闰月</option></select></div>
 <div class="field"><label for="system">排盘体系</label><select id="system"><option value="tianji">倪海厦《天纪》参考模式</option><option value="traditional">通用传统紫微斗数</option><option value="compare">双体系对比模式</option></select></div>
+<div class="field"><label for="lateZiRule">晚子时（23:00–23:59）</label><select id="lateZiRule"><option value="next-day" selected>按次日换日（默认）</option><option value="current-day">日柱保留当日</option></select></div>
+<div class="field" id="leapRuleWrap" hidden><label for="leapRule">闰月处理口径</label><select id="leapRule"><option value="next-month" selected>整月归下月（默认）</option><option value="split">初一至十五归前月，十六以后归下月</option><option value="prev-month">整月归前月</option><option value="origin-month">按闰月本月处理</option></select></div>
 </div><div id="systemNote" class="hint">《天纪》参考模式：当前先使用已接入的基础排盘引擎。涉及倪海厦特有口径的规则，待逐项核实后再独立实现，避免未经验证就宣称完全复现。</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
-<div class="hint">说明：此版本使用开源排盘引擎 iztro。填写当地出生时间、UTC 偏移和经纬度后可自动校正真太阳时；历史夏令时需手动选择出生当日实际 UTC 偏移。农历输入暂不校正。</div><div id="error" class="error" role="alert"></div></form></section>
+<div class="hint">说明：此版本使用开源排盘引擎 iztro。晚子时默认按次日换日，可切换保留当日；闰月默认整月归下月，可选择十五分界、整月归前月或按闰月本月处理。填写公历当地出生时间、UTC 偏移和经纬度后可校正真太阳时；农历输入暂不校正真太阳时。</div><div id="error" class="error" role="alert"></div></form></section>
 <section id="result" hidden>
 <div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div><div id="systemStatus" class="system-note"></div></div>
 <div class="card"><h2>十二宫命盘</h2><div class="palace-grid" id="palaces"></div><p class="hint">宫位按排盘引擎返回的数据展示。不同门派的闰月、晚子时、四化及亮度规则可能存在差异。</p></div>
@@ -47,7 +49,7 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 </main>
 <script type="module">
 const $=id=>document.getElementById(id);
-const calendar=$('calendar'); calendar.addEventListener('change',()=>{$('leapWrap').hidden=calendar.value!=='lunar';});
+const calendar=$('calendar'); calendar.addEventListener('change',()=>{$('leapWrap').hidden=calendar.value!=='lunar';$('leapRuleWrap').hidden=calendar.value!=='lunar';});
 const systemNotes={
  tianji:'《天纪》参考模式：当前使用已接入的基础排盘引擎作为底盘。倪海厦体系的特殊规则必须逐项根据可靠资料核验后才会启用。',
  traditional:'通用传统模式：当前使用 iztro 开源引擎计算。具体流派对闰月、子时、四化等规则仍可能有差异。',
@@ -83,7 +85,7 @@ function render(chart,form){
  const fields=[
  ['排盘体系',form.system==='compare'?'双体系对比':form.system==='traditional'?'通用传统体系':'《天纪》参考模式'],
  ['命主',form.person||'未填写'],['性别',form.gender],['公历日期',get(chart,['solarDate','公历日期'],form.date)],['农历日期',get(chart,['lunarDate','农历日期'],'—')],
- ['四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],hourLabel(form.solarInfo?form.solarInfo.timeIndex:Number($('hour').value)))],['真太阳时',form.solarInfo?form.solarInfo.solarDate+' '+form.solarInfo.solarTime:'未校正'],['经度修正',form.solarInfo?form.solarInfo.longitudeCorrectionMinutes+' 分钟':'—'],['均时差',form.solarInfo?form.solarInfo.eotMinutes+' 分钟':'—'],['命宫',get(chart,['soul','命宫'],'—')],['身宫',get(chart,['body','身宫'],'—')]
+ ['四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],hourLabel(form.effectiveTimeIndex))],['晚子时口径',form.lateZiRule==='next-day'?'23点按次日换日':'23点保留当日'],['闰月口径',form.calendar==='lunar'?(form.leapMonth?(form.leapRule==='next-month'?'整月归下月':form.leapRule==='split'?'十五分界':form.leapRule==='prev-month'?'整月归前月':'闰月本月'): '非闰月'):'不适用'],['真太阳时',form.solarInfo?form.solarInfo.solarDate+' '+form.solarInfo.solarTime:'未校正'],['经度修正',form.solarInfo?form.solarInfo.longitudeCorrectionMinutes+' 分钟':'—'],['均时差',form.solarInfo?form.solarInfo.eotMinutes+' 分钟':'—'],['命宫',get(chart,['soul','命宫'],'—')],['身宫',get(chart,['body','身宫'],'—')]
  ];
  $('summary').innerHTML=fields.map(([k,v])=>'<div class="stat"><span>'+escapeHTML(k)+'</span><strong>'+escapeHTML(textValue(v)||'—')+'</strong></div>').join('');
  const ps=findPalaces(chart); $('palaces').innerHTML=ps.length?ps.map(palaceHTML).join(''):'<div class="center">未能读取宫位结构，请展开原始信息核对。</div>';
@@ -104,6 +106,9 @@ function trueSolarCorrection(dateStr,timeStr,longitude,utcOffset){
 }
 function hourLabel(i){return ['早子时','丑时','寅时','卯时','辰时','巳时','午时','未时','申时','酉时','戌时','亥时','晚子时'][i]||'未知';}
 let astroLib=null;
+function shiftDate(dateStr, days){const [y,m,d]=dateStr.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d+days));return dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0');}
+function normalizeDateString(s){if(!s)throw new Error('排盘引擎未返回可识别的公历日期。');const m=String(s).match(/(\\d{4})[-/年](\\d{1,2})[-/月](\\d{1,2})/);if(!m)throw new Error('无法解析排盘引擎返回的公历日期：'+s);return m[1]+'-'+String(Number(m[2])).padStart(2,'0')+'-'+String(Number(m[3])).padStart(2,'0');}
+function effectiveLunarDate(year,month,day,rule){if(rule==='split')return {date:year+'-'+month+'-'+day,leap:true,fixLeap:true};let y=year,m=month;if(rule==='next-month'){m++;if(m===13){m=1;y++;}}else if(rule==='prev-month'){m--;if(m===0){m=12;y--;}}return {date:y+'-'+m+'-'+day,leap:false,fixLeap:false};}
 async function loadEngine(){
  if(astroLib)return astroLib;
  const mod=await import('https://esm.sh/iztro@2.6.2?bundle');
@@ -115,22 +120,33 @@ $('chartForm').addEventListener('submit',async e=>{
  e.preventDefault();$('error').textContent='正在加载排盘引擎并计算……';
  try{
  const api=await loadEngine();const date=$('birthDate').value;if(!date)throw new Error('请填写出生日期。');
- const gender=normalizeGender($('gender').value),type=calendar.value;let ti=Number($('hour').value),chart,usedDate=date,solarInfo=null;
- if(type==='lunar'){chart=api.astro.byLunar(date,ti,gender,$('leap').value==='true',true,'zh-CN');}
- else{
- const lat=$('latitude').value.trim(),lon=$('longitude').value.trim(),time=$('birthTime').value;
- if(lat!==''&&lon!==''){
- const la=Number(lat),lo=Number(lon),offset=Number($('utcOffset').value);
- if(!Number.isFinite(la)||la < -90||la > 90||!Number.isFinite(lo)||lo < -180||lo > 180)throw new Error('经纬度超出有效范围。');
- solarInfo=trueSolarCorrection(date,time,lo,offset);usedDate=solarInfo.solarDate;ti=solarInfo.timeIndex;
- }else if(lat!==''||lon!=='')throw new Error('请同时填写纬度和经度，或清空两项以跳过真太阳时校正。');
- else{const hh=Number((time||'12:00').split(':')[0]);ti=hh===23?12:hh===0?0:Math.floor((hh+1)/2);}
- chart=api.astro.bySolar(usedDate,ti,gender,true,'zh-CN');
+ const gender=normalizeGender($('gender').value),type=calendar.value,lateZiRule=$('lateZiRule').value,leapRule=$('leapRule').value,leapMonth=$('leap').value==='true';
+ let ti=Number($('hour').value),chart,usedDate=date,solarInfo=null;
+ if(type==='lunar'){
+   const lm=date.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/);if(!lm)throw new Error('农历日期请按 YYYY-MM-DD 输入。');
+   const lunarYear=Number(lm[1]),lunarMonth=Number(lm[2]),lunarDay=Number(lm[3]);
+   if(lunarMonth<1||lunarMonth>12||lunarDay<1||lunarDay>30)throw new Error('农历月份或日期超出有效范围。');
+   let lunarInput=date,leapArg=leapMonth,fixLeap=true;
+   if(leapMonth){const effective=effectiveLunarDate(lunarYear,lunarMonth,lunarDay,leapRule);lunarInput=effective.date;leapArg=effective.leap;fixLeap=effective.fixLeap;}
+   const lunarBase=api.astro.byLunar(lunarInput,0,gender,leapArg,fixLeap,'zh-CN');
+   usedDate=normalizeDateString(lunarBase.solarDate);
+   if(ti===12){if(lateZiRule==='next-day')usedDate=shiftDate(usedDate,1);ti=0;}
+   chart=api.astro.bySolar(usedDate,ti,gender,true,'zh-CN');
+ }else{
+   const lat=$('latitude').value.trim(),lon=$('longitude').value.trim(),time=$('birthTime').value;
+   if(lat!==''&&lon!==''){
+     const la=Number(lat),lo=Number(lon),offset=Number($('utcOffset').value);
+     if(!Number.isFinite(la)||la < -90||la > 90||!Number.isFinite(lo)||lo < -180||lo > 180)throw new Error('经纬度超出有效范围。');
+     solarInfo=trueSolarCorrection(date,time,lo,offset);usedDate=solarInfo.solarDate;ti=solarInfo.timeIndex;
+   }else if(lat!==''||lon!=='')throw new Error('请同时填写纬度和经度，或清空两项以跳过真太阳时校正。');
+   else{const hh=Number((time||'12:00').split(':')[0]);ti=hh===23?12:hh===0?0:Math.floor((hh+1)/2);}
+   if(ti===12){if(lateZiRule==='next-day')usedDate=shiftDate(usedDate,1);ti=0;}
+   chart=api.astro.bySolar(usedDate,ti,gender,true,'zh-CN');
  }
- render(chart,{person:$('person').value.trim(),gender,date,place:$('place').value.trim(),system:$('system').value,solarInfo,usedDate,time:$('birthTime').value,utcOffset:$('utcOffset').value,latitude:$('latitude').value,longitude:$('longitude').value,calendar:type});
+ render(chart,{person:$('person').value.trim(),gender,date,place:$('place').value.trim(),system:$('system').value,solarInfo,usedDate,time:$('birthTime').value,utcOffset:$('utcOffset').value,latitude:$('latitude').value,longitude:$('longitude').value,calendar:type,lateZiRule,leapRule,leapMonth,effectiveTimeIndex:ti});
  }catch(err){$('error').textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
 });
-$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='9';$('leapWrap').hidden=true;$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;});
+$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='9';$('leapWrap').hidden=true;$('leapRuleWrap').hidden=true;$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;});
 $('download').addEventListener('click',()=>{if(!lastChart)return;const blob=new Blob([JSON.stringify(lastChart,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ziwei-chart.json';a.click();URL.revokeObjectURL(url);});
 $('print').addEventListener('click',()=>window.print());
 </script>
