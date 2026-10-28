@@ -79,7 +79,7 @@ function render(chart,form){
  const sys=form.system||'tianji';
  const status={
  tianji:'<span class="system-pill">《天纪》参考模式</span>当前显示的是基础引擎计算结果。尚未验证的《天纪》专属规则不会被标记为已实现。',
- traditional:'<span class="system-pill">通用传统体系</span>当前由 iztro 引擎生成。遇到不同门派规则时，请以所选口径及命例核验为准。',
+ traditional:'<span class="system-pill">通用传统体系</span>当前由本项目独立传统实验引擎生成；历法与安星规则仍需标准命例逐盘核验。',
  compare:'<span class="system-pill">iztro 参考盘</span><span class="system-pill">独立传统实验盘</span>现在会分别运行两个不同的算法实现。独立传统引擎仍属实验版本，尚未完成标准命例逐盘验证；《天纪》专属规则未被宣称为已完整实现。'
  };
  $('systemStatus').innerHTML=status[sys];
@@ -200,10 +200,10 @@ async function runRuleSelfTests(){
  const out=document.getElementById('ruleTests');
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
-  const [calendarMod,coreMod,traditionalMod,auxMod,policyMod,chartMod]=await Promise.all([
+  const [calendarMod,coreMod,traditionalMod,auxMod,policyMod,chartMod,standardMod]=await Promise.all([
    import('./engines/calendar-layer.js'),import('./engines/core-rules.js'),
    import('./engines/traditional-core.js'),import('./engines/auxiliary-stars.js'),
-   import('./engines/tianji-reference-policy.js'),import('./engines/traditional-chart.js')
+   import('./engines/tianji-reference-policy.js'),import('./engines/traditional-chart.js'),import('./engines/standard-cases.js')
   ]);
   const suites=[
    ['历法适配层',calendarMod.runCalendarLayerSelfTests()],
@@ -212,7 +212,7 @@ async function runRuleSelfTests(){
    ['传统核心安星',traditionalMod.runTraditionalEngineSelfTests()],
    ['辅星定位',auxMod.runAuxiliaryStarSelfTests()],
    ['《天纪》参考口径',policyMod.runTianjiPolicySelfTests()],
-   ['独立传统命盘组装',chartMod.runTraditionalChartSelfTests()]
+   ['独立传统命盘组装',chartMod.runTraditionalChartSelfTests()],\n   ['标准命例交叉核验',await standardMod.runStandardCaseSuite()]
   ];
   for(const [suite,result] of suites)for(const t of result.tests)tests.push({name:suite+' · '+t.name,pass:t.pass,actual:t.actual,expected:t.expected});
  }catch(err){
