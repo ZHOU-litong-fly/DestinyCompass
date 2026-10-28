@@ -65,7 +65,9 @@ function textValue(v){if(v===undefined||v===null)return '';if(Array.isArray(v))r
 function list(v){if(v===undefined||v===null)return [];return Array.isArray(v)?v:[v]}
 function palaceHTML(p){
  const name=textValue(get(p,['name','earthlyBranch','branch','宫名'],'宫位'));
- const branch=textValue(get(p,['heavenlyStem','stem','干支'],''));
+ const stem=textValue(get(p,['heavenlyStem','stem'],''));
+ const earthlyBranch=textValue(get(p,['earthlyBranch','branch'],''));
+ const branch=earthlyBranch?(stem+earthlyBranch):textValue(get(p,['干支'],'')||stem);
  const major=list(get(p,['majorStars','majorStar','主星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
  const minor=list(get(p,['minorStars','minorStar','auxiliaryStars','辅星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
  const adjective=list(get(p,['adjectiveStars','miscStars','杂曜'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
