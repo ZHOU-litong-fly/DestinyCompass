@@ -118,6 +118,6 @@ export function runAuxiliaryStarSelfTests() {
   check('子时地空地劫同在亥',[locateDikongDijie(0).dikongBranch,locateDikongDijie(0).dijieBranch],['亥','亥']);
   check('午时地空地劫同在巳',[locateDikongDijie(6).dikongBranch,locateDikongDijie(6).dijieBranch],['巳','巳']);
   check('申子辰年子时火星寅铃星戌',[locateHuoxingLingxing(0,0).huoxingBranch,locateHuoxingLingxing(0,0).lingxingBranch],['寅','戌']);
-  check('寅午戌年卯时火星巳铃星未',[locateHuoxingLingxing(2,3).huoxingBranch,locateHuoxingLingxing(2,3).lingxingBranch],['辰','未']);
+  check('寅午戌年卯时火星辰铃星午',[locateHuoxingLingxing(2,3).huoxingBranch,locateHuoxingLingxing(2,3).lingxingBranch],['辰','午']);
   return {passed:tests.filter(t=>t.pass).length,total:tests.length,tests};
 }
