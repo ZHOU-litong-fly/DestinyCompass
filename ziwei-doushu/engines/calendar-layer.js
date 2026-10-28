@@ -140,6 +140,15 @@ export async function resolveBirthCalendar(input,policy={lateZiRule:'next-day',l
     yearBranchIndex:parts.yearBranchIndex,
     yearGan:parts.yearGan,
     yearZhi:parts.yearZhi,
+    // 将 getLunarParts 已计算出的四柱完整传给上层；此前这里只返回年柱，
+    // 导致页面读取 monthGan/dayGan/timeGan 时得到 undefined，显示异常。
+    monthGan:parts.monthGan,
+    monthZhi:parts.monthZhi,
+    dayGan:parts.dayGan,
+    dayZhi:parts.dayZhi,
+    timeGan:parts.timeGan,
+    timeZhi:parts.timeZhi,
+    fourPillars:parts.fourPillars,
     lunarMonth:parts.lunarMonth,
     lunarDay:parts.lunarDay,
     hourBranchIndex:effectiveHourIndex,
