@@ -3,7 +3,8 @@
  * 运行方式：在支持 ES modules 的环境中导入本文件并执行 runZiweiRegressionSuite()。
  * 这些测试验证核心数学规则和结构，不代替完整命例校盘。
  */
-import { runTraditionalEngineSelfTests, locateZiwei, arrangeFourteenMajorStars, fiveElementsBureau, locateTianfu, sexagenaryIndex } from './traditional-core.js';\nimport { ZIWEI_REFERENCE_TABLE } from './ziwei-reference-table.js';
+import { runTraditionalEngineSelfTests, locateZiwei, arrangeFourteenMajorStars, fiveElementsBureau, locateTianfu, sexagenaryIndex } from './traditional-core.js';
+import { ZIWEI_REFERENCE_TABLE } from './ziwei-reference-table.js';
 import { runTianjiPolicySelfTests } from './tianji-reference-policy.js';
 
 export function runZiweiRegressionSuite() {
@@ -13,7 +14,13 @@ export function runZiweiRegressionSuite() {
   ];
   const exhaustive = [];
   // 对固定参考表逐项比对，而非仅检查输出范围。
-  for (const bureau of [2,3,4,5,6]) {\n    for (let day = 1; day <= 30; day++) {\n      const actual = locateZiwei(day, bureau).branch;\n      const expected = ZIWEI_REFERENCE_TABLE[bureau][day - 1];\n      exhaustive.push({ name: '参考表比对：' + bureau + '局第' + day + '日', pass: actual === expected, actual, expected });\n    }\n  }
+  for (const bureau of [2,3,4,5,6]) {
+    for (let day = 1; day <= 30; day++) {
+      const actual = locateZiwei(day, bureau).branch;
+      const expected = ZIWEI_REFERENCE_TABLE[bureau][day - 1];
+      exhaustive.push({ name: '参考表比对：' + bureau + '局第' + day + '日', pass: actual === expected, actual, expected });
+    }
+  }
   for (const bureau of [2,3,4,5,6]) {
     for (let day = 1; day <= 30; day++) {
       const result = locateZiwei(day, bureau);
