@@ -74,6 +74,30 @@ function palaceHTML(p){
  const tags=[get(p,['decadal','大限'],null),get(p,['yearly','流年'],null)].filter(Boolean).map(textValue).join(' · ');
  return '<article class="palace"><div class="name"><span>'+escapeHTML(name)+'</span><span class="branch">'+escapeHTML(branch)+'</span></div><div class="stars">'+(major.length?'<div class="major">'+major.map(escapeHTML).join('、')+'</div>':'')+(minor.length?'<div class="minor">'+minor.map(escapeHTML).join('、')+'</div>':'')+(adjective.length?'<div>'+adjective.map(escapeHTML).join('、')+'</div>':'')+(!major.length&&!minor.length&&!adjective.length?'<span class="branch">星曜信息见原始数据</span>':'')+'</div>'+(tags?'<div class="tags">'+escapeHTML(tags)+'</div>':'')+'</article>';
 }
+function traditionalLayoutHTML(chart,form){
+ const ps=findPalaces(chart);
+ if(!ps.length)return '<div class="center">未能读取宫位结构，请展开原始信息核对。</div>';
+ const positions={4:[1,1],5:[1,2],6:[1,3],7:[1,4],8:[2,4],9:[3,4],10:[4,4],11:[4,3],0:[4,2],1:[4,1],2:[3,1],3:[2,1]};
+ const cells=ps.map(p=>{
+  const idx=Number(get(p,['branchIndex'],-1)),pos=positions[idx];if(!pos)return '';
+  const name=textValue(get(p,['name','earthlyBranch','branch','宫名'],'宫位'));
+  const stem=textValue(get(p,['stem','heavenlyStem'],'')),branch=textValue(get(p,['branch','earthlyBranch'],''));
+  const major=list(get(p,['majorStars','majorStar','主星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
+  const minor=list(get(p,['auxiliaryStars','minorStars','minorStar','辅星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
+  const misc=list(get(p,['adjectiveStars','miscStars','杂曜'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
+  const sihua=list(get(p,['sihua','transformations','四化'],[])).map(s=>{if(typeof s==='string')return s;const type=textValue(get(s,['type','name'],''));const star=textValue(get(s,['star','星名'],''));return type+(star&&star!==type?' '+star:'');}).filter(Boolean);
+  const stars=(major.length?'<div class="trad-major">'+major.map(escapeHTML).join('、')+'</div>':'')+(minor.length?'<div class="trad-minor">'+minor.map(escapeHTML).join('、')+'</div>':'')+(misc.length?'<div class="trad-minor">'+misc.map(escapeHTML).join('、')+'</div>':'');
+  const transform=sihua.length?'<div class="trad-sihua">'+sihua.map(x=>'<span>'+escapeHTML(x)+'</span>').join('')+'</div>':'';
+  return '<article class="trad-cell" style="grid-column:'+pos[1]+';grid-row:'+pos[0]+'"><div class="trad-title"><span>'+escapeHTML(name)+'</span><span class="trad-stembranch">'+escapeHTML(stem+branch)+'</span></div>'+(stars||'<div class="trad-minor">当前引擎未返回星曜</div>')+transform+'</article>';
+ }).join('');
+ const soul=textValue(get(chart,['soul','mingShen.mingBranch','命宫'],'—')),body=textValue(get(chart,['body','mingShen.shenBranch','身宫'],'—'));
+ const bureau=textValue(get(chart,['fiveElementsClass','bureau.bureauName','五行局'],'—'));
+ const date=textValue(get(chart,['solarDate','公历日期'],form.date||'—')),lunar=textValue(get(chart,['lunarDate','农历日期'],'—'));
+ const pillars=textValue(get(chart,['chineseDate','八字'],'—')),person=textValue(form.person||'命主');
+ const engine=form.system==='tianji'?'《天纪》规则实验盘':form.system==='traditional'?'通用传统实验盘':'双体系对比主盘';
+ const center='<div class="trad-center" style="grid-column:2 / span 2;grid-row:2 / span 2"><h3>紫微斗数</h3><div class="center-person">'+escapeHTML(person)+' · '+escapeHTML(form.gender||'')+'</div><div class="center-meta">公历 '+escapeHTML(date)+'<br>农历 '+escapeHTML(lunar)+'<br>四柱 '+escapeHTML(pillars)+'<br>命宫 '+escapeHTML(soul)+' · 身宫 '+escapeHTML(body)+'<br>五行局 '+escapeHTML(bureau)+'</div><span class="center-pill">'+escapeHTML(engine)+'</span></div>';
+ return '<div class="traditional-chart" aria-label="传统紫微斗数十二宫方盘">'+cells+center+'</div><div class="trad-legend"><span><i class="lg-major"></i>主星</span><span><i class="lg-minor"></i>辅星/杂曜</span><span><i class="lg-sihua"></i>四化（按引擎返回）</span></div>';
+}
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function findPalaces(chart){let p=get(chart,['palaces','十二宫','houses'],[]);if(Array.isArray(p))return p;if(p&&typeof p==='object')return Object.values(p);return []}
 function render(chart,form){
@@ -91,7 +115,7 @@ function render(chart,form){
  [chart.yearPillarOnly?'年柱（独立历法）':'四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],hourLabel(form.effectiveTimeIndex))],['晚子时口径',form.lateZiRule==='next-day'?'23点按次日换日':'23点保留当日'],['闰月口径',form.calendar==='lunar'?(form.leapMonth?(form.leapRule==='next-month'?'整月归下月':form.leapRule==='split'?'十五分界':form.leapRule==='prev-month'?'整月归前月':'闰月本月'): '非闰月'):'不适用'],['排盘采用日期',form.usedDate],['真太阳时',form.solarInfo?form.solarInfo.solarDate+' '+form.solarInfo.solarTime:'未校正'],['经度修正',form.solarInfo?form.solarInfo.longitudeCorrectionMinutes+' 分钟':'—'],['均时差',form.solarInfo?form.solarInfo.eotMinutes+' 分钟':'—'],['命宫',get(chart,['soul','mingShen.mingBranch','命宫'],'—')],['身宫',get(chart,['body','mingShen.shenBranch','身宫'],'—')]
  ];
  $('summary').innerHTML=fields.map(([k,v])=>'<div class="stat"><span>'+escapeHTML(k)+'</span><strong>'+escapeHTML(textValue(v)||'—')+'</strong></div>').join('');
- const ps=findPalaces(chart); $('palaces').innerHTML=ps.length?ps.map(palaceHTML).join(''):'<div class="center">未能读取宫位结构，请展开原始信息核对。</div>';
+ $('palaces').innerHTML=traditionalLayoutHTML(chart,form);
  $('raw').textContent=JSON.stringify({input:form,solarTimeCorrection:form.solarInfo,chart},null,2); $('error').textContent='';
  $('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
