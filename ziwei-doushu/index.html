@@ -15,6 +15,21 @@ h2{font-size:18px;margin:0 0 16px;color:var(--gold)}.formgrid{display:grid;grid-
 .traditional-chart{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(128px,auto));gap:5px;padding:5px;border:1px solid #665a3d;border-radius:12px;background:#0a1423;overflow:hidden}
 .trad-cell{min-width:0;min-height:0;padding:8px 7px;border:1px solid #4a5b72;border-radius:7px;background:linear-gradient(155deg,#1a2b43,#101b2c);overflow-wrap:anywhere}
 .trad-cell .trad-title{display:flex;justify-content:space-between;align-items:flex-start;gap:4px;color:var(--gold);font-size:13px;font-weight:800;line-height:1.35}
+.star-chip{appearance:none;border:0;background:transparent;color:inherit;font:inherit;line-height:inherit;padding:0 1px;margin:0;cursor:pointer;border-radius:3px;text-decoration:underline;text-decoration-color:#64748b;text-decoration-style:dotted;text-underline-offset:3px;overflow-wrap:anywhere}
+.star-chip:hover,.star-chip:focus-visible{outline:1px solid var(--gold);background:#2c3a4d;color:#fff}
+.trad-cell{cursor:pointer;transition:border-color .15s,box-shadow .15s,background .15s}
+.trad-cell:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.trad-cell.is-selected{border-color:#fff0ad;box-shadow:inset 0 0 0 2px #fff0ad,0 0 14px #e8c77b35;background:linear-gradient(155deg,#283b55,#162338)}
+.trad-cell.is-opposite{border-color:#df9d9d;box-shadow:inset 0 0 0 1px #df9d9d}
+.trad-cell.is-trine{border-color:#8dbfa2;box-shadow:inset 0 0 0 1px #8dbfa2}
+.interaction-panel{margin-top:12px;border:1px solid #40536d;border-radius:10px;background:#0c1728;padding:14px;min-width:0}
+.interaction-panel h3{margin:0 0 7px;color:var(--gold);font-size:15px}
+.interaction-panel p{margin:6px 0;color:#d1dbea;font-size:12px;overflow-wrap:anywhere}
+.interaction-panel .panel-source{color:var(--muted);font-size:11px;border-top:1px solid #34445b;padding-top:8px;margin-top:10px}
+.interaction-panel .relation-tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.interaction-panel .relation-tags span{font-size:11px;padding:3px 7px;border:1px solid #53657d;border-radius:999px;color:#dce6f4}
+@media(max-width:700px){.interaction-panel{padding:11px}.star-chip{text-underline-offset:2px}}
+
 .trad-cell.is-ming{border-color:#e8c77b;box-shadow:inset 0 0 0 1px #e8c77b,0 0 12px #e8c77b20}.trad-cell.is-shen{border-style:dashed;border-color:#8eb9e8}.trad-cell.is-ming.is-shen{border-style:solid;border-color:#e8c77b;box-shadow:inset 0 0 0 2px #8eb9e8,0 0 12px #e8c77b20}.palace-mark,.legend-mark{display:inline-block;margin-left:4px;padding:0 4px;border-radius:4px;font-size:9px;line-height:1.5;background:#66512b;color:#ffe4a1;vertical-align:1px}.body-mark{background:#263e59;color:#c6e2ff}.trad-empty{font-size:10px;color:#93a2b8;margin-top:8px}.trad-misc{color:#aebbd0}
 .trad-cell .trad-stembranch{font-size:11px;color:#aebbd0;white-space:nowrap}
 .trad-cell .trad-major{margin-top:8px;color:#f3d28b;font-size:13px;font-weight:700;line-height:1.65}
@@ -115,9 +130,10 @@ function traditionalLayoutHTML(chart,form){
   const sihua=list(get(p,['sihua','transformations','四化'],[])).map(s=>{if(typeof s==='string')return s;const type=textValue(get(s,['type','name'],''));const star=textValue(get(s,['star','星名'],''));return type+(star&&star!==type?' '+star:'');}).filter(Boolean);
   const badges=(idx===mingIndex?'<span class="palace-mark">命</span>':'')+(idx===bodyIndex?'<span class="palace-mark body-mark">身</span>':'');
   const classes='trad-cell'+(idx===mingIndex?' is-ming':'')+(idx===bodyIndex?' is-shen':'');
-  const stars=(major.length?'<div class="trad-major">'+major.map(escapeHTML).join('、')+'</div>':'')+(minor.length?'<div class="trad-minor">'+minor.map(escapeHTML).join('、')+'</div>':'')+(misc.length?'<div class="trad-minor trad-misc">'+misc.map(escapeHTML).join('、')+'</div>':'');
+  const starButtons=names=>names.map(star=>'<button type="button" class="star-chip" data-star="'+escapeHTML(star)+'" aria-label="查看'+escapeHTML(star)+'星解释">'+escapeHTML(star)+'</button>').join('、');
+  const stars=(major.length?'<div class="trad-major">'+starButtons(major)+'</div>':'')+(minor.length?'<div class="trad-minor">'+starButtons(minor)+'</div>':'')+(misc.length?'<div class="trad-minor trad-misc">'+starButtons(misc)+'</div>':'');
   const transform=sihua.length?'<div class="trad-sihua">'+sihua.map(x=>'<span>'+escapeHTML(x)+'</span>').join('')+'</div>':'';
-  return '<article class="'+classes+'" style="grid-column:'+pos[1]+';grid-row:'+pos[0]+'"><div class="trad-title"><span>'+escapeHTML(name)+badges+'</span><span class="trad-stembranch">'+escapeHTML(stem+branch)+'</span></div>'+(stars||'<div class="trad-empty">当前引擎未返回星曜</div>')+transform+'</article>';
+  return '<article class="'+classes+'" data-branch-index="'+idx+'" data-palace-name="'+escapeHTML(name)+'" tabindex="0" role="button" aria-label="查看'+escapeHTML(name)+'及其三方四正" style="grid-column:'+pos[1]+';grid-row:'+pos[0]+'"><div class="trad-title"><span>'+escapeHTML(name)+badges+'</span><span class="trad-stembranch">'+escapeHTML(stem+branch)+'</span></div>'+(stars||'<div class="trad-empty">当前引擎未返回星曜</div>')+transform+'</article>';
  }).join('');
  const soul=textValue(get(chart,['soul','mingShen.mingBranch','命宫'],'—')),body=textValue(get(chart,['body','mingShen.shenBranch','身宫'],'—'));
  const bureau=textValue(get(chart,['fiveElementsClass','bureau.bureauName','bureau.name','五行局'],'—'));
@@ -125,7 +141,7 @@ function traditionalLayoutHTML(chart,form){
  const pillars=textValue(get(chart,['chineseDate','八字'],'—')),person=textValue(form.person||'命主');
  const engine=form.system==='tianji'?'《天纪》规则实验盘':form.system==='traditional'?'通用传统实验盘':'双体系对比主盘';
  const center='<div class="trad-center" style="grid-column:2 / span 2;grid-row:2 / span 2"><h3>紫微斗数</h3><div class="center-person">'+escapeHTML(person)+' · '+escapeHTML(form.gender||'')+'</div><div class="center-meta">公历 '+escapeHTML(date)+'<br>农历 '+escapeHTML(lunar)+'<br>四柱 '+escapeHTML(pillars)+'<br>命宫 '+escapeHTML(soul)+' · 身宫 '+escapeHTML(body)+'<br>五行局 '+escapeHTML(bureau)+'</div><span class="center-pill">'+escapeHTML(engine)+'</span></div>';
- return '<div class="traditional-chart" aria-label="传统紫微斗数十二宫方盘">'+cells+center+'</div><div class="trad-legend"><span><i class="lg-major"></i>主星</span><span><i class="lg-minor"></i>辅星/杂曜</span><span><i class="lg-sihua"></i>四化（按引擎返回）</span><span><b class="legend-mark">命</b>命宫</span><span><b class="legend-mark body-mark">身</b>身宫</span></div>';
+ return '<div class="traditional-chart" aria-label="传统紫微斗数十二宫方盘">'+cells+center+'</div><div class="trad-legend"><span><i class="lg-major"></i>主星</span><span><i class="lg-minor"></i>辅星/杂曜</span><span><i class="lg-sihua"></i>四化（按引擎返回）</span><span><b class="legend-mark">命</b>命宫</span><span><b class="legend-mark body-mark">身</b>身宫</span><span>点击宫位查看三方四正</span><span>点击星曜查看释义</span></div><section class="interaction-panel" id="palaceInsight" aria-live="polite"><h3>宫位互动说明</h3><p>点击任意宫位，可高亮本宫、对宫与三合宫；点击星曜名称，可查看传统象义、同宫组合提示及参考口径。</p><p class="panel-source">星曜释义为传统象义的简明整理，不是确定性预测；不同流派可能采用不同解释。</p></section>';
 }
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function findPalaces(chart){let p=get(chart,['palaces','十二宫','houses'],[]);if(Array.isArray(p))return p;if(p&&typeof p==='object')return Object.values(p);return []}
@@ -144,7 +160,7 @@ function render(chart,form){
  [chart.yearPillarOnly?'年柱（独立历法）':'四柱',get(chart,['chineseDate','八字'],'—')],['出生时辰',get(chart,['time','时辰'],hourLabel(form.effectiveTimeIndex))],['晚子时口径',form.lateZiRule==='next-day'?'23点按次日换日':'23点保留当日'],['闰月口径',form.calendar==='lunar'?(form.leapMonth?(form.leapRule==='next-month'?'整月归下月':form.leapRule==='split'?'十五分界':form.leapRule==='prev-month'?'整月归前月':'闰月本月'): '非闰月'):'不适用'],['排盘采用日期',form.usedDate],['真太阳时',form.solarInfo?form.solarInfo.solarDate+' '+form.solarInfo.solarTime:'未校正'],['经度修正',form.solarInfo?form.solarInfo.longitudeCorrectionMinutes+' 分钟':'—'],['均时差',form.solarInfo?form.solarInfo.eotMinutes+' 分钟':'—'],['命宫',get(chart,['soul','mingShen.mingBranch','命宫'],'—')],['身宫',get(chart,['body','mingShen.shenBranch','身宫'],'—')]
  ];
  $('summary').innerHTML=fields.map(([k,v])=>'<div class="stat"><span>'+escapeHTML(k)+'</span><strong>'+escapeHTML(textValue(v)||'—')+'</strong></div>').join('');
- $('palaces').innerHTML=traditionalLayoutHTML(chart,form);
+ $('palaces').innerHTML=traditionalLayoutHTML(chart,form); initPalaceInteractions();
  $('raw').textContent=JSON.stringify({input:form,solarTimeCorrection:form.solarInfo,chart},null,2); $('error').textContent='';
  $('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -164,7 +180,7 @@ function hourLabel(i){return ['早子时','丑时','寅时','卯时','辰时','�
 function shiftDate(dateStr, days){const [y,m,d]=dateStr.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d+days));return dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0');}
 function effectiveLunarDate(year,month,day,rule){if(rule==='split')return {date:year+'-'+month+'-'+day,leap:true,fixLeap:true};let y=year,m=month;if(rule==='next-month'){m++;if(m===13){m=1;y++;}}else if(rule==='prev-month'){m--;if(m===0){m=12;y--;}}return {date:y+'-'+m+'-'+day,leap:false,fixLeap:false};}
 async function chartForIndependentProfile(input,profile,enginePath='./engines/traditional-chart.js',builderName='buildTraditionalChart'){
- const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-8');
+ const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-9');
  const engine=await import(enginePath);
  const buildChart=engine[builderName];
  if(typeof buildChart!=='function')throw new Error('未找到所选独立排盘引擎：'+builderName);
@@ -229,9 +245,9 @@ async function runRuleSelfTests(){
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
   const [calendarMod,standardMod,regressionMod]=await Promise.all([
-   import('./engines/calendar-layer.js?v=20261029-8'),
-   import('./engines/standard-cases.js?v=20261029-8'),
-   import('./engines/regression-suite.js?v=20261029-8')
+   import('./engines/calendar-layer.js?v=20261029-9'),
+   import('./engines/standard-cases.js?v=20261029-9'),
+   import('./engines/regression-suite.js?v=20261029-9')
   ]);
   const suites=[
    ['统一算法回归套件',regressionMod.runZiweiRegressionSuite()],
@@ -285,6 +301,87 @@ $('chartForm').addEventListener('submit',async e=>{
   $('error').textContent='';
  }catch(err){const errorBox=$('error');errorBox.hidden=false;errorBox.style.display='block';errorBox.style.whiteSpace='pre-wrap';errorBox.textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
 });
+
+const STAR_GUIDE={
+ '紫微':['领导、统筹、尊贵与资源整合','关注责任承担、组织协调与主导方式。'],
+ '天机':['思考、策划、变化与技巧','关注学习、分析、应变及想法过多带来的反复。'],
+ '太阳':['公开表达、付出、名望与照拂','关注承担、服务、表达方式及付出与回报的平衡。'],
+ '武曲':['执行、财务、纪律与决断','关注目标管理、资源配置、执行力与刚硬的一面。'],
+ '天同':['和缓、享受、人缘与协调','关注舒适感、合作、情绪需求及回避压力的倾向。'],
+ '廉贞':['原则、界限、人际吸引与复杂事务','关注规则意识、人际边界及情感与原则之间的张力。'],
+ '天府':['储备、稳定、管理与承载','关注资源积累、稳定性、管理能力及保守倾向。'],
+ '太阴':['细致、感受、规划与积累','关注观察力、情绪感受、长期规划和安全感。'],
+ '贪狼':['欲望、交际、兴趣与多元发展','关注社交能力、兴趣拓展及欲望管理。'],
+ '巨门':['语言、辨析、质疑与研究','关注表达、论证、研究能力及沟通中的误解。'],
+ '天相':['协调、制度、服务与形象','关注协作、公平、流程意识及对评价的在意。'],
+ '天梁':['保护、原则、经验与照顾','关注责任感、经验传承、助人及过度操心。'],
+ '七杀':['决断、突破、独立与压力','关注行动力、风险判断、独立性及急进倾向。'],
+ '破军':['改革、拆解、重组与开创','关注改变旧结构、重新开始及变动成本。'],
+ '左辅':['协助、支持、团队配合','关注外部支持、协作资源与互补关系。'],
+ '右弼':['协调、补位、人际助力','关注人际协助、沟通润滑及关系中的支持。'],
+ '文昌':['文字、学习、条理与表达','关注书面沟通、学习整理、规则与细节。'],
+ '文曲':['审美、表达、感受与才艺','关注语言感染力、审美表达及情绪细腻度。'],
+ '禄存':['资源、积累、守成与现实考量','关注资源留存、稳定积累及过度保守。'],
+ '擎羊':['锋芒、竞争、突破与摩擦','关注直接行动、竞争意识及冲突管理。'],
+ '陀罗':['耐力、纠结、延迟与反复','关注持续投入、耐心以及拖延或反复确认。'],
+ '天魁':['提携、机会、长辈或制度性帮助','关注导师、贵人机会及主动争取支持。'],
+ '天钺':['协助、引荐、关键时刻的支持','关注人际引荐、协作资源与把握机会。'],
+ '天马':['移动、变化、奔波与拓展','关注出行、转换环境、跨领域发展及变动成本。'],
+ '地空':['抽象、空灵、落差与重新理解','关注理想与现实差距、想象力及成果落地。'],
+ '地劫':['损耗、变数、断舍离与风险意识','关注资源管理、意外变化及提前准备。'],
+ '火星':['迅速、热度、冲劲与急切','关注反应速度、执行冲劲及冲动管理。'],
+ '铃星':['敏感、警觉、突发压力与专注','关注对变化的敏锐度、紧张感与压力调节。']
+};
+const STAR_COMBOS=[
+ {stars:['紫微','天府'],text:'常见合参方向：统筹与资源管理并看；可进一步观察是稳健组织还是过度控制。'},
+ {stars:['太阳','太阴'],text:'常见合参方向：外在表达与内在感受并看；关注公开行动和私人需求如何协调。'},
+ {stars:['武曲','贪狼'],text:'常见合参方向：执行与拓展欲望并看；关注目标、资源和兴趣之间的优先级。'},
+ {stars:['天机','巨门'],text:'常见合参方向：思考策划与辨析表达并看；关注分析能力如何转化为清晰沟通。'},
+ {stars:['廉贞','七杀'],text:'常见合参方向：原则边界与果断行动并看；关注强执行与关系协调的平衡。'},
+ {stars:['天同','太阴'],text:'常见合参方向：舒适需求与细腻感受并看；关注安全感、情绪和行动之间的关系。'},
+ {stars:['紫微','七杀'],text:'常见合参方向：统筹与突破并看；关注决策责任、独立行动及风险控制。'},
+ {stars:['天府','武曲'],text:'常见合参方向：储备管理与执行纪律并看；关注长期积累与具体落实。'}
+];
+function getPalaceRelation(index){return {opposite:(index+6)%12,trines:[(index+4)%12,(index+8)%12]};}
+function renderPalaceInsight(card,index){
+ const panel=document.getElementById('palaceInsight');if(!panel)return;
+ const name=card.dataset.palaceName||'当前宫位',relation=getPalaceRelation(index);
+ document.querySelectorAll('.trad-cell').forEach(el=>{
+  const n=Number(el.dataset.branchIndex);
+  el.classList.toggle('is-selected',n===index);
+  el.classList.toggle('is-opposite',n===relation.opposite);
+  el.classList.toggle('is-trine',relation.trines.includes(n));
+ });
+ const byIndex=new Map([...document.querySelectorAll('.trad-cell')].map(el=>[Number(el.dataset.branchIndex),el]));
+ const opposite=byIndex.get(relation.opposite)?.dataset.palaceName||'对宫';
+ const trineNames=relation.trines.map(n=>byIndex.get(n)?.dataset.palaceName||'三合宫');
+ panel.innerHTML='<h3>'+escapeHTML(name)+' · 三方四正</h3><p>本宫：观察该宫主题本身；对宫与两个三合宫需一起参看，避免只凭单宫下结论。</p><div class="relation-tags"><span>本宫：'+escapeHTML(name)+'</span><span>对宫：'+escapeHTML(opposite)+'</span><span>三合：'+escapeHTML(trineNames[0])+'</span><span>三合：'+escapeHTML(trineNames[1])+'</span></div><p>当前高亮：金色为本宫，红色为对宫，绿色为两个三合宫。宫位关系按地支相隔六位为对宫、相隔四位为三合位置显示。</p><p class="panel-source">这是宫位几何关系的辅助阅读，不自动推导吉凶，也不替代各流派的完整论盘规则。</p>';
+}
+function renderStarInsight(star,card){
+ const panel=document.getElementById('palaceInsight');if(!panel)return;
+ const guide=STAR_GUIDE[star]||['当前版本暂无独立释义条目','可结合宫位、同宫星曜和已显示四化一起观察。'];
+ const palace=card?.dataset.palaceName||'当前宫位';
+ const stars=card?[...card.querySelectorAll('.star-chip')].map(b=>b.dataset.star).filter(Boolean):[];
+ const majorPairs=STAR_COMBOS.filter(combo=>combo.stars.includes(star)&&combo.stars.every(s=>stars.includes(s)));
+ const otherStars=stars.filter(s=>s!==star);
+ const comboText=majorPairs.map(x=>x.text);
+ if(!comboText.length&&otherStars.length)comboText.push('本宫同时出现：'+otherStars.join('、')+'。建议分别理解各星象义，再结合本宫主题与三方四正综合阅读；不宜机械套用单一组合口诀。');
+ if(!comboText.length)comboText.push('当前宫位未显示已收录的固定主星组合释义。可先查看同宫星曜，并结合对宫、三合宫及四化一起阅读。');
+ panel.innerHTML='<h3>'+escapeHTML(star)+' · 星曜释义</h3><p><strong>常见象义：</strong>'+escapeHTML(guide[0])+'。</p><p><strong>阅读提醒：</strong>'+escapeHTML(guide[1])+'</p><div class="relation-tags"><span>所在宫位：'+escapeHTML(palace)+'</span>'+otherStars.map(s=>'<span>同宫：'+escapeHTML(s)+'</span>').join('')+'</div><p><strong>同宫合参：</strong>'+comboText.map(escapeHTML).join(' ')+'</p><p>建议阅读顺序：星曜象义 → 所在宫位主题 → 同宫星曜 → 三方四正 → 引擎实际返回的四化。星曜释义不等于对现实事件的确定预测。</p><p class="panel-source">参考口径：传统紫微斗数常见星曜象义的简明归纳，参考范围为《紫微斗数全书》等传统紫微斗数文献体系的通行解释；此处为现代转述，不是原文引句，也未声称覆盖特定门派。星曜及组合解释因流派、宫位、四化和全盘条件而异。</p>';
+}
+function initPalaceInteractions(){
+ const root=document.getElementById('palaces');if(!root||root.dataset.interactionsReady==='1')return;
+ root.dataset.interactionsReady='1';
+ root.addEventListener('click',event=>{
+  const starButton=event.target.closest('.star-chip');
+  if(starButton){event.preventDefault();event.stopPropagation();renderStarInsight(starButton.dataset.star,starButton.closest('.trad-cell'));return;}
+  const card=event.target.closest('.trad-cell');if(card)renderPalaceInsight(card,Number(card.dataset.branchIndex));
+ });
+ root.addEventListener('keydown',event=>{
+  if((event.key==='Enter'||event.key===' ')&&event.target.classList.contains('trad-cell')){event.preventDefault();renderPalaceInsight(event.target,Number(event.target.dataset.branchIndex));}
+ });
+}
+
 $('runRuleTests').addEventListener('click',runRuleSelfTests);
 $('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='8';$('leapWrap').hidden=true;$('leapRuleWrap').hidden=true;document.querySelector('label[for="birthDate"]').textContent='公历出生日期';$('birthDate').type='date';$('birthDate').placeholder='';$('birthDate').inputMode='text';$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;const cr=document.getElementById('comparisonResult');if(cr)cr.remove();});
 $('download').addEventListener('click',()=>{if(!lastChart)return;const blob=new Blob([JSON.stringify(lastChart,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ziwei-chart.json';a.click();URL.revokeObjectURL(url);});
