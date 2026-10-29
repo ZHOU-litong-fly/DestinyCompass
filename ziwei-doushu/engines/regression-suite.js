@@ -9,6 +9,7 @@ import { runTianjiPolicySelfTests } from './tianji-reference-policy.js';
 import { runAuxiliaryStarSelfTests, locateZuofuYoubi, locateWenchangWenqu, locateLucunQingyangTuoluo, locateTiankuiTianyue, locateTianma, locateDikongDijie, locateHuoxingLingxing } from './auxiliary-stars.js';
 import { runTraditionalChartSelfTests } from './traditional-chart.js';
 import { runTianjiEngineSelfTests, calculateTianjiBureau, locateTianjiMingShen, locateTianjiZiwei, arrangeTianjiMajorStars } from './tianji-engine.js';
+import { runLifeLimitSelfTests } from './life-limits.js';
 
 export function runZiweiRegressionSuite() {
   const suites = [
@@ -16,7 +17,8 @@ export function runZiweiRegressionSuite() {
     { name: '《天纪》参考口径边界', result: runTianjiPolicySelfTests() },
     { name: '辅星基础定位', result: runAuxiliaryStarSelfTests() },
     { name: '独立传统命盘组装', result: runTraditionalChartSelfTests() },
-    { name: '《天纪》独立规则引擎', result: runTianjiEngineSelfTests() }
+    { name: '《天纪》独立规则引擎', result: runTianjiEngineSelfTests() },
+    { name: '大限/流年/小限规则', result: runLifeLimitSelfTests() }
   ];
   const exhaustive = [];
   // 对固定参考表逐项比对，而非仅检查输出范围。
