@@ -46,6 +46,7 @@ h2{font-size:18px;margin:0 0 16px;color:var(--gold)}.formgrid{display:grid;grid-
 @media(max-width:700px){.traditional-chart{grid-template-rows:repeat(4,minmax(105px,auto));gap:3px;padding:3px}.trad-cell{padding:6px 4px}.trad-cell .trad-title{font-size:11px;display:block}.trad-cell .trad-stembranch{display:block;margin-top:2px;font-size:10px}.trad-cell .trad-major{font-size:11px;margin-top:5px;line-height:1.5}.trad-cell .trad-minor{font-size:10px;line-height:1.45;margin-top:3px}.trad-sihua span{font-size:9px;padding:1px 3px}.trad-center{padding:7px}.trad-center h3{font-size:14px;letter-spacing:1px}.trad-center .center-person{font-size:11px;margin-bottom:4px}.trad-center .center-meta{font-size:9px;line-height:1.5}.trad-center .center-pill{font-size:9px;padding:1px 4px}.trad-legend{gap:8px;font-size:10px}}
 @media(max-width:390px){.traditional-chart{grid-template-rows:repeat(4,minmax(88px,auto))}.trad-cell{padding:4px 3px}.trad-cell .trad-title{font-size:10px}.trad-cell .trad-stembranch{font-size:9px}.trad-cell .trad-major{font-size:10px;line-height:1.4}.trad-cell .trad-minor{font-size:9px;line-height:1.35}.trad-center h3{font-size:12px}.trad-center .center-meta{font-size:8px}}
 .palace-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.palace{min-height:142px;border:1px solid #4a5b72;border-radius:10px;padding:10px;background:linear-gradient(160deg,#182941,#101c2e);overflow-wrap:anywhere}.palace .name{font-weight:700;color:var(--gold);font-size:14px;display:flex;justify-content:space-between;gap:4px}.palace .branch{font-size:11px;color:var(--muted)}.stars{font-size:13px;line-height:1.8;margin-top:8px}.major{color:#f3d28b}.minor{color:#c9d8ee}.tags{font-size:11px;color:#eaa5a5;margin-top:6px}.center{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px dashed #65748a;border-radius:10px;padding:14px;color:var(--muted);font-size:13px;min-height:142px}
+.limit-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:8px 0 14px}.limit-controls .field{width:min(240px,100%)}.limit-result-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.limit-item{border:1px solid var(--line);background:#0c1728;border-radius:10px;padding:12px;min-width:0}.limit-item h3{font-size:14px;color:var(--gold);margin:0 0 6px}.limit-item strong{display:block;font-size:18px;overflow-wrap:anywhere}.limit-item p{font-size:12px;color:var(--muted);margin:5px 0 0}.annual-palace-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:12px}.annual-palace{padding:7px;border:1px solid #40516a;border-radius:7px;font-size:12px;overflow-wrap:anywhere}.annual-palace strong{display:block;color:var(--gold)}.limit-note{font-size:12px;color:var(--muted);margin-top:12px}.limit-error{color:#ffb7b7;font-size:13px}@media(max-width:700px){.limit-result-grid{grid-template-columns:1fr}.annual-palace-list{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:390px){.annual-palace-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;color:var(--gold)}pre{white-space:pre-wrap;word-break:break-word;color:#c8d5e8;font-size:12px;max-height:400px;overflow:auto}.footer{text-align:center;color:#8492a8;font-size:12px;padding:20px 4px}
 .compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.compare-side{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:#0c1728}.compare-side h3{color:var(--gold);font-size:17px;margin:0 0 12px}.compare-side h4{font-size:14px;color:var(--muted);margin:14px 0 8px}.compare-side .palace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.test-row{padding:9px 0;border-bottom:1px solid var(--line);font-size:12px;overflow-wrap:anywhere}.test-row.pass strong{color:#9de0ad}.test-row.fail strong{color:#ffb7b7}@media(max-width:700px){.compare-grid{grid-template-columns:1fr}.compare-side .palace-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:390px){.compare-side .palace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.wrap{padding:12px 10px 28px}.card{padding:15px}.formgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.palace-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.palace{padding:8px;min-height:130px}.palace .name{font-size:12px}.stars{font-size:12px}.center{min-height:100px;font-size:11px}}
 @media(max-width:390px){.palace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.formgrid{grid-template-columns:1fr}.hero h1{letter-spacing:2px}}
@@ -80,6 +81,7 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <section id="result" hidden>
 <div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div><div id="systemStatus" class="system-note"></div></div>
 <div class="card"><h2>传统十二宫命盘</h2><div id="palaces"></div><p class="hint">采用传统十二宫环形方盘布局。星曜和四化仅展示当前排盘引擎实际返回的数据；不同门派的安星、四化及时间校正规则可能存在差异。</p></div>
+<div class="card" id="lifeLimitsCard"><h2>大限 · 流年 · 小限</h2><p class="hint">目标年份按农历年计算。修改年份后点击“重新计算”；结果使用当前命盘出生资料即时计算，不会保存到本地或云端。</p><div class="limit-controls"><div class="field"><label for="targetLunarYear">目标农历年份</label><input id="targetLunarYear" type="number" min="1" max="9999" step="1"></div><button class="btn secondary" id="recalculateLimits" type="button">重新计算</button></div><div id="lifeLimitsResult" aria-live="polite"></div></div>
 <div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button></div></div>
 </section>
 <footer class="footer">仅供传统文化学习与娱乐参考，不构成对现实人生的确定性预测。<br>《天纪》规则实验引擎 · 通用传统独立实验引擎</footer>
@@ -161,9 +163,40 @@ function render(chart,form){
  ];
  $('summary').innerHTML=fields.map(([k,v])=>'<div class="stat"><span>'+escapeHTML(k)+'</span><strong>'+escapeHTML(textValue(v)||'—')+'</strong></div>').join('');
  $('palaces').innerHTML=traditionalLayoutHTML(chart,form); initPalaceInteractions();
+ renderLifeLimits(chart,form);
  $('raw').textContent=JSON.stringify({input:form,solarTimeCorrection:form.solarInfo,chart},null,2); $('error').textContent='';
  $('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
+async function renderLifeLimits(chart,form){
+ const panel=document.getElementById('lifeLimitsResult');
+ const yearInput=document.getElementById('targetLunarYear');
+ if(!panel||!yearInput)return;
+ if(!yearInput.value)yearInput.value=String(new Date().getFullYear());
+ const ctx=chart?.limitContext;
+ if(!ctx){panel.innerHTML='<p class="limit-error">当前命盘缺少大限/流年/小限所需的出生年索引，暂不能计算。</p>';return;}
+ try{
+  const {calculateLifeLimits}=await import('./engines/life-limits.js?v=20261029-1');
+  const targetLunarYear=Number(yearInput.value);
+  const result=calculateLifeLimits({...ctx,targetLunarYear});
+  const major=result.major.active
+   ? result.major.startAge+'–'+result.major.endAge+'虚岁 · '+result.major.palaceName+'（'+['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][result.major.branchIndex]+'宫）'
+   : '尚未起限（'+result.major.startAge+'虚岁起）';
+  const annual=result.annual.mingBranch+'（流年命宫）';
+  const minor=result.minor.branch+'（小限落支）';
+  panel.innerHTML='<div class="limit-result-grid">'+
+   '<div class="limit-item"><h3>大限</h3><strong>'+escapeHTML(major)+'</strong><p>顺逆：'+(result.major.direction===1?'顺行':'逆行')+'；起限依据：'+escapeHTML(form?.system==='tianji'?'《天纪》规则实验盘五行局':'当前主盘五行局')+' '+ctx.bureau+'局数。</p></div>'+
+   '<div class="limit-item"><h3>流年 · '+targetLunarYear+'年</h3><strong>'+escapeHTML(annual)+'</strong><p>按目标农历年地支定位流年命宫。</p></div>'+
+   '<div class="limit-item"><h3>小限</h3><strong>'+escapeHTML(minor)+'</strong><p>当前虚岁：'+result.virtualAge+'；'+(result.minor.direction===1?'男命顺行口径':'女命逆行口径')+'。</p></div></div>'+
+   '<h3 style="margin:16px 0 8px;color:var(--gold);font-size:15px">流年十二宫</h3><div class="annual-palace-list">'+result.annual.palaces.map(p=>'<div class="annual-palace"><strong>'+escapeHTML(p.name)+'</strong><span>'+escapeHTML(p.branch)+'宫</span><br><span>本命地支：'+escapeHTML(['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][p.natalPalaceBranchIndex])+'</span></div>').join('')+'</div>'+
+   '<p class="limit-note">'+result.notes.map(escapeHTML).join('<br>')+'</p>';
+  chart.lifeLimits=result;
+ }catch(err){panel.innerHTML='<p class="limit-error">大限/流年/小限计算失败：'+escapeHTML(err?.message||String(err))+'</p>';}
+}
+document.getElementById('recalculateLimits')?.addEventListener('click',()=>{
+ const chart=lastChart?.mode==='compare'?lastChart.tianjiExperimental:lastChart;
+ const form={system:document.getElementById('system').value};
+ if(chart)renderLifeLimits(chart,form);
+});
 function trueSolarCorrection(dateStr,timeStr,longitude,utcOffset){
  const [y,m,d]=dateStr.split('-').map(Number),[hh,mm]=timeStr.split(':').map(Number);
  const dayOfYear=Math.floor((Date.UTC(y,m-1,d)-Date.UTC(y,0,0))/86400000);
@@ -213,7 +246,8 @@ async function chartForIndependentProfile(input,profile,enginePath='./engines/tr
   soul:raw.mingShen.mingBranch,
   body:raw.mingShen.shenBranch,
   fiveElementsClass:raw.bureau.bureauName,
-  palaces:raw.palaces.map(p=>({...p,minorStars:p.auxiliaryStars}))
+  palaces:raw.palaces.map(p=>({...p,minorStars:p.auxiliaryStars})),
+  limitContext:{yearStemIndex:raw.verifiedInputs.yearStemIndex,yearBranchIndex:raw.verifiedInputs.yearBranchIndex,mingBranchIndex:raw.mingShen.mingBranchIndex,bureau:raw.bureau.bureau,birthLunarYear:Number(resolved.lunarDate.year),gender:input.gender}
  };
  return {chart:view,usedDate:resolved.solarDate,solarInfo,effectiveTimeIndex:resolved.hourBranchIndex,...profile,calendar:input.calendar,leapMonth:input.leapMonth};
 }
