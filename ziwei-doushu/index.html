@@ -111,7 +111,7 @@ function hourLabel(i){return ['早子时','丑时','寅时','卯时','辰时','�
 function shiftDate(dateStr, days){const [y,m,d]=dateStr.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d+days));return dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0');}
 function effectiveLunarDate(year,month,day,rule){if(rule==='split')return {date:year+'-'+month+'-'+day,leap:true,fixLeap:true};let y=year,m=month;if(rule==='next-month'){m++;if(m===13){m=1;y++;}}else if(rule==='prev-month'){m--;if(m===0){m=12;y--;}}return {date:y+'-'+m+'-'+day,leap:false,fixLeap:false};}
 async function chartForIndependentProfile(input,profile,enginePath='./engines/traditional-chart.js',builderName='buildTraditionalChart'){
- const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-3');
+ const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-4');
  const engine=await import(enginePath);
  const buildChart=engine[builderName];
  if(typeof buildChart!=='function')throw new Error('未找到所选独立排盘引擎：'+builderName);
@@ -170,7 +170,7 @@ async function runRuleSelfTests(){
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
   const [calendarMod,standardMod,regressionMod]=await Promise.all([
-   import('./engines/calendar-layer.js?v=20261029-3'),
+   import('./engines/calendar-layer.js?v=20261029-4'),
    import('./engines/standard-cases.js'),
    import('./engines/regression-suite.js')
   ]);
@@ -224,7 +224,7 @@ $('chartForm').addEventListener('submit',async e=>{
   }
   const testButton=document.getElementById('runRuleTests');testButton.hidden=false;
   $('error').textContent='';
- }catch(err){$('error').textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
+ }catch(err){const errorBox=$('error');errorBox.hidden=false;errorBox.style.display='block';errorBox.style.whiteSpace='pre-wrap';errorBox.textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
 });
 $('runRuleTests').addEventListener('click',runRuleSelfTests);
 $('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='9';$('leapWrap').hidden=true;$('leapRuleWrap').hidden=true;document.querySelector('label[for="birthDate"]').textContent='公历出生日期';$('birthDate').type='date';$('birthDate').placeholder='';$('birthDate').inputMode='text';$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;const cr=document.getElementById('comparisonResult');if(cr)cr.remove();$('ruleTests').hidden=true;$('ruleTests').innerHTML='';$('runRuleTests').hidden=true;});
