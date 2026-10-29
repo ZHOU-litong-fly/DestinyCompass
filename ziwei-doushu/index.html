@@ -15,6 +15,7 @@ h2{font-size:18px;margin:0 0 16px;color:var(--gold)}.formgrid{display:grid;grid-
 .traditional-chart{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(128px,auto));gap:5px;padding:5px;border:1px solid #665a3d;border-radius:12px;background:#0a1423;overflow:hidden}
 .trad-cell{min-width:0;min-height:0;padding:8px 7px;border:1px solid #4a5b72;border-radius:7px;background:linear-gradient(155deg,#1a2b43,#101b2c);overflow-wrap:anywhere}
 .trad-cell .trad-title{display:flex;justify-content:space-between;align-items:flex-start;gap:4px;color:var(--gold);font-size:13px;font-weight:800;line-height:1.35}
+.trad-cell.is-ming{border-color:#e8c77b;box-shadow:inset 0 0 0 1px #e8c77b,0 0 12px #e8c77b20}.trad-cell.is-shen{border-style:dashed;border-color:#8eb9e8}.trad-cell.is-ming.is-shen{border-style:solid;border-color:#e8c77b;box-shadow:inset 0 0 0 2px #8eb9e8,0 0 12px #e8c77b20}.palace-mark,.legend-mark{display:inline-block;margin-left:4px;padding:0 4px;border-radius:4px;font-size:9px;line-height:1.5;background:#66512b;color:#ffe4a1;vertical-align:1px}.body-mark{background:#263e59;color:#c6e2ff}.trad-empty{font-size:10px;color:#93a2b8;margin-top:8px}.trad-misc{color:#aebbd0}
 .trad-cell .trad-stembranch{font-size:11px;color:#aebbd0;white-space:nowrap}
 .trad-cell .trad-major{margin-top:8px;color:#f3d28b;font-size:13px;font-weight:700;line-height:1.65}
 .trad-cell .trad-minor{margin-top:5px;color:#d0dced;font-size:11px;line-height:1.65}
@@ -80,7 +81,7 @@ $('system').addEventListener('change',()=>{$('systemNote').textContent=systemNot
 $('systemNote').textContent=systemNotes[$('system').value];
 let lastChart=null;
 const normalizeGender=g=>g==='男'?'男':'女';
-const get=(obj,keys,fallback='')=>{for(const k of keys){if(obj&&obj[k]!==undefined&&obj[k]!==null)return obj[k]}return fallback};
+const get=(obj,keys,fallback='')=>{for(const k of keys){let value=obj;for(const part of String(k).split('.')){if(value===undefined||value===null){value=undefined;break}value=value[part]}if(value!==undefined&&value!==null)return value}return fallback};
 function textValue(v){if(v===undefined||v===null)return '';if(Array.isArray(v))return v.map(textValue).filter(Boolean).join('、');if(typeof v==='object')return get(v,['name','text','星名','type'],JSON.stringify(v));return String(v)}
 function list(v){if(v===undefined||v===null)return [];return Array.isArray(v)?v:[v]}
 function palaceHTML(p){
@@ -98,25 +99,33 @@ function traditionalLayoutHTML(chart,form){
  const ps=findPalaces(chart);
  if(!ps.length)return '<div class="center">未能读取宫位结构，请展开原始信息核对。</div>';
  const positions={4:[1,1],5:[1,2],6:[1,3],7:[1,4],8:[2,4],9:[3,4],10:[4,4],11:[4,3],0:[4,2],1:[4,1],2:[3,1],3:[2,1]};
+ const branchIndexByName={子:0,丑:1,寅:2,卯:3,辰:4,巳:5,午:6,未:7,申:8,酉:9,戌:10,亥:11};
+ const branchIndexOf=value=>Number.isInteger(Number(value))&&String(value).trim()!==''?Number(value):branchIndexByName[String(value||'').slice(-1)];
+ const mingIndex=branchIndexOf(get(chart,['mingShen.mingBranchIndex','mingBranchIndex'],''));
+ const bodyIndex=branchIndexOf(get(chart,['mingShen.shenBranchIndex','shenBranchIndex'],''));
  const cells=ps.map(p=>{
-  const idx=Number(get(p,['branchIndex'],-1)),pos=positions[idx];if(!pos)return '';
-  const name=textValue(get(p,['name','earthlyBranch','branch','宫名'],'宫位'));
+  let idx=branchIndexOf(get(p,['branchIndex'],''));
+  if(!Number.isInteger(idx)||idx<0||idx>11)idx=branchIndexByName[textValue(get(p,['branch','earthlyBranch'],'')).slice(-1)];
+  const pos=positions[idx];if(!pos)return '';
+  const name=textValue(get(p,['name','palaceName','宫名'],'宫位'));
   const stem=textValue(get(p,['stem','heavenlyStem'],'')),branch=textValue(get(p,['branch','earthlyBranch'],''));
   const major=list(get(p,['majorStars','majorStar','主星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
   const minor=list(get(p,['auxiliaryStars','minorStars','minorStar','辅星'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
   const misc=list(get(p,['adjectiveStars','miscStars','杂曜'],[])).map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
   const sihua=list(get(p,['sihua','transformations','四化'],[])).map(s=>{if(typeof s==='string')return s;const type=textValue(get(s,['type','name'],''));const star=textValue(get(s,['star','星名'],''));return type+(star&&star!==type?' '+star:'');}).filter(Boolean);
-  const stars=(major.length?'<div class="trad-major">'+major.map(escapeHTML).join('、')+'</div>':'')+(minor.length?'<div class="trad-minor">'+minor.map(escapeHTML).join('、')+'</div>':'')+(misc.length?'<div class="trad-minor">'+misc.map(escapeHTML).join('、')+'</div>':'');
+  const badges=(idx===mingIndex?'<span class="palace-mark">命</span>':'')+(idx===bodyIndex?'<span class="palace-mark body-mark">身</span>':'');
+  const classes='trad-cell'+(idx===mingIndex?' is-ming':'')+(idx===bodyIndex?' is-shen':'');
+  const stars=(major.length?'<div class="trad-major">'+major.map(escapeHTML).join('、')+'</div>':'')+(minor.length?'<div class="trad-minor">'+minor.map(escapeHTML).join('、')+'</div>':'')+(misc.length?'<div class="trad-minor trad-misc">'+misc.map(escapeHTML).join('、')+'</div>':'');
   const transform=sihua.length?'<div class="trad-sihua">'+sihua.map(x=>'<span>'+escapeHTML(x)+'</span>').join('')+'</div>':'';
-  return '<article class="trad-cell" style="grid-column:'+pos[1]+';grid-row:'+pos[0]+'"><div class="trad-title"><span>'+escapeHTML(name)+'</span><span class="trad-stembranch">'+escapeHTML(stem+branch)+'</span></div>'+(stars||'<div class="trad-minor">当前引擎未返回星曜</div>')+transform+'</article>';
+  return '<article class="'+classes+'" style="grid-column:'+pos[1]+';grid-row:'+pos[0]+'"><div class="trad-title"><span>'+escapeHTML(name)+badges+'</span><span class="trad-stembranch">'+escapeHTML(stem+branch)+'</span></div>'+(stars||'<div class="trad-empty">当前引擎未返回星曜</div>')+transform+'</article>';
  }).join('');
  const soul=textValue(get(chart,['soul','mingShen.mingBranch','命宫'],'—')),body=textValue(get(chart,['body','mingShen.shenBranch','身宫'],'—'));
- const bureau=textValue(get(chart,['fiveElementsClass','bureau.bureauName','五行局'],'—'));
+ const bureau=textValue(get(chart,['fiveElementsClass','bureau.bureauName','bureau.name','五行局'],'—'));
  const date=textValue(get(chart,['solarDate','公历日期'],form.date||'—')),lunar=textValue(get(chart,['lunarDate','农历日期'],'—'));
  const pillars=textValue(get(chart,['chineseDate','八字'],'—')),person=textValue(form.person||'命主');
  const engine=form.system==='tianji'?'《天纪》规则实验盘':form.system==='traditional'?'通用传统实验盘':'双体系对比主盘';
  const center='<div class="trad-center" style="grid-column:2 / span 2;grid-row:2 / span 2"><h3>紫微斗数</h3><div class="center-person">'+escapeHTML(person)+' · '+escapeHTML(form.gender||'')+'</div><div class="center-meta">公历 '+escapeHTML(date)+'<br>农历 '+escapeHTML(lunar)+'<br>四柱 '+escapeHTML(pillars)+'<br>命宫 '+escapeHTML(soul)+' · 身宫 '+escapeHTML(body)+'<br>五行局 '+escapeHTML(bureau)+'</div><span class="center-pill">'+escapeHTML(engine)+'</span></div>';
- return '<div class="traditional-chart" aria-label="传统紫微斗数十二宫方盘">'+cells+center+'</div><div class="trad-legend"><span><i class="lg-major"></i>主星</span><span><i class="lg-minor"></i>辅星/杂曜</span><span><i class="lg-sihua"></i>四化（按引擎返回）</span></div>';
+ return '<div class="traditional-chart" aria-label="传统紫微斗数十二宫方盘">'+cells+center+'</div><div class="trad-legend"><span><i class="lg-major"></i>主星</span><span><i class="lg-minor"></i>辅星/杂曜</span><span><i class="lg-sihua"></i>四化（按引擎返回）</span><span><b class="legend-mark">命</b>命宫</span><span><b class="legend-mark body-mark">身</b>身宫</span></div>';
 }
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function findPalaces(chart){let p=get(chart,['palaces','十二宫','houses'],[]);if(Array.isArray(p))return p;if(p&&typeof p==='object')return Object.values(p);return []}
@@ -155,7 +164,7 @@ function hourLabel(i){return ['早子时','丑时','寅时','卯时','辰时','�
 function shiftDate(dateStr, days){const [y,m,d]=dateStr.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d+days));return dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0');}
 function effectiveLunarDate(year,month,day,rule){if(rule==='split')return {date:year+'-'+month+'-'+day,leap:true,fixLeap:true};let y=year,m=month;if(rule==='next-month'){m++;if(m===13){m=1;y++;}}else if(rule==='prev-month'){m--;if(m===0){m=12;y--;}}return {date:y+'-'+m+'-'+day,leap:false,fixLeap:false};}
 async function chartForIndependentProfile(input,profile,enginePath='./engines/traditional-chart.js',builderName='buildTraditionalChart'){
- const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-7');
+ const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-8');
  const engine=await import(enginePath);
  const buildChart=engine[builderName];
  if(typeof buildChart!=='function')throw new Error('未找到所选独立排盘引擎：'+builderName);
@@ -220,9 +229,9 @@ async function runRuleSelfTests(){
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
   const [calendarMod,standardMod,regressionMod]=await Promise.all([
-   import('./engines/calendar-layer.js?v=20261029-7'),
-   import('./engines/standard-cases.js?v=20261029-7'),
-   import('./engines/regression-suite.js?v=20261029-7')
+   import('./engines/calendar-layer.js?v=20261029-8'),
+   import('./engines/standard-cases.js?v=20261029-8'),
+   import('./engines/regression-suite.js?v=20261029-8')
   ]);
   const suites=[
    ['统一算法回归套件',regressionMod.runZiweiRegressionSuite()],
