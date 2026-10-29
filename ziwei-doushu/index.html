@@ -46,6 +46,7 @@ h2{font-size:18px;margin:0 0 16px;color:var(--gold)}.formgrid{display:grid;grid-
 @media(max-width:700px){.traditional-chart{grid-template-rows:repeat(4,minmax(105px,auto));gap:3px;padding:3px}.trad-cell{padding:6px 4px}.trad-cell .trad-title{font-size:11px;display:block}.trad-cell .trad-stembranch{display:block;margin-top:2px;font-size:10px}.trad-cell .trad-major{font-size:11px;margin-top:5px;line-height:1.5}.trad-cell .trad-minor{font-size:10px;line-height:1.45;margin-top:3px}.trad-sihua span{font-size:9px;padding:1px 3px}.trad-center{padding:7px}.trad-center h3{font-size:14px;letter-spacing:1px}.trad-center .center-person{font-size:11px;margin-bottom:4px}.trad-center .center-meta{font-size:9px;line-height:1.5}.trad-center .center-pill{font-size:9px;padding:1px 4px}.trad-legend{gap:8px;font-size:10px}}
 @media(max-width:390px){.traditional-chart{grid-template-rows:repeat(4,minmax(88px,auto))}.trad-cell{padding:4px 3px}.trad-cell .trad-title{font-size:10px}.trad-cell .trad-stembranch{font-size:9px}.trad-cell .trad-major{font-size:10px;line-height:1.4}.trad-cell .trad-minor{font-size:9px;line-height:1.35}.trad-center h3{font-size:12px}.trad-center .center-meta{font-size:8px}}
 .palace-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.palace{min-height:142px;border:1px solid #4a5b72;border-radius:10px;padding:10px;background:linear-gradient(160deg,#182941,#101c2e);overflow-wrap:anywhere}.palace .name{font-weight:700;color:var(--gold);font-size:14px;display:flex;justify-content:space-between;gap:4px}.palace .branch{font-size:11px;color:var(--muted)}.stars{font-size:13px;line-height:1.8;margin-top:8px}.major{color:#f3d28b}.minor{color:#c9d8ee}.tags{font-size:11px;color:#eaa5a5;margin-top:6px}.center{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px dashed #65748a;border-radius:10px;padding:14px;color:var(--muted);font-size:13px;min-height:142px}
+.combo-section{margin:12px 0}.combo-card{border:1px solid var(--line);border-radius:9px;padding:11px;margin:9px 0;background:rgba(8,17,31,.36);min-width:0}.combo-card h4,.combo-section>h4{color:var(--gold);font-size:13px;margin:0 0 7px}.combo-card p{margin:6px 0;font-size:13px}.combo-card strong{color:#f1ddb0}.combo-stars{color:var(--muted);font-size:11px!important}.combo-card .relation-tags{margin:7px 0}.combo-card .relation-tags span{overflow-wrap:anywhere}
 .limit-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:8px 0 14px}.limit-controls .field{width:min(240px,100%)}.limit-result-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.limit-item{border:1px solid var(--line);background:#0c1728;border-radius:10px;padding:12px;min-width:0}.limit-item h3{font-size:14px;color:var(--gold);margin:0 0 6px}.limit-item strong{display:block;font-size:18px;overflow-wrap:anywhere}.limit-item p{font-size:12px;color:var(--muted);margin:5px 0 0}.annual-palace-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:12px}.annual-palace{padding:7px;border:1px solid #40516a;border-radius:7px;font-size:12px;overflow-wrap:anywhere}.annual-palace strong{display:block;color:var(--gold)}.limit-note{font-size:12px;color:var(--muted);margin-top:12px}.limit-error{color:#ffb7b7;font-size:13px}@media(max-width:700px){.limit-result-grid{grid-template-columns:1fr}.annual-palace-list{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:390px){.annual-palace-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;color:var(--gold)}pre{white-space:pre-wrap;word-break:break-word;color:#c8d5e8;font-size:12px;max-height:400px;overflow:auto}.footer{text-align:center;color:#8492a8;font-size:12px;padding:20px 4px}
 .compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.compare-side{min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:#0c1728}.compare-side h3{color:var(--gold);font-size:17px;margin:0 0 12px}.compare-side h4{font-size:14px;color:var(--muted);margin:14px 0 8px}.compare-side .palace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.test-row{padding:9px 0;border-bottom:1px solid var(--line);font-size:12px;overflow-wrap:anywhere}.test-row.pass strong{color:#9de0ad}.test-row.fail strong{color:#ffb7b7}@media(max-width:700px){.compare-grid{grid-template-columns:1fr}.compare-side .palace-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:390px){.compare-side .palace-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.wrap{padding:12px 10px 28px}.card{padding:15px}.formgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.palace-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.palace{padding:8px;min-height:130px}.palace .name{font-size:12px}.stars{font-size:12px}.center{min-height:100px;font-size:11px}}
@@ -367,14 +368,40 @@ const STAR_GUIDE={
  '铃星':['敏感、警觉、突发压力与专注','关注对变化的敏锐度、紧张感与压力调节。']
 };
 const STAR_COMBOS=[
- {stars:['紫微','天府'],text:'常见合参方向：统筹与资源管理并看；可进一步观察是稳健组织还是过度控制。'},
- {stars:['太阳','太阴'],text:'常见合参方向：外在表达与内在感受并看；关注公开行动和私人需求如何协调。'},
- {stars:['武曲','贪狼'],text:'常见合参方向：执行与拓展欲望并看；关注目标、资源和兴趣之间的优先级。'},
- {stars:['天机','巨门'],text:'常见合参方向：思考策划与辨析表达并看；关注分析能力如何转化为清晰沟通。'},
- {stars:['廉贞','七杀'],text:'常见合参方向：原则边界与果断行动并看；关注强执行与关系协调的平衡。'},
- {stars:['天同','太阴'],text:'常见合参方向：舒适需求与细腻感受并看；关注安全感、情绪和行动之间的关系。'},
- {stars:['紫微','七杀'],text:'常见合参方向：统筹与突破并看；关注决策责任、独立行动及风险控制。'},
- {stars:['天府','武曲'],text:'常见合参方向：储备管理与执行纪律并看；关注长期积累与具体落实。'}
+ {stars:['紫微','天府'],theme:'统筹与资源管理',text:'结合组织、决策和资源配置来理解。',watch:'注意过度控制、重秩序而缺少弹性。',practice:'明确授权范围，并定期检视旧规则。'},
+ {stars:['紫微','贪狼'],theme:'主导与拓展',text:'观察组织能力如何与社交、机会拓展结合。',watch:'目标过多或过度追求外部认可。',practice:'先定核心目标，再筛选机会。'},
+ {stars:['紫微','天相'],theme:'统筹与协调',text:'同时考虑整体决策、制度和多方协作。',watch:'形象管理压过实际判断。',practice:'明确决策依据、责任人和执行标准。'},
+ {stars:['紫微','七杀'],theme:'统筹与突破',text:'观察大局判断与果断行动的配合。',watch:'决策过快或承担过多风险。',practice:'重大行动前明确风险、资源和退出条件。'},
+ {stars:['紫微','破军'],theme:'组织与重构',text:'从整体目标审视改革和结构调整。',watch:'忽略过渡期及团队承受力。',practice:'先确定不变的核心，再分阶段改革。'},
+ {stars:['紫微','天机'],theme:'决策与策划',text:'结合统筹能力、分析和方案设计。',watch:'过度规划、反复权衡。',practice:'设定决策期限，把方案拆成行动。'},
+ {stars:['天机','巨门'],theme:'分析与论证',text:'观察问题发现、推演和表达论证。',watch:'反复分析、争辩或表达尖锐。',practice:'先讲结论，再讲证据、影响和建议。'},
+ {stars:['天机','太阴'],theme:'策划与细致观察',text:'结合长期规划、信息整理与细节判断。',watch:'顾虑太多而迟迟不行动。',practice:'先验证最关键的假设。'},
+ {stars:['天机','天梁'],theme:'策划与经验原则',text:'结合方案设计、经验判断和风险提醒。',watch:'过度担忧或被旧经验限制。',practice:'把经验转成检查清单，同时接受新证据。'},
+ {stars:['太阳','太阴'],theme:'外在行动与内在感受',text:'同时观察责任承担、公开表达和私人需求。',watch:'对外付出与自身感受失衡。',practice:'检查精力、边界和真实需求。'},
+ {stars:['太阳','巨门'],theme:'表达与质疑',text:'结合公开沟通、问题澄清和观点论证。',watch:'容易被理解为批评或对抗。',practice:'区分事实、推断和意见，并确认对方理解。'},
+ {stars:['太阳','天梁'],theme:'承担与保护支持',text:'观察责任感、公共服务和经验传承。',watch:'过度承担、替别人决定。',practice:'先确认对方需要什么帮助。'},
+ {stars:['武曲','天府'],theme:'执行与资源管理',text:'重视计划落实、成本意识和长期配置。',watch:'过于保守或只用数字衡量结果。',practice:'同时检查成果、成本、质量和团队负担。'},
+ {stars:['武曲','贪狼'],theme:'执行与机会拓展',text:'结合行动力、机会拓展和目标驱动力。',watch:'兴趣过多导致资源分散。',practice:'明确收益标准和停止条件。'},
+ {stars:['武曲','天相'],theme:'执行与制度协调',text:'观察执行、流程、公平和协作的配合。',watch:'只顾流程或效率，忽略情境。',practice:'明确规则，也保留合理例外机制。'},
+ {stars:['武曲','七杀'],theme:'纪律与果断突破',text:'结合行动、决断和执行标准。',watch:'过急、过硬或低估风险。',practice:'用数据和预案约束速度，设置复核点。'},
+ {stars:['武曲','破军'],theme:'执行与改革重组',text:'结合落实能力与拆旧建新的行动方式。',watch:'变动过快导致资源损耗或流程断层。',practice:'先评估影响，分批切换并保留回退方案。'},
+ {stars:['天同','太阴'],theme:'舒适需求与细腻感受',text:'关注情绪、安全感、关系氛围和生活节奏。',watch:'回避冲突或等待问题自行消失。',practice:'把感受转成明确请求，并设定处理时间。'},
+ {stars:['天同','巨门'],theme:'协调与问题表达',text:'观察温和协调和提出问题的平衡。',watch:'表面和气、内在不满或沟通绕弯。',practice:'用具体事实表达需求，不以暗示代替沟通。'},
+ {stars:['天同','天梁'],theme:'缓和与保护原则',text:'结合安抚、照顾、经验和原则感。',watch:'过度照顾或把关心变成干预。',practice:'支持对方建立能力，而非包办。'},
+ {stars:['廉贞','贪狼'],theme:'界限与欲望拓展',text:'观察人际吸引、兴趣、规则和自我管理。',watch:'界限模糊或被短期诱因牵引。',practice:'提前明确底线、承诺和代价。'},
+ {stars:['廉贞','天府'],theme:'原则与稳定管理',text:'结合制度意识、资源管理和长期稳定。',watch:'过度控制、保守或形式化。',practice:'区分必要规则与可优化流程。'},
+ {stars:['廉贞','天相'],theme:'原则与公平协调',text:'观察制度、公平、人际边界和协作。',watch:'过度在意评价或陷入规则争执。',practice:'先确认共同目标，再说明原则和协商空间。'},
+ {stars:['廉贞','七杀'],theme:'边界与果断行动',text:'结合坚持原则、行动决断和冲突处理。',watch:'强硬时容易把分歧推向对抗。',practice:'区分必须坚持的底线与可调整的方式。'},
+ {stars:['廉贞','破军'],theme:'规则重整与结构改革',text:'观察旧规则与新结构之间的冲突及更新。',watch:'因不满而全盘推翻，忽略渐进改善。',practice:'明确改革目标、影响对象和过渡安排。'},
+ {stars:['天府','太阴'],theme:'储备与细致规划',text:'结合资源积累、长期规划和安全感。',watch:'过于求稳而减少尝试。',practice:'为储备设定目标，也留出探索空间。'},
+ {stars:['天府','天相'],theme:'稳定与制度协调',text:'关注资源、流程、公平和组织稳定。',watch:'流程过多、决策变慢。',practice:'定期精简流程，明确最终决策人。'},
+ {stars:['七杀','破军'],theme:'突破与结构重建',text:'结合快速决断、打破旧局与重建能力。',watch:'忽略后续维护和恢复成本。',practice:'把紧急行动与长期重建分开规划。'},
+ {stars:['文昌','文曲'],theme:'条理与感染力',text:'结合逻辑组织、书面表达、审美与表达感染力。',watch:'形式过度精致而核心信息不清。',practice:'先确保观点准确，再优化表达。'},
+ {stars:['左辅','右弼'],theme:'支持与协调',text:'观察团队互助、协作资源和补位能力。',watch:'依赖他人协调或责任边界不清。',practice:'明确支持内容、责任归属和完成标准。'},
+ {stars:['天魁','天钺'],theme:'提携与关键协助',text:'结合引荐、指导、制度支持和资源链接。',watch:'只等待机会而没有准备。',practice:'准备好目标、能力证明和具体请求。'},
+ {stars:['火星','铃星'],theme:'冲劲与警觉',text:'观察快速反应、警觉性和压力下的专注。',watch:'容易急躁、紧张或反应过度。',practice:'重大决定设置暂停时间和二次核对。'},
+ {stars:['擎羊','陀罗'],theme:'突破与持续阻力',text:'结合处理障碍、持续推进和冲突管理。',watch:'一味硬推或陷入长期僵持。',practice:'明确何时坚持、换路径或止损。'},
+ {stars:['地空','地劫'],theme:'想象与资源风险',text:'同时检查想法落地和资源损耗。',watch:'理想化与资源低估同时出现。',practice:'用小规模试验验证，并设置预算上限。'}
 ];
 function getPalaceRelation(index){return {opposite:(index+6)%12,trines:[(index+4)%12,(index+8)%12]};}
 function renderPalaceInsight(card,index){
@@ -396,12 +423,20 @@ function renderStarInsight(star,card){
  const guide=STAR_GUIDE[star]||['当前版本暂无独立释义条目','可结合宫位、同宫星曜和已显示四化一起观察。'];
  const palace=card?.dataset.palaceName||'当前宫位';
  const stars=card?[...card.querySelectorAll('.star-chip')].map(b=>b.dataset.star).filter(Boolean):[];
- const majorPairs=STAR_COMBOS.filter(combo=>combo.stars.includes(star)&&combo.stars.every(s=>stars.includes(s)));
- const otherStars=stars.filter(s=>s!==star);
- const comboText=majorPairs.map(x=>x.text);
- if(!comboText.length&&otherStars.length)comboText.push('本宫同时出现：'+otherStars.join('、')+'。建议分别理解各星象义，再结合本宫主题与三方四正综合阅读；不宜机械套用单一组合口诀。');
- if(!comboText.length)comboText.push('当前宫位未显示已收录的固定主星组合释义。可先查看同宫星曜，并结合对宫、三合宫及四化一起阅读。');
- panel.innerHTML='<h3>'+escapeHTML(star)+' · 星曜释义</h3><p><strong>常见象义：</strong>'+escapeHTML(guide[0])+'。</p><p><strong>阅读提醒：</strong>'+escapeHTML(guide[1])+'</p><div class="relation-tags"><span>所在宫位：'+escapeHTML(palace)+'</span>'+otherStars.map(s=>'<span>同宫：'+escapeHTML(s)+'</span>').join('')+'</div><p><strong>同宫合参：</strong>'+comboText.map(escapeHTML).join(' ')+'</p><p>建议阅读顺序：星曜象义 → 所在宫位主题 → 同宫星曜 → 三方四正 → 引擎实际返回的四化。星曜释义不等于对现实事件的确定预测。</p><p class="panel-source">参考口径：传统紫微斗数常见星曜象义的简明归纳，参考范围为《紫微斗数全书》等传统紫微斗数文献体系的通行解释；此处为现代转述，不是原文引句，也未声称覆盖特定门派。星曜及组合解释因流派、宫位、四化和全盘条件而异。</p>';
+ const others=stars.filter(s=>s!==star);
+ const matches=STAR_COMBOS.filter(combo=>combo.stars.includes(star)&&combo.stars.every(s=>stars.includes(s)));
+ const tags=stars.map(s=>'<span>'+escapeHTML(s)+'</span>').join('');
+ const comboHTML=matches.length?matches.map(combo=>'<article class="combo-card"><h4>'+escapeHTML(combo.theme)+'</h4><p><strong>合参方向：</strong>'+escapeHTML(combo.text)+'</p><p><strong>需要留意：</strong>'+escapeHTML(combo.watch)+'</p><p><strong>实践建议：</strong>'+escapeHTML(combo.practice)+'</p><p class="combo-stars">组合：'+combo.stars.map(escapeHTML).join(' × ')+'</p></article>').join(''):'<p>当前同宫组合未命中已整理的特定组合条目。可以先理解每颗星的象义，再结合宫位主题和三方四正综合阅读；未命中固定组合不代表没有分析价值。</p>';
+ const sihua=card?[...card.querySelectorAll('.trad-sihua span')].map(el=>el.textContent.trim()).filter(Boolean):[];
+ const mainStars=['紫微','天机','太阳','武曲','天同','廉贞','天府','太阴','贪狼','巨门','天相','天梁','七杀','破军'];
+ const aux=others.filter(s=>!mainStars.includes(s));
+ panel.innerHTML='<h3>'+escapeHTML(star)+' · 多层星曜合参</h3>'+
+ '<div class="combo-card"><h4>① 单星象义</h4><p><strong>核心：</strong>'+escapeHTML(guide[0])+'</p><p><strong>阅读提醒：</strong>'+escapeHTML(guide[1])+'</p></div>'+
+ '<div class="combo-card"><h4>② 同宫星曜</h4><div class="relation-tags">'+(tags||'<span>当前未读取到星曜</span>')+'</div><p>同宫星曜应放在同一宫位主题下合看，不宜把单星解释机械相加成吉凶分数。</p></div>'+
+ '<div class="combo-section"><h4>③ 已整理的组合条目（匹配 '+matches.length+' 组）</h4>'+comboHTML+'</div>'+
+ (aux.length?'<div class="combo-card"><h4>④ 辅星与杂曜</h4><p>同宫还出现：'+aux.map(escapeHTML).join('、')+'。辅星是补充线索，不应一概视为增强或削弱主星。</p></div>':'')+
+ (sihua.length?'<div class="combo-card"><h4>⑤ 引擎实际返回的四化</h4><div class="relation-tags">'+sihua.map(s=>'<span>'+escapeHTML(s)+'</span>').join('')+'</div><p>四化作用仍需核对生年四化、宫干飞化和具体流派；不能仅凭标签直接推定事件。</p></div>':'<div class="combo-card"><h4>⑤ 四化信息</h4><p>当前宫位没有返回可展示的四化标签，因此不推测或补造结果。</p></div>')+
+ '<div class="combo-card"><h4>⑥ 放回全盘阅读</h4><p>建议顺序：单星 → 同宫组合 → 宫位主题 → 对宫与两个三合宫 → 实际返回且可核验的四化 → 大限与流年。不同门派的组合和四化规则可能不同。</p><p class="panel-source">组合条目是传统星曜象义的现代归纳，属于辅助阅读方向，不是古籍原文或确定性事件预测，也未覆盖所有星曜排列或特定门派完整断法。</p></div>';
 }
 function initPalaceInteractions(){
  const root=document.getElementById('palaces');if(!root||root.dataset.interactionsReady==='1')return;
