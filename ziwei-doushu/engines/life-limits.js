@@ -35,7 +35,7 @@ export function calculateMajorLimit({mingBranchIndex,bureau,birthLunarYear,targe
  if(limitIndex<0)return {age,direction,startAge:bureau,endAge:bureau+9,branchIndex:null,palaceName:null,active:false,reason:'尚未到达五行局对应的起限虚岁'};
  const startAge=bureau+limitIndex*10,endAge=startAge+9;
  const branchIndex=mod(mingBranchIndex+direction*limitIndex,12);
- return {age,direction,limitIndex,startAge,endAge,branchIndex,palaceName:PALACE_NAMES[limitIndex%12],active:true};
+ return {age,direction,limitIndex,startAge,endAge,branchIndex,palaceName:PALACE_NAMES[mod(-direction*limitIndex,12)],active:true};
 }
 
 /** 流年十二宫：目标农历年地支为流年命宫，依本命十二宫宫序展开。 */
@@ -56,8 +56,6 @@ export function calculateAnnualPalaces({targetLunarYear,mingBranchIndex}){
 export function minorLimitStartBranch(yearBranchIndex,gender){
  range(yearBranchIndex,0,11,'出生年地支索引');
  if(gender!=='男'&&gender!=='女')throw new RangeError('性别必须为男或女');
- const group=yearBranchIndex%4;
- const maleStarts=[10,2,10,6]; // group index by branch modulo 4 is not contiguous trine group; kept unused intentionally
  const branchGroups=[
   {branches:[2,6,10],male:4,female:10}, // 寅午戌：辰/戌
   {branches:[8,0,4],male:10,female:4},  // 申子辰：戌/辰
