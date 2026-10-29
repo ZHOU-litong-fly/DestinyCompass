@@ -57,11 +57,14 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <div class="field" id="leapRuleWrap" hidden><label for="leapRule">闰月处理口径</label><select id="leapRule"><option value="next-month" selected>整月归下月（默认）</option><option value="split">初一至十五归前月，十六以后归下月</option><option value="prev-month">整月归前月</option><option value="origin-month">按闰月本月处理</option></select></div>
 </div><div id="systemNote" class="hint">《天纪》规则实验引擎与通用传统实验引擎已接入；《天纪》部分规则仍需原始资料核验。</div><div class="actions"><button class="btn primary" type="submit">生成命盘</button><button class="btn secondary" type="button" id="reset">重置</button></div>
 <div class="hint">说明：两种排盘模式均使用项目内独立核心算法；公历/农历转换通过 lunar-javascript 完成。晚子时默认按次日换日，可切换保留当日；闰月默认整月归下月。填写公历当地出生时间、UTC 偏移和经纬度后可校正真太阳时；历史时区及夏令时需手动核对。</div><div id="error" class="error" role="alert"></div></form></section>
+<section aria-labelledby="verificationTitle">
+<div class="card"><h2 id="verificationTitle">标准命例与排盘规则核验中心</h2><p class="hint">在生成命盘前也可以运行。核验覆盖基础日期/闰月规则、历法适配层、公开参考命例、标准案例交叉核验，以及传统与《天纪》实验引擎的内部回归测试。</p><p class="hint">测试证据分为两类：公开参考案例用于有限交叉核验；内部自检主要验证公式、数据结构和边界条件。内部测试通过不等于整张命盘已由权威命例验证，也不代表预测准确性。</p><div class="actions"><button class="btn secondary" id="runRuleTests" type="button">运行排盘规则核验</button></div></div>
+<div id="ruleTests" class="card" hidden></div>
+</section>
 <section id="result" hidden>
 <div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div><div id="systemStatus" class="system-note"></div></div>
 <div class="card"><h2>传统十二宫命盘</h2><div id="palaces"></div><p class="hint">采用传统十二宫环形方盘布局。星曜和四化仅展示当前排盘引擎实际返回的数据；不同门派的安星、四化及时间校正规则可能存在差异。</p></div>
-<div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button><button class="btn secondary" id="runRuleTests" type="button" hidden>运行规则自检</button></div></div>
-<div id="ruleTests" class="card" hidden></div>
+<div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button></div></div>
 </section>
 <footer class="footer">仅供传统文化学习与娱乐参考，不构成对现实人生的确定性预测。<br>《天纪》规则实验引擎 · 通用传统独立实验引擎</footer>
 </main>
@@ -152,7 +155,7 @@ function hourLabel(i){return ['早子时','丑时','寅时','卯时','辰时','�
 function shiftDate(dateStr, days){const [y,m,d]=dateStr.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d+days));return dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0');}
 function effectiveLunarDate(year,month,day,rule){if(rule==='split')return {date:year+'-'+month+'-'+day,leap:true,fixLeap:true};let y=year,m=month;if(rule==='next-month'){m++;if(m===13){m=1;y++;}}else if(rule==='prev-month'){m--;if(m===0){m=12;y--;}}return {date:y+'-'+m+'-'+day,leap:false,fixLeap:false};}
 async function chartForIndependentProfile(input,profile,enginePath='./engines/traditional-chart.js',builderName='buildTraditionalChart'){
- const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-6');
+ const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-7');
  const engine=await import(enginePath);
  const buildChart=engine[builderName];
  if(typeof buildChart!=='function')throw new Error('未找到所选独立排盘引擎：'+builderName);
@@ -217,9 +220,9 @@ async function runRuleSelfTests(){
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
   const [calendarMod,standardMod,regressionMod]=await Promise.all([
-   import('./engines/calendar-layer.js?v=20261029-6'),
-   import('./engines/standard-cases.js?v=20261029-6'),
-   import('./engines/regression-suite.js')
+   import('./engines/calendar-layer.js?v=20261029-7'),
+   import('./engines/standard-cases.js?v=20261029-7'),
+   import('./engines/regression-suite.js?v=20261029-7')
   ]);
   const suites=[
    ['统一算法回归套件',regressionMod.runZiweiRegressionSuite()],
@@ -274,7 +277,7 @@ $('chartForm').addEventListener('submit',async e=>{
  }catch(err){const errorBox=$('error');errorBox.hidden=false;errorBox.style.display='block';errorBox.style.whiteSpace='pre-wrap';errorBox.textContent='排盘失败：'+(err?.message||String(err))+'\n请确认网络可访问开源模块，且日期填写正确。';}
 });
 $('runRuleTests').addEventListener('click',runRuleSelfTests);
-$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='8';$('leapWrap').hidden=true;$('leapRuleWrap').hidden=true;document.querySelector('label[for="birthDate"]').textContent='公历出生日期';$('birthDate').type='date';$('birthDate').placeholder='';$('birthDate').inputMode='text';$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;const cr=document.getElementById('comparisonResult');if(cr)cr.remove();$('ruleTests').hidden=true;$('ruleTests').innerHTML='';$('runRuleTests').hidden=true;});
+$('reset').addEventListener('click',()=>{$('chartForm').reset();$('birthDate').value='1990-01-01';$('birthTime').value='12:00';$('utcOffset').value='8';$('leapWrap').hidden=true;$('leapRuleWrap').hidden=true;document.querySelector('label[for="birthDate"]').textContent='公历出生日期';$('birthDate').type='date';$('birthDate').placeholder='';$('birthDate').inputMode='text';$('systemNote').textContent=systemNotes[$('system').value];$('result').hidden=true;$('error').textContent='';lastChart=null;const cr=document.getElementById('comparisonResult');if(cr)cr.remove();});
 $('download').addEventListener('click',()=>{if(!lastChart)return;const blob=new Blob([JSON.stringify(lastChart,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ziwei-chart.json';a.click();URL.revokeObjectURL(url);});
 $('print').addEventListener('click',()=>window.print());
 </script>
