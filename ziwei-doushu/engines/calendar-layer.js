@@ -89,13 +89,26 @@ function getLunarParts(lunar) {
   const monthGan = monthPillar[0], monthZhi = monthPillar[1];
   const dayGan = dayPillar[0], dayZhi = dayPillar[1];
   const timeGan = timePillar[0], timeZhi = timePillar[1];
+  // 紫微斗数的生年干支按农历正月初一换年；四柱年柱则按立春交接。
+  // 两种口径必须分开：例如 2023-01-22 是农历癸卯年，但八字年柱仍为壬寅。
+  const ziweiYearPillar = typeof lunar.getYearInGanZhi === 'function'
+    ? String(lunar.getYearInGanZhi()).trim()
+    : String(lunar.getYearGan()) + String(lunar.getYearZhi());
+  if (!validPillar(ziweiYearPillar)) {
+    throw new Error('历法库返回的紫微生年干支无效（'+JSON.stringify(ziweiYearPillar)+'）。');
+  }
+  const ziweiYearGan=ziweiYearPillar[0], ziweiYearZhi=ziweiYearPillar[1];
   return {
     lunarYear:lunar.getYear(),
     lunarMonth:Math.abs(lunar.getMonth()),
     lunarDay:lunar.getDay(),
     isLeapMonth:typeof lunar.getMonth==='function' && lunar.getMonth()<0,
-    yearStemIndex:stemIndex(yearGan),
-    yearBranchIndex:branchIndex(yearZhi),
+    // 排紫微盘使用农历年索引；四柱展示保留 EightChar 的立春口径。
+    yearStemIndex:stemIndex(ziweiYearGan),
+    yearBranchIndex:branchIndex(ziweiYearZhi),
+    ziweiYearGan,ziweiYearZhi,
+    baziYearStemIndex:stemIndex(yearGan),
+    baziYearBranchIndex:branchIndex(yearZhi),
     yearGan,yearZhi,monthGan,monthZhi,dayGan,dayZhi,timeGan,timeZhi,
     fourPillars:[yearPillar,monthPillar,dayPillar,timePillar].join(' ')
   };
@@ -200,6 +213,9 @@ export async function runCalendarReferenceCases() {
   check('四柱参考例：月柱',pillarSample.getMonth(),'戊子');
   check('四柱参考例：日柱',pillarSample.getDay(),'辛巳');
   check('四柱参考例：时柱',pillarSample.getTime(),'壬辰');
+  const lunarNewYearSample=Solar.fromYmdHms(2023,1,22,10,0,0).getLunar();
+  check('紫微生年按农历正月初一换年',lunarNewYearSample.getYearInGanZhi(),'癸卯');
+  check('同日八字年柱按立春换年',lunarNewYearSample.getEightChar().getYear(),'壬寅');
   const solar=Solar.fromYmd(1986,5,29);
   const lunar=solar.getLunar();
   check('公开参考例：1986-05-29 对应农历四月廿一',[lunar.getYear(),Math.abs(lunar.getMonth()),lunar.getDay()],[1986,4,21]);
