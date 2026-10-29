@@ -59,7 +59,7 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <div class="hint">说明：两种排盘模式均使用项目内独立核心算法；公历/农历转换通过 lunar-javascript 完成。晚子时默认按次日换日，可切换保留当日；闰月默认整月归下月。填写公历当地出生时间、UTC 偏移和经纬度后可校正真太阳时；历史时区及夏令时需手动核对。</div><div id="error" class="error" role="alert"></div></form></section>
 <section id="result" hidden>
 <div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div><div id="systemStatus" class="system-note"></div></div>
-<div class="card"><h2>十二宫命盘</h2><div class="palace-grid" id="palaces"></div><p class="hint">宫位按排盘引擎返回的数据展示。不同门派的闰月、晚子时、四化及亮度规则可能存在差异。</p></div>
+<div class="card"><h2>传统十二宫命盘</h2><div id="palaces"></div><p class="hint">采用传统十二宫环形方盘布局。星曜和四化仅展示当前排盘引擎实际返回的数据；不同门派的安星、四化及时间校正规则可能存在差异。</p></div>
 <div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button><button class="btn secondary" id="runRuleTests" type="button" hidden>运行规则自检</button></div></div>
 <div id="ruleTests" class="card" hidden></div>
 </section>
