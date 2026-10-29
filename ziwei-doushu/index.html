@@ -184,7 +184,7 @@ async function renderLifeLimits(chart,form){
   const annual=result.annual.mingBranch+'（流年命宫）';
   const minor=result.minor.branch+'（小限落支）';
   panel.innerHTML='<div class="limit-result-grid">'+
-   '<div class="limit-item"><h3>大限</h3><strong>'+escapeHTML(major)+'</strong><p>顺逆：'+(result.major.direction===1?'顺行':'逆行')+'；起限依据：'+escapeHTML(form?.system==='tianji'?'《天纪》规则实验盘五行局':'当前主盘五行局')+' '+ctx.bureau+'局数。</p></div>'+
+   '<div class="limit-item"><h3>大限</h3><strong>'+escapeHTML(major)+'</strong><p>顺逆：'+(result.major.direction===1?'顺行':'逆行')+'；起限依据：'+escapeHTML(ctx.bureauName||('五行'+ctx.bureau+'局'))+'。</p></div>'+
    '<div class="limit-item"><h3>流年 · '+targetLunarYear+'年</h3><strong>'+escapeHTML(annual)+'</strong><p>按目标农历年地支定位流年命宫。</p></div>'+
    '<div class="limit-item"><h3>小限</h3><strong>'+escapeHTML(minor)+'</strong><p>当前虚岁：'+result.virtualAge+'；'+(result.minor.direction===1?'男命顺行口径':'女命逆行口径')+'。</p></div></div>'+
    '<h3 style="margin:16px 0 8px;color:var(--gold);font-size:15px">流年十二宫</h3><div class="annual-palace-list">'+result.annual.palaces.map(p=>'<div class="annual-palace"><strong>'+escapeHTML(p.name)+'</strong><span>'+escapeHTML(p.branch)+'宫</span><br><span>本命地支：'+escapeHTML(['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][p.natalPalaceBranchIndex])+'</span></div>').join('')+'</div>'+
@@ -247,7 +247,7 @@ async function chartForIndependentProfile(input,profile,enginePath='./engines/tr
   body:raw.mingShen.shenBranch,
   fiveElementsClass:raw.bureau.bureauName,
   palaces:raw.palaces.map(p=>({...p,minorStars:p.auxiliaryStars})),
-  limitContext:{yearStemIndex:raw.verifiedInputs.yearStemIndex,yearBranchIndex:raw.verifiedInputs.yearBranchIndex,mingBranchIndex:raw.mingShen.mingBranchIndex,bureau:raw.bureau.bureau,birthLunarYear:Number(resolved.lunarDate.year),gender:input.gender}
+  limitContext:{yearStemIndex:raw.verifiedInputs.yearStemIndex,yearBranchIndex:raw.verifiedInputs.yearBranchIndex,mingBranchIndex:raw.mingShen.mingBranchIndex,bureau:raw.bureau.bureau,bureauName:raw.bureau.bureauName,birthLunarYear:Number(resolved.lunarDate.year),gender:input.gender}
  };
  return {chart:view,usedDate:resolved.solarDate,solarInfo,effectiveTimeIndex:resolved.hourBranchIndex,...profile,calendar:input.calendar,leapMonth:input.leapMonth};
 }
