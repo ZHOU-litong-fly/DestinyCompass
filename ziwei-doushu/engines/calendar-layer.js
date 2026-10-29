@@ -68,30 +68,23 @@ function normalizeLeapMonth(year,month,day,rule,isLeap,Lunar,LunarYear,LunarMont
 function getLunarParts(lunar) {
   const eight = lunar.getEightChar();
   const validPillar = value => /^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/.test(String(value || '').trim());
-  // 不再只信任单一 API：优先使用 Lunar 的完整干支接口，失败时回退到 EightChar，
-  // 每个候选值都先做干支格式校验，避免 NaN/undefined 被拼进命盘。
-  const choosePillar = (label, candidates) => {
-    for (const candidate of candidates) {
-      try {
-        const value = typeof candidate === 'function' ? candidate() : candidate;
-        const normalized = String(value || '').trim();
-        if (validPillar(normalized)) return normalized;
-      } catch (_) {}
+  // lunar-javascript 的 EightChar 是四柱的统一接口。不要混用不同口径的 Lunar
+  // API（尤其是晚子时日柱口径不同的接口），直接取四个完整干支并逐项校验。
+  const readPillar = (label, getter) => {
+    let value;
+    try { value = getter.call(eight); } catch (error) {
+      throw new Error('历法库计算'+label+'时失败：'+(error?.message || String(error)));
     }
-    throw new Error('历法库无法计算'+label+'，请检查出生日期、时间或历法库加载情况。');
+    const normalized = String(value || '').trim();
+    if (!validPillar(normalized)) {
+      throw new Error('历法库返回的'+label+'无效（'+JSON.stringify(value)+'）；请检查历法模块版本或网络加载。');
+    }
+    return normalized;
   };
-  const yearPillar = choosePillar('年柱', [
-    () => lunar.getYearInGanZhiExact?.(), () => eight.getYear?.()
-  ]);
-  const monthPillar = choosePillar('月柱', [
-    () => lunar.getMonthInGanZhiExact?.(), () => eight.getMonth?.(), () => lunar.getMonthInGanZhi?.()
-  ]);
-  const dayPillar = choosePillar('日柱', [
-    () => lunar.getDayInGanZhiExact2?.(), () => eight.getDay?.(), () => lunar.getDayInGanZhi?.()
-  ]);
-  const timePillar = choosePillar('时柱', [
-    () => lunar.getTimeInGanZhi?.(), () => eight.getTime?.()
-  ]);
+  const yearPillar = readPillar('年柱', eight.getYear);
+  const monthPillar = readPillar('月柱', eight.getMonth);
+  const dayPillar = readPillar('日柱', eight.getDay);
+  const timePillar = readPillar('时柱', eight.getTime);
   const yearGan = yearPillar[0], yearZhi = yearPillar[1];
   const monthGan = monthPillar[0], monthZhi = monthPillar[1];
   const dayGan = dayPillar[0], dayZhi = dayPillar[1];
@@ -201,6 +194,12 @@ export async function runCalendarReferenceCases() {
   const LunarYear=api.LunarYear || api.default?.LunarYear;
   const tests=[];
   const check=(name,actual,expected)=>tests.push({name,actual,expected,pass:JSON.stringify(actual)===JSON.stringify(expected)});
+  // 固定四柱参考例：来自 lunar-javascript 公开测试中的 2005-12-23 08:37。
+  const pillarSample=Solar.fromYmdHms(2005,12,23,8,37,0).getLunar().getEightChar();
+  check('四柱参考例：年柱',pillarSample.getYear(),'乙酉');
+  check('四柱参考例：月柱',pillarSample.getMonth(),'戊子');
+  check('四柱参考例：日柱',pillarSample.getDay(),'辛巳');
+  check('四柱参考例：时柱',pillarSample.getTime(),'壬辰');
   const solar=Solar.fromYmd(1986,5,29);
   const lunar=solar.getLunar();
   check('公开参考例：1986-05-29 对应农历四月廿一',[lunar.getYear(),Math.abs(lunar.getMonth()),lunar.getDay()],[1986,4,21]);
