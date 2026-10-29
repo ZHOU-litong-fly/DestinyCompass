@@ -281,7 +281,7 @@ async function runRuleSelfTests(){
   const [calendarMod,standardMod,regressionMod]=await Promise.all([
    import('./engines/calendar-layer.js?v=20261029-9'),
    import('./engines/standard-cases.js?v=20261029-9'),
-   import('./engines/regression-suite.js?v=20261029-9')
+   import('./engines/regression-suite.js?v=20261029-10')
   ]);
   const suites=[
    ['统一算法回归套件',regressionMod.runZiweiRegressionSuite()],
