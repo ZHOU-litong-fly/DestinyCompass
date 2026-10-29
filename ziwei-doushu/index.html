@@ -214,7 +214,7 @@ function hourLabel(i){return ['早子时','丑时','寅时','卯时','辰时','�
 function shiftDate(dateStr, days){const [y,m,d]=dateStr.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d+days));return dt.getUTCFullYear()+'-'+String(dt.getUTCMonth()+1).padStart(2,'0')+'-'+String(dt.getUTCDate()).padStart(2,'0');}
 function effectiveLunarDate(year,month,day,rule){if(rule==='split')return {date:year+'-'+month+'-'+day,leap:true,fixLeap:true};let y=year,m=month;if(rule==='next-month'){m++;if(m===13){m=1;y++;}}else if(rule==='prev-month'){m--;if(m===0){m=12;y--;}}return {date:y+'-'+m+'-'+day,leap:false,fixLeap:false};}
 async function chartForIndependentProfile(input,profile,enginePath='./engines/traditional-chart.js',builderName='buildTraditionalChart'){
- const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-9');
+ const {resolveBirthCalendar}=await import('./engines/calendar-layer.js?v=20261029-10');
  const engine=await import(enginePath);
  const buildChart=engine[builderName];
  if(typeof buildChart!=='function')throw new Error('未找到所选独立排盘引擎：'+builderName);
@@ -280,8 +280,8 @@ async function runRuleSelfTests(){
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
   const [calendarMod,standardMod,regressionMod]=await Promise.all([
-   import('./engines/calendar-layer.js?v=20261029-9'),
-   import('./engines/standard-cases.js?v=20261029-9'),
+   import('./engines/calendar-layer.js?v=20261029-10'),
+   import('./engines/standard-cases.js?v=20261029-10'),
    import('./engines/regression-suite.js?v=20261029-10')
   ]);
   const suites=[
@@ -422,21 +422,51 @@ function renderStarInsight(star,card){
  const panel=document.getElementById('palaceInsight');if(!panel)return;
  const guide=STAR_GUIDE[star]||['当前版本暂无独立释义条目','可结合宫位、同宫星曜和已显示四化一起观察。'];
  const palace=card?.dataset.palaceName||'当前宫位';
+ const branchIndex=Number(card?.dataset.branchIndex);
+ const relation=Number.isInteger(branchIndex)?getPalaceRelation(branchIndex):null;
+ const allCards=[...document.querySelectorAll('.trad-cell')];
+ const byIndex=new Map(allCards.map(el=>[Number(el.dataset.branchIndex),el]));
+ const relatedIndexes=relation?[branchIndex,relation.opposite,...relation.trines]:[];
+ const relatedCards=relatedIndexes.map(n=>byIndex.get(n)).filter(Boolean);
+ allCards.forEach(el=>{
+  const n=Number(el.dataset.branchIndex);
+  el.classList.toggle('is-selected',n===branchIndex);
+  el.classList.toggle('is-opposite',!!relation&&n===relation.opposite);
+  el.classList.toggle('is-trine',!!relation&&relation.trines.includes(n));
+ });
  const stars=card?[...card.querySelectorAll('.star-chip')].map(b=>b.dataset.star).filter(Boolean):[];
  const others=stars.filter(s=>s!==star);
  const matches=STAR_COMBOS.filter(combo=>combo.stars.includes(star)&&combo.stars.every(s=>stars.includes(s)));
  const tags=stars.map(s=>'<span>'+escapeHTML(s)+'</span>').join('');
- const comboHTML=matches.length?matches.map(combo=>'<article class="combo-card"><h4>'+escapeHTML(combo.theme)+'</h4><p><strong>合参方向：</strong>'+escapeHTML(combo.text)+'</p><p><strong>需要留意：</strong>'+escapeHTML(combo.watch)+'</p><p><strong>实践建议：</strong>'+escapeHTML(combo.practice)+'</p><p class="combo-stars">组合：'+combo.stars.map(escapeHTML).join(' × ')+'</p></article>').join(''):'<p>当前同宫组合未命中已整理的特定组合条目。可以先理解每颗星的象义，再结合宫位主题和三方四正综合阅读；未命中固定组合不代表没有分析价值。</p>';
- const sihua=card?[...card.querySelectorAll('.trad-sihua span')].map(el=>el.textContent.trim()).filter(Boolean):[];
+ const comboHTML=matches.length?matches.map(combo=>'<article class="combo-card"><h4>'+escapeHTML(combo.theme)+'</h4><p><strong>合参方向：</strong>'+escapeHTML(combo.text)+'</p><p><strong>需要留意：</strong>'+escapeHTML(combo.watch)+'</p><p><strong>实践建议：</strong>'+escapeHTML(combo.practice)+'</p><p class="combo-stars">组合：'+combo.stars.map(escapeHTML).join(' × ')+'</p></article>').join(''):'<p>当前同宫组合未命中已整理的特定组合条目。未命中固定组合不代表没有分析价值。</p>';
+ const locations=new Map();
+ relatedCards.forEach(el=>{
+  const n=Number(el.dataset.branchIndex),name=el.dataset.palaceName||'宫位';
+  [...el.querySelectorAll('.star-chip')].forEach(btn=>{
+   const s=btn.dataset.star;if(!s)return;
+   if(!locations.has(s))locations.set(s,[]);
+   locations.get(s).push({name,index:n});
+  });
+ });
+ const spreadMatches=STAR_COMBOS.filter(combo=>combo.stars.includes(star)&&combo.stars.every(s=>locations.has(s))&&
+  combo.stars.some(s=>locations.get(s).some(a=>locations.get(combo.stars.find(t=>t!==s))?.some(b=>a.index!==b.index))));
+ const spreadHTML=spreadMatches.length?spreadMatches.map(combo=>{
+  const placement=combo.stars.map(s=>'<span><strong>'+escapeHTML(s)+'</strong>：'+locations.get(s).map(x=>escapeHTML(x.name)).filter((v,i,a)=>a.indexOf(v)===i).join('、')+'</span>').join('');
+  return '<article class="combo-card"><h4>'+escapeHTML(combo.theme)+'</h4><div class="relation-tags">'+placement+'</div><p><strong>跨宫合参：</strong>'+escapeHTML(combo.text)+'</p><p><strong>需要留意：</strong>'+escapeHTML(combo.watch)+'</p><p><strong>实践建议：</strong>'+escapeHTML(combo.practice)+'</p></article>';
+ }).join(''):'<p>在本宫、对宫及两个三合宫范围内，暂未找到包含所选星曜且分布于不同宫位的已整理组合条目。该结果只表示当前组合库未命中，不代表三方四正没有意义。</p>';
+ const relationTags=relatedCards.map(el=>'<span>'+escapeHTML(el.dataset.palaceName||'宫位')+'：'+[...el.querySelectorAll('.star-chip')].map(b=>b.dataset.star).filter(Boolean).map(escapeHTML).join('、')+'</span>').join('');
+ const sihua=relatedCards.flatMap(el=>[...el.querySelectorAll('.trad-sihua span')].map(s=>({palace:el.dataset.palaceName||'宫位',text:s.textContent.trim()})));
  const mainStars=['紫微','天机','太阳','武曲','天同','廉贞','天府','太阴','贪狼','巨门','天相','天梁','七杀','破军'];
  const aux=others.filter(s=>!mainStars.includes(s));
  panel.innerHTML='<h3>'+escapeHTML(star)+' · 多层星曜合参</h3>'+
  '<div class="combo-card"><h4>① 单星象义</h4><p><strong>核心：</strong>'+escapeHTML(guide[0])+'</p><p><strong>阅读提醒：</strong>'+escapeHTML(guide[1])+'</p></div>'+
- '<div class="combo-card"><h4>② 同宫星曜</h4><div class="relation-tags">'+(tags||'<span>当前未读取到星曜</span>')+'</div><p>同宫星曜应放在同一宫位主题下合看，不宜把单星解释机械相加成吉凶分数。</p></div>'+
- '<div class="combo-section"><h4>③ 已整理的组合条目（匹配 '+matches.length+' 组）</h4>'+comboHTML+'</div>'+
- (aux.length?'<div class="combo-card"><h4>④ 辅星与杂曜</h4><p>同宫还出现：'+aux.map(escapeHTML).join('、')+'。辅星是补充线索，不应一概视为增强或削弱主星。</p></div>':'')+
- (sihua.length?'<div class="combo-card"><h4>⑤ 引擎实际返回的四化</h4><div class="relation-tags">'+sihua.map(s=>'<span>'+escapeHTML(s)+'</span>').join('')+'</div><p>四化作用仍需核对生年四化、宫干飞化和具体流派；不能仅凭标签直接推定事件。</p></div>':'<div class="combo-card"><h4>⑤ 四化信息</h4><p>当前宫位没有返回可展示的四化标签，因此不推测或补造结果。</p></div>')+
- '<div class="combo-card"><h4>⑥ 放回全盘阅读</h4><p>建议顺序：单星 → 同宫组合 → 宫位主题 → 对宫与两个三合宫 → 实际返回且可核验的四化 → 大限与流年。不同门派的组合和四化规则可能不同。</p><p class="panel-source">组合条目是传统星曜象义的现代归纳，属于辅助阅读方向，不是古籍原文或确定性事件预测，也未覆盖所有星曜排列或特定门派完整断法。</p></div>';
+ '<div class="combo-card"><h4>② 同宫星曜 · '+escapeHTML(palace)+'</h4><div class="relation-tags">'+(tags||'<span>当前未读取到星曜</span>')+'</div><p>同宫星曜应放在同一宫位主题下合看，不宜把单星解释机械相加成吉凶分数。</p></div>'+
+ '<div class="combo-section"><h4>③ 同宫组合（匹配 '+matches.length+' 组）</h4>'+comboHTML+'</div>'+
+ '<div class="combo-section"><h4>④ 三方四正星曜分布</h4><div class="relation-tags">'+(relationTags||'<span>未读取到宫位分布</span>')+'</div><p>已按本宫、对宫和两个三合宫汇总星曜。此处展示的是星曜分布，不代表自动完成所有传统断法。</p></div>'+
+ '<div class="combo-section"><h4>⑤ 跨宫组合（匹配 '+spreadMatches.length+' 组）</h4>'+spreadHTML+'</div>'+
+ (aux.length?'<div class="combo-card"><h4>⑥ 同宫辅星与杂曜</h4><p>同宫还出现：'+aux.map(escapeHTML).join('、')+'。辅星是补充线索，不应一概视为增强或削弱主星。</p></div>':'')+
+ (sihua.length?'<div class="combo-card"><h4>⑦ 三方四正中引擎实际返回的四化</h4><div class="relation-tags">'+sihua.map(s=>'<span>'+escapeHTML(s.palace+'：'+s.text)+'</span>').join('')+'</div><p>四化作用仍需核对生年四化、宫干飞化和具体流派；不能仅凭标签直接推定事件。</p></div>':'<div class="combo-card"><h4>⑦ 四化信息</h4><p>本宫及三方四正相关宫位没有返回可展示的四化标签，因此不推测或补造结果。</p></div>')+
+ '<div class="combo-card"><h4>⑧ 放回全盘阅读</h4><p>建议顺序：单星 → 同宫组合 → 本宫主题 → 对宫与两个三合宫 → 实际返回且可核验的四化 → 大限与流年。不同门派的组合和四化规则可能不同。</p><p class="panel-source">组合条目是传统星曜象义的现代归纳，属于辅助阅读方向，不是古籍原文或确定性事件预测，也未覆盖所有星曜排列或特定门派完整断法。</p></div>';
 }
 function initPalaceInteractions(){
  const root=document.getElementById('palaces');if(!root||root.dataset.interactionsReady==='1')return;
