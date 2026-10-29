@@ -82,6 +82,7 @@ details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;c
 <section id="result" hidden>
 <div class="card"><h2>命盘摘要</h2><div class="summary" id="summary"></div><div id="systemStatus" class="system-note"></div></div>
 <div class="card"><h2>传统十二宫命盘</h2><div id="palaces"></div><p class="hint">采用传统十二宫环形方盘布局。星曜和四化仅展示当前排盘引擎实际返回的数据；不同门派的安星、四化及时间校正规则可能存在差异。</p></div>
+<div class="card" id="comprehensiveAnalysisCard"><h2>综合命理分析</h2><p class="hint">根据当前命盘实际返回的十二宫、星曜、四化、五行局与大限流年信息，生成分层综合解读。内容属于传统文化学习参考，不作确定性预测或现实决策依据。</p><div id="comprehensiveAnalysis" aria-live="polite"><p class="hint">完成排盘后自动生成综合分析。</p></div></div>
 <div class="card" id="lifeLimitsCard"><h2>大限 · 流年 · 小限</h2><p class="hint">目标年份按农历年计算。修改年份后点击“重新计算”；结果使用当前命盘出生资料即时计算，不会保存到本地或云端。</p><div class="limit-controls"><div class="field"><label for="targetLunarYear">目标农历年份</label><input id="targetLunarYear" type="number" min="1" max="9999" step="1"></div><button class="btn secondary" id="recalculateLimits" type="button">重新计算</button></div><div id="lifeLimitsResult" aria-live="polite"></div></div>
 <div class="card"><h2>排盘原始信息</h2><details><summary>展开查看完整命盘数据</summary><pre id="raw"></pre></details><div class="actions"><button class="btn secondary" id="download">导出命盘 JSON</button><button class="btn secondary" id="print">打印 / 保存为 PDF</button></div></div>
 </section>
@@ -165,9 +166,67 @@ function render(chart,form){
  $('summary').innerHTML=fields.map(([k,v])=>'<div class="stat"><span>'+escapeHTML(k)+'</span><strong>'+escapeHTML(textValue(v)||'—')+'</strong></div>').join('');
  $('palaces').innerHTML=traditionalLayoutHTML(chart,form); initPalaceInteractions();
  renderLifeLimits(chart,form);
+ renderComprehensiveAnalysis(chart,form);
  $('raw').textContent=JSON.stringify({input:form,solarTimeCorrection:form.solarInfo,chart},null,2); $('error').textContent='';
  $('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
+let comprehensiveRunId=0;
+async function renderComprehensiveAnalysis(chart,form){
+ const panel=document.getElementById('comprehensiveAnalysis');if(!panel)return;
+ const runId=++comprehensiveRunId;
+ panel.innerHTML='<p class="hint">正在整理命盘结构……</p>';
+ const ps=findPalaces(chart);
+ if(!ps.length){panel.innerHTML='<p class="limit-error">当前命盘没有可读取的十二宫数据，暂时无法生成综合分析。</p>';return;}
+ const names=['命宫','兄弟宫','夫妻宫','子女宫','财帛宫','疾厄宫','迁移宫','交友宫','官禄宫','田宅宫','福德宫','父母宫'];
+ const starNames=p=>[...list(get(p,['majorStars','majorStar','主星'],[])),...list(get(p,['auxiliaryStars','minorStars','minorStar','辅星'],[])),...list(get(p,['adjectiveStars','miscStars','杂曜'],[]))].map(s=>textValue(get(s,['name','星名'],s))).filter(Boolean);
+ const palaceName=p=>textValue(get(p,['name','palaceName','宫名'],''));
+ const findPalace=n=>ps.find(p=>palaceName(p).includes(n));
+ const describe=n=>{const p=findPalace(n);if(!p)return {name:n,stars:[],sihua:[]};return {name:n,stars:starNames(p),sihua:list(get(p,['sihua','transformations','四化'],[])).map(s=>typeof s==='string'?s:(textValue(get(s,['type','name'],''))+' '+textValue(get(s,['star','星名'],''))).trim()).filter(Boolean)};};
+ const themes={
+ '命宫':'自我定位、行为风格与处事方式','身宫':'后天投入较多的生活领域与行动重心',
+ '官禄宫':'职业角色、工作方法、责任与发展环境','财帛宫':'资源管理、收入方式与风险意识',
+ '迁移宫':'外部环境、对外互动与适应变化','夫妻宫':'亲密关系中的沟通、边界与合作方式',
+ '福德宫':'内在需求、精神状态与休息方式','疾厄宫':'传统命理中的身心状态关注主题，不是医学判断'
+ };
+ const guide=STAR_GUIDE;
+ const starLine=items=>items.length?items.map(s=>escapeHTML(s)).join('、'):'当前引擎未返回可用星曜';
+ const focus=['命宫','身宫','官禄宫','财帛宫','迁移宫','夫妻宫','福德宫','疾厄宫'];
+ const sections=focus.map(n=>{
+  const p=describe(n),main=p.stars.filter(s=>['紫微','天机','太阳','武曲','天同','廉贞','天府','太阴','贪狼','巨门','天相','天梁','七杀','破军'].includes(s));
+  const aux=p.stars.filter(s=>!main.includes(s));
+  const meanings=main.slice(0,3).map(s=>guide[s]?s+'：'+guide[s][0]:'').filter(Boolean);
+  return '<article class="combo-card"><h4>'+n+' · '+themes[n]+'</h4><p><strong>宫位星曜：</strong>'+starLine(p.stars)+'</p>'+
+   (meanings.length?'<p><strong>主星象义：</strong>'+meanings.map(escapeHTML).join('；')+'</p>':'')+
+   (aux.length?'<p><strong>辅星线索：</strong>'+starLine(aux)+'</p>':'')+
+   (p.sihua.length?'<p><strong>实际返回四化：</strong>'+starLine(p.sihua)+'</p>':'')+
+   '<p class="panel-source">阅读重点：'+themes[n]+'。须结合本宫、对宫、三合宫及整盘结构理解，不能仅凭单颗星判断结果。</p></article>';
+ }).join('');
+ const allStars=ps.flatMap(starNames),counts=new Map();allStars.forEach(s=>counts.set(s,(counts.get(s)||0)+1));
+ const majorNames=['紫微','天机','太阳','武曲','天同','廉贞','天府','太阴','贪狼','巨门','天相','天梁','七杀','破军'];
+ const repeated=[...counts].filter(([s,n])=>n>1&&majorNames.includes(s)).map(([s,n])=>s+'（'+n+'处）');
+ const sihuaAll=ps.flatMap(p=>list(get(p,['sihua','transformations','四化'],[])).map(s=>({palace:palaceName(p),text:typeof s==='string'?s:(textValue(get(s,['type','name'],''))+' '+textValue(get(s,['star','星名'],''))).trim()})));
+ const bureau=textValue(get(chart,['bureau.bureauName','bureau.name','fiveElementsClass','五行局'],'未返回'));
+ const ming=textValue(get(chart,['mingShen.mingBranch','soul','命宫'],'未返回'));
+ const body=textValue(get(chart,['mingShen.shenBranch','body','身宫'],'未返回'));
+ const pillars=textValue(get(chart,['chineseDate','八字'],'未返回'));
+ const system=form.system==='compare'?'双体系对比':form.system==='traditional'?'通用传统实验体系':'《天纪》规则实验体系';
+ let limits='';
+ try{
+  if(chart.limitContext){
+   const {calculateLifeLimits}=await import('./engines/life-limits.js?v=20261030-1');
+   const y=Number(document.getElementById('targetLunarYear')?.value||new Date().getFullYear());
+   const l=calculateLifeLimits({...chart.limitContext,targetLunarYear:y});
+   limits='<article class="combo-card"><h4>大限、流年与小限 · '+y+'</h4><p><strong>当前大限：</strong>'+(l.major.active?l.major.startAge+'–'+l.major.endAge+'虚岁，'+l.major.palaceName:'尚未进入起限年龄')+'</p><p><strong>流年命宫：</strong>'+l.annual.mingBranch+'；<strong>小限：</strong>'+l.minor.branch+'；<strong>当前虚岁：</strong>'+l.virtualAge+'</p><p class="panel-source">按当前项目采用的实验口径计算，存在流派差异。</p></article>';
+  }
+ }catch(e){limits='<p class="hint">大限流年信息暂不可用：'+escapeHTML(e.message||String(e))+'</p>';}
+ if(runId!==comprehensiveRunId)return;
+ panel.innerHTML='<div class="combo-card"><h4>一、命盘总览</h4><div class="relation-tags"><span>排盘体系：'+escapeHTML(system)+'</span><span>五行局：'+escapeHTML(bureau)+'</span><span>命宫：'+escapeHTML(ming)+'</span><span>身宫：'+escapeHTML(body)+'</span></div><p><strong>四柱：</strong>'+escapeHTML(pillars)+'</p><p><strong>主星分布：</strong>'+starLine([...new Set(allStars.filter(s=>majorNames.includes(s)))])+'</p><p><strong>跨宫重复主星：</strong>'+escapeHTML(repeated.join('、')||'当前数据未发现重复主星')+'</p></div>'+
+ '<div class="combo-section"><h4>二、重点宫位主题分析</h4>'+sections+'</div>'+
+ '<div class="combo-card"><h4>三、四化综合观察</h4>'+(sihuaAll.length?'<div class="relation-tags">'+sihuaAll.map(x=>'<span>'+escapeHTML(x.palace+'：'+x.text)+'</span>').join('')+'</div><p>四化标签只按当前引擎实际返回结果汇总；本版本未实现完整宫干飞化体系，不能把这些标签等同于完整飞星分析。</p>':'<p>当前命盘引擎未返回可展示的四化信息，不补造四化结论。</p>')+'</div>'+
+ (limits||'')+
+ '<div class="combo-card"><h4>四、综合阅读结论</h4><p>建议先看命宫与身宫确定整体观察主轴，再结合官禄、财帛、迁移等宫位理解现实事务；夫妻、福德、疾厄等宫位则分别补充关系、内在需求与身心管理主题。最后再将四化和大限流年作为时间层面的辅助线索。</p><p><strong>当前资料边界：</strong>四柱显示为“'+escapeHTML(pillars)+'”；排盘体系为'+escapeHTML(system)+'。若历法换算、出生时间校正或流派口径有误，后续解释也会受到影响。</p><p class="panel-source">本报告是根据当前程序已实现并返回的数据自动整理的传统命理阅读，不是权威命例定盘，不是完整《天纪》复现，不构成健康、投资、婚姻或职业决策建议，也不保证预测准确性。</p></div>';
+}
+
 async function renderLifeLimits(chart,form){
  const panel=document.getElementById('lifeLimitsResult');
  const yearInput=document.getElementById('targetLunarYear');
@@ -176,7 +235,7 @@ async function renderLifeLimits(chart,form){
  const ctx=chart?.limitContext;
  if(!ctx){panel.innerHTML='<p class="limit-error">当前命盘缺少大限/流年/小限所需的出生年索引，暂不能计算。</p>';return;}
  try{
-  const {calculateLifeLimits}=await import('./engines/life-limits.js?v=20261029-1');
+  const {calculateLifeLimits}=await import('./engines/life-limits.js?v=20261030-1');
   const targetLunarYear=Number(yearInput.value);
   const result=calculateLifeLimits({...ctx,targetLunarYear});
   const major=result.major.active
