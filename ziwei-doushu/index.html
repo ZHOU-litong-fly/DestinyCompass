@@ -127,6 +127,12 @@ async function chartForIndependentProfile(input,profile,enginePath='./engines/tr
   else ti=hh===23?12:hh===0?0:Math.floor((hh+1)/2);
  }
  const resolved=await resolveBirthCalendar({calendar:input.calendar,date,time,hourIndex:ti,leapMonth:input.leapMonth},profile);
+ const pillarList=String(resolved.fourPillars||'').trim().split(/\s+/);
+ const pillarPattern=/^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/;
+ if(pillarList.length!==4||pillarList.some(p=>!pillarPattern.test(p))||
+    ![resolved.yearGan+resolved.yearZhi,resolved.monthGan+resolved.monthZhi,resolved.dayGan+resolved.dayZhi,resolved.timeGan+resolved.timeZhi].every(p=>pillarPattern.test(p))){
+  throw new Error('四柱校验失败。历法模块返回值：'+JSON.stringify({fourPillars:resolved.fourPillars,year:[resolved.yearGan,resolved.yearZhi],month:[resolved.monthGan,resolved.monthZhi],day:[resolved.dayGan,resolved.dayZhi],time:[resolved.timeGan,resolved.timeZhi]}));
+ }
  const raw=buildChart(resolved);
  const view={
   ...raw,
