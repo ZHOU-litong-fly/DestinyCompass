@@ -4,7 +4,7 @@
  * 这里仅用其公开的出生日期/时辰作为交叉核验输入，并将宫位转换为本项目
  * 子=0…亥=11 的索引；本测试不把 iztro 的整张星盘当作本项目规则的唯一标准。
  */
-import { resolveBirthCalendar } from './calendar-layer.js?v=20261029-6';
+import { resolveBirthCalendar } from './calendar-layer.js?v=20261029-7';
 import { locateMingShen, fiveElementsBureau } from './traditional-core.js';
 import { calculateTianjiBureau } from './tianji-engine.js';
 import { buildTraditionalChart } from './traditional-chart.js';
