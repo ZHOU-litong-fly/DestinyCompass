@@ -255,8 +255,41 @@ async function renderComprehensiveAnalysis(chart,form){
    const ziweiMingStars=personality.filter(x=>mainNames.includes(x));
    const ziweiCareerStars=career.filter(x=>mainNames.includes(x));
    const tenGodSummary=Object.entries(bz.tenGodCounts).filter(([k,v])=>k!=='未知'&&v>0).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>k+' '+v+'处').join('、')||'十神资料不足';
+   const careerMap={
+    紫微:['企业管理、部门管理','项目统筹、团队负责人','行政管理、组织运营'],
+    天机:['IT技术研发、系统分析','数据分析、技术咨询','产品策划、业务流程改善'],
+    太阳:['教育培训、知识传播','客户成功、公共服务','对外沟通、品牌传播'],
+    武曲:['财务管理、金融分析','工程技术、运营管理','成本控制、项目执行'],
+    天同:['客户服务、用户运营','人力资源、员工支持','教育服务、旅游与生活服务'],
+    廉贞:['法务合规、内部审计','制度管理、风险控制','公共事务、规范化运营'],
+    天府:['财务规划、资产管理','供应链、资源运营','行政管理、综合管理'],
+    太阴:['研究分析、财务分析','设计策划、后台运营','地产与空间相关管理'],
+    贪狼:['市场营销、销售管理','品牌公关、商务拓展','内容创意、文化娱乐'],
+    巨门:['咨询顾问、专业研究','法律相关、调查分析','写作编辑、培训讲解'],
+    天相:['项目管理、PMO支持','人事协调、客户管理','流程管理、行政统筹'],
+    天梁:['教育辅导、专业顾问','公益服务、组织支持','质量管理、风险审查'],
+    七杀:['工程实施、技术攻坚','项目交付、现场运营','应急协调、复杂问题处理'],
+    破军:['软件产品、技术革新','业务转型、流程重构','创新项目、创业探索']
+   };
+   const careerCandidates=[];
+   [...new Set([...career,...personality,...bodyPalace].filter(x=>mainNames.includes(x)))].forEach(star=>(careerMap[star]||[]).forEach(job=>careerCandidates.push(job)));
+   const godCareerMap={
+    印星:['技术研究、专业知识型岗位','教育培训、知识管理'],
+    食伤:['技术研发、产品设计与内容表达','咨询沟通、方案策划'],
+    财星:['财务经营、商业分析','销售拓展、资源运营'],
+    官杀:['项目管理、质量管理','合规风控、制度运营'],
+    比劫:['团队协作、项目执行','自主经营、专业服务']
+   };
+   Object.entries(bz.tenGodCounts).filter(([god,count])=>count>0).sort((a,b)=>b[1]-a[1]).forEach(([god])=>{
+    const group=god==='正印'||god==='偏印'?'印星':god==='食神'||god==='伤官'?'食伤':god==='正财'||god==='偏财'?'财星':god==='正官'||god==='七杀'?'官杀':god==='比肩'||god==='劫财'?'比劫':null;
+    if(group&&godCareerMap[group])godCareerMap[group].forEach(job=>careerCandidates.push(job));
+   });
+   const careerOptions=[...new Set(careerCandidates)].slice(0,10);
+   const careerNarrative=careerOptions.length?'结合命宫、身宫、官禄宫星曜和八字十神结构，以下职业/岗位方向值得优先了解：'+careerOptions.join('；')+'。这些是能力场景的探索清单，不是命盘指定的唯一职业。建议先选出最符合自己经验的两三个方向，通过实际项目、技能积累、招聘要求和收入稳定性验证。':'目前可读取的职业相关星曜或十神线索有限，暂不强行列出具体职业；建议补充核对官禄宫、命宫及完整四柱后再判断。';
+   const fortuneLine=dm.strength==='偏弱'?'厚积薄发，借力成事。关键词：蓄。':dm.strength==='偏强'?'有所作为，贵在收放有度。关键词：衡。':'守正出新，循序渐进。关键词：稳。';
+
    const crossNarrative='把两套体系放在一起看：紫微部分，命宫主星为'+compact(ziweiMingStars)+'，官禄宫主星为'+compact(ziweiCareerStars)+'；八字部分，日主为'+dm.stem+'（'+dm.element+'），十神结构中较常出现的是'+tenGodSummary+'。紫微命宫偏向描述传统象义中的处事风格，八字日主与十神则从五行生克关系观察资源、表达、规则与现实事务，两者不是同一套分类，不能机械地一一对应。'+(ziweiBureauElement!=='未提供'?'本盘紫微五行局为'+ziweiBureauElement+'，日主五行属'+dm.element+'；五行局是紫微安星基础参数，不等于八字喜用神，不能因为两者相同或相生就直接判定吉利。':'紫微引擎未返回五行局元素，因此不强行比较两套五行。')+'若两边都提示某种能力值得发展，可以把它当成一个现实观察假设；若两边结论不同，应保留差异，回到实际工作表现、长期反馈和个人选择验证，而不是挑选听起来更顺耳的一套。结合目前资料，较稳妥的落点是：把命宫星曜所提示的优势转化为具体工作习惯，再用八字十神结构提醒自己平衡表达、协作、规则和资源管理。';
-   const baziHtml='<div class="combo-card"><h4>八字五行结构 · 日主与喜用方向初判</h4>'+para('先解释四柱结构：'+baziNarrative)+para('再看日主力量：'+strengthNarrative)+para('五行表层情况：'+Object.entries(dm.score).map(([k,v])=>k+' '+v.toFixed(1)).join('、')+'；'+missingNote)+para('干支互动：'+interactionsNarrative)+para('紫微与八字交叉观察：'+crossNarrative)+para('可能有利的五行方向：'+usefulNarrative)+para('自身调整建议：'+actionNarrative)+para('外部辅助建议：'+adviceText)+para(caveatText)+para('以上手串、颜色、材质和环境布置只适合作为传统文化象征或行为提醒，没有科学证据证明能够改运、治疗疾病或替代现实决策。')+'</div>';
+   const baziHtml='<div class="combo-card"><h4>八字五行结构 · 日主与喜用方向初判</h4>'+para('先解释四柱结构：'+baziNarrative)+para('再看日主力量：'+strengthNarrative)+para('五行表层情况：'+Object.entries(dm.score).map(([k,v])=>k+' '+v.toFixed(1)).join('、')+'；'+missingNote)+para('干支互动：'+interactionsNarrative)+para('紫微与八字交叉观察：'+crossNarrative)+para('适合探索的职业方向：'+careerNarrative)+para('可能有利的五行方向：'+usefulNarrative)+para('自身调整建议：'+actionNarrative)+para('外部辅助建议：'+adviceText)+para(caveatText)+para('以上手串、颜色、材质和环境布置只适合作为传统文化象征或行为提醒，没有科学证据证明能够改运、治疗疾病或替代现实决策。')+'</div><div class="combo-card"><h4>一句话运势总结</h4><p><strong style="font-size:18px;color:var(--gold)">'+escapeHTML(fortuneLine)+'</strong></p><p class="panel-source">这句话是根据当前实验模型的日主强弱倾向生成的文化化总结，用作提醒，不代表未来必然发生的结果。</p></div>';
    panel.insertAdjacentHTML('beforeend',baziHtml);
   }else{
    panel.insertAdjacentHTML('beforeend','<div class="combo-card"><h4>八字五行结构</h4><p>当前排盘结果未提供完整四柱，暂时无法分析日主、月令和喜用方向。请确认四柱信息完整后再试。</p></div>');
