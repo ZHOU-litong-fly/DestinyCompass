@@ -173,66 +173,66 @@ function render(chart,form){
 let comprehensiveRunId=0;
 async function renderComprehensiveAnalysis(chart,form){
  const panel=document.getElementById('comprehensiveAnalysis');if(!panel)return;
- const runId=++comprehensiveRunId;
- panel.innerHTML='<p class="hint">正在把命盘信息整理成容易理解的生活提示……</p>';
- const ps=findPalaces(chart);
- if(!ps.length){panel.innerHTML='<p class="limit-error">当前命盘没有可读取的十二宫数据，暂时无法生成综合分析。</p>';return;}
+ const runId=++comprehensiveRunId;panel.innerHTML='<p class="hint">正在综合十二宫与四柱信息，生成连贯解读……</p>';
+ const ps=findPalaces(chart);if(!ps.length){panel.innerHTML='<p class="limit-error">当前命盘没有可读取的十二宫数据，暂时无法生成综合分析。</p>';return;}
  const palaceName=p=>textValue(get(p,['name','palaceName','宫名'],''));
  const findPalace=n=>ps.find(p=>palaceName(p).includes(n));
- const starNames=p=>[...list(get(p,['majorStars','majorStar','主星'],[])),...list(get(p,['auxiliaryStars','minorStars','minorStar','辅星'],[])),...list(get(p,['adjectiveStars','miscStars','杂曜'],[]))].map(x=>textValue(get(x,['name','星名'],x))).filter(Boolean);
- const describe=n=>{const p=findPalace(n);if(!p)return {name:n,stars:[],sihua:[],missing:true};return {name:n,stars:starNames(p),sihua:list(get(p,['sihua','transformations','四化'],[])).map(x=>typeof x==='string'?x:(textValue(get(x,['type','name'],'') )+' '+textValue(get(x,['star','星名'],'')).trim()).trim()).filter(Boolean),missing:false};};
- const majorNames=['紫微','天机','太阳','武曲','天同','廉贞','天府','太阴','贪狼','巨门','天相','天梁','七杀','破军'];
- const themes={
-  '命宫':{title:'你给人的整体做事风格',meaning:'可以把它理解为个人习惯、反应方式和面对事情时常用的办法。',action:'留意自己最自然的做事方式：哪些地方是优势，哪些习惯在压力下容易变成短板。'},
-  '官禄宫':{title:'工作与职业发展',meaning:'重点不是简单判断“事业好不好”，而是观察适合怎样的工作方式、承担什么角色，以及如何与规则和团队配合。',action:'把目标拆成可交付的成果；重要事项主动同步进度、风险和需要的支持，避免只埋头做而让别人看不到过程。'},
-  '财帛宫':{title:'收入、资源与金钱管理',meaning:'更适合用来观察资源观念、赚钱方式和管理收支的倾向，不代表具体收入数字或发财时间。',action:'先建立预算、储蓄和风险边界；涉及投资或借贷时，以现实数据和专业意见为准，不按星曜下注。'},
-  '迁移宫':{title:'外部环境与对外沟通',meaning:'可以观察离开熟悉环境后如何适应、与客户或外部人员互动，以及机会通常通过什么方式出现。',action:'主动拓展信息和合作渠道；对外沟通尽量先讲结论，再讲依据、影响和下一步。'},
-  '夫妻宫':{title:'亲密关系与长期合作',meaning:'这里讨论的是相处、沟通、期待和分工，不是给伴侣贴标签，也不能单凭命盘判断婚姻结果。',action:'把期待说具体，重要决定共同讨论；发生分歧时先确认彼此真正担心的是什么，再谈解决办法。'},
-  '福德宫':{title:'内在需求与休息方式',meaning:'可以理解为一个人怎样获得满足感、如何恢复精力，以及压力容易从哪里累积。',action:'固定安排休息和独处时间；如果长期疲惫或情绪困扰，优先从现实生活和专业支持着手。'},
-  '疾厄宫':{title:'身心状态的传统观察主题',meaning:'传统命理会借此讨论身心状态与生活习惯，但它不是医学检查，不能据此判断疾病、寿命或健康风险。',action:'规律作息、运动和体检；有症状请咨询医生，不要用命盘替代诊断。'},
-  '兄弟宫':{title:'同辈、手足与协作关系',meaning:'可延伸观察同辈相处、团队互助和资源共享的模式。',action:'合作前讲清分工、期限和责任；遇到误会及时核对事实，不靠猜测。'},
-  '子女宫':{title:'子女、晚辈与创造性投入',meaning:'可从照顾、教育、带人和创作成果等角度理解，不是对子女数量或结果作保证。',action:'多观察对方的真实需要，给予支持也保留独立尝试的空间。'},
-  '交友宫':{title:'朋友、团队与人脉',meaning:'关注你如何建立关系、选择合作对象，以及团队中的互相支持。',action:'重视长期信用；合作事项尽量留有清楚记录，避免人情和责任混在一起。'},
-  '田宅宫':{title:'家庭、居住与长期积累',meaning:'可观察对稳定环境、家庭事务和长期资产安排的重视程度。',action:'涉及买房、租房或资产配置时，先核算现金流、负担能力和合同风险。'},
-  '父母宫':{title:'长辈、上级与制度资源',meaning:'可观察与长辈、上级或制度性资源的互动方式。',action:'重要沟通提前准备事实和诉求；尊重经验，同时保留独立判断。'}
- };
- const guide=STAR_GUIDE;
- const focus=['命宫','官禄宫','财帛宫','迁移宫','夫妻宫','福德宫','疾厄宫','兄弟宫','子女宫','交友宫','田宅宫','父母宫'];
- const starLine=a=>a.length?a.map(escapeHTML).join('、'):'当前引擎没有返回星曜资料';
- const sections=focus.map(n=>{
-  const p=describe(n),cfg=themes[n],main=p.stars.filter(x=>majorNames.includes(x)),aux=p.stars.filter(x=>!main.includes(x));
-  if(p.missing)return '<article class="combo-card"><h4>'+n+' · '+cfg.title+'</h4><p>当前排盘数据没有识别到这个宫位，暂不作解释。</p></article>';
-  const starRead=main.slice(0,3).map(x=>guide[x]?'• '+x+'：'+guide[x][0]+'。'+guide[x][1]:'').filter(Boolean);
-  const auxRead=aux.slice(0,4).map(x=>guide[x]?'• '+x+'：'+guide[x][0]+'。'+guide[x][1]:'').filter(Boolean);
-  return '<article class="combo-card"><h4>'+n+' · '+cfg.title+'</h4><p><strong>先用白话理解：</strong>'+cfg.meaning+'</p><p><strong>本宫星曜：</strong>'+starLine(p.stars)+'</p>'+
-   (starRead.length?'<p><strong>星曜提示：</strong><br>'+starRead.map(escapeHTML).join('<br>')+'</p>':'')+
-   (auxRead.length?'<p><strong>其他星曜线索：</strong><br>'+auxRead.map(escapeHTML).join('<br>')+'</p>':'')+
-   (p.sihua.length?'<p><strong>引擎实际返回的四化：</strong>'+starLine(p.sihua)+'</p>':'')+
-   '<p><strong>可以怎么做：</strong>'+cfg.action+'</p><p class="panel-source">以上是传统星曜象义的现代白话转述，只提供观察角度；需要结合三方四正和全盘，不代表事情必然发生。</p></article>';
- }).join('');
- const allStars=ps.flatMap(starNames),counts=new Map();allStars.forEach(x=>counts.set(x,(counts.get(x)||0)+1));
- const repeated=[...counts].filter(([x,n])=>n>1&&majorNames.includes(x)).map(([x,n])=>x+'（'+n+'处）');
- const sihuaAll=ps.flatMap(p=>list(get(p,['sihua','transformations','四化'],[])).map(x=>({palace:palaceName(p),text:typeof x==='string'?x:(textValue(get(x,['type','name'],''))+' '+textValue(get(x,['star','星名'],'')).trim()).trim()})));
+ const starsOf=p=>p?[...list(get(p,['majorStars','majorStar','主星'],[])),...list(get(p,['auxiliaryStars','minorStars','minorStar','辅星'],[])),...list(get(p,['adjectiveStars','miscStars','杂曜'],[]))].map(x=>textValue(get(x,['name','星名'],x))).filter(Boolean):[];
+ const getStars=n=>starsOf(findPalace(n));
+ const mainNames=['紫微','天机','太阳','武曲','天同','廉贞','天府','太阴','贪狼','巨门','天相','天梁','七杀','破军'];
+ const allMajor=[...new Set(ps.flatMap(starsOf).filter(x=>mainNames.includes(x)))];
+ const guide=STAR_GUIDE,phrases=names=>names.map(n=>({name:n,meaning:guide[n]?.[0]||'',caution:guide[n]?.[1]||''}));
+ const compact=a=>a.length?a.join('、'):'当前排盘数据没有提供足够星曜信息';
+ const personality=getStars('命宫'),shenIndex=get(chart,['mingShen.shenBranchIndex'],null);
+ const bodyObj=shenIndex===null?null:ps.find(p=>Number(get(p,['branchIndex'],NaN))===Number(shenIndex));
+ const bodyPalace=starsOf(bodyObj),career=getStars('官禄宫'),wealth=getStars('财帛宫'),travel=getStars('迁移宫'),relationship=getStars('夫妻宫'),wellbeing=getStars('福德宫');
+ const personalMain=phrases(personality.filter(x=>mainNames.includes(x)).slice(0,3));
+ const personalAux=phrases(personality.filter(x=>!mainNames.includes(x)).slice(0,3));
+ const strengths=[...new Set([...personalMain,...personalAux].map(x=>x.meaning).filter(Boolean))];
+ const cautions=[...new Set([...personalMain,...personalAux].map(x=>x.caution).filter(Boolean))];
+ const careerRead=phrases([...new Set([...career,...personality,...bodyPalace].filter(x=>mainNames.includes(x)))].slice(0,5));
+ const wealthRead=phrases([...new Set(wealth.filter(x=>mainNames.includes(x)))].slice(0,3));
+ const travelRead=phrases([...new Set(travel.filter(x=>mainNames.includes(x)))].slice(0,3));
+ const relationRead=phrases([...new Set(relationship.filter(x=>mainNames.includes(x)))].slice(0,3));
  const bureau=textValue(get(chart,['bureau.bureauName','bureau.name','fiveElementsClass','五行局'],'未返回'));
  const ming=textValue(get(chart,['mingShen.mingBranch','soul','命宫'],'未返回'));
  const body=textValue(get(chart,['mingShen.shenBranch','body','身宫'],'未返回'));
- const pillars=textValue(get(chart,['chineseDate','八字'],'未返回'));
+ const pillars=chart.fourPillars||chart.chineseDate||'';
+ const pillarText=typeof pillars==='string'?pillars:Object.values(pillars).join(' ');
+ const stemEl={'甲':'木','乙':'木','丙':'火','丁':'火','戊':'土','己':'土','庚':'金','辛':'金','壬':'水','癸':'水'};
+ const branchEl={'子':'水','丑':'土','寅':'木','卯':'木','辰':'土','巳':'火','午':'火','未':'土','申':'金','酉':'金','戌':'土','亥':'水'};
+ const chars=String(pillarText).match(/[甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥]/g)||[];
+ const counts={木:0,火:0,土:0,金:0,水:0};chars.forEach(ch=>{const el=stemEl[ch]||branchEl[ch];if(el)counts[el]++;});
+ const missing=Object.keys(counts).filter(k=>counts[k]===0),ordered=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ const advice={
+ 木:'传统象征可选绿色、青色、木质或植物意象，例如木质手串、养护绿植；现实中把成长落实为持续学习、主动尝试和长期计划。',
+ 火:'传统象征可选红色、紫色或温暖明亮的环境，例如红绳、暖色饰品或改善照明；现实中练习主动表达、及时反馈和展示成果，同时避免急躁与冲动承诺。',
+ 土:'传统象征可选黄色、棕色、陶土或天然石材质感，例如陶珠或黄褐色饰品；现实中重视规律作息、预算、计划和长期积累，避免过度求稳或拖延。',
+ 金:'传统象征可选白色、金色或金属材质，例如银饰、不锈钢或简洁金属配件；现实中加强规则意识、边界管理、复核和执行标准，同时避免过度苛求。',
+ 水:'传统象征可选黑色、深蓝色或水意象的饰品；现实中加强信息收集、倾听、复盘和灵活调整，避免想得太多却迟迟不行动。'
+ };
+ const elementText=chars.length===8?'四柱表层五行统计为：'+ordered.map(([k,v])=>k+' '+v+'处').join('、')+'。':'当前没有读取到完整四柱，暂时不能统计五行表层分布。';
+ const caveat='这只是把四个天干和四个地支的本气做简单计数，没有纳入地支藏干、月令旺衰、通根、合冲刑会及日主强弱。因此某行表层未出现，不等于命局真正缺这一行，更不等于它就是喜用神；判断应该补什么，需要完整八字分析，不能仅凭数量决定佩戴物。';
+ const para=t=>'<p>'+escapeHTML(t)+'</p>';
  const system=form.system==='compare'?'双体系对比':form.system==='traditional'?'通用传统实验体系':'《天纪》规则实验体系';
+ const sihua=ps.flatMap(p=>list(get(p,['sihua','transformations','四化'],[])).map(x=>palaceName(p)+'：'+(typeof x==='string'?x:(textValue(get(x,['type','name'],''))+' '+textValue(get(x,['star','星名'],'')).trim()).trim())));
+ let narrative='';
+ if(personality.length){
+  const p1='先从性格底色说起。命宫在'+ming+'，其中有'+compact(personality)+'。命宫可以理解为一个人的默认做事方式：遇到问题时习惯先观察、分析、行动还是协调。'+(strengths.length?'从这些星曜的传统象义看，你比较容易发挥的优势包括'+strengths.join('；')+'。':'目前命宫星曜资料不足，性格优势只能作有限判断。')+(bodyPalace.length?'身宫落在'+body+'，相关星曜为'+compact(bodyPalace)+'，这提示随着生活责任增加，你可能会把更多精力投入这些特质或事务。':'身宫相关星曜资料暂不完整，不额外推断后天重心。');
+  const p2='性格优势和容易遇到的阻力，往往是同一特质的两面。'+(cautions.length?'需要留意的倾向包括'+cautions.join('；')+'。':'当前资料不足以归纳明确短板。')+'所以不必刻意改变自己的本性，而是给容易失衡的地方加一道“行为护栏”：重要决定先核对事实、依据和风险；沟通先讲结论，再补充理由；答应任务前确认时间与资源；遇到不同意见先复述对方观点，再表达自己的判断。这样能让优势更稳定地发挥，而不是在压力下变成急躁、犹豫或过度承担。';
+  const c=careerRead.map(x=>x.name+'所代表的'+x.meaning).filter(Boolean),w=wealthRead.map(x=>x.name+'所代表的'+x.meaning).filter(Boolean),t=travelRead.map(x=>x.name+'所代表的'+x.meaning).filter(Boolean);
+  const p3='事业方面，不宜简单用一颗星断定某个职业，而要看适合发挥哪种能力。官禄宫的星曜为'+compact(career)+'；结合命宫和身宫，'+(c.length?'盘面较值得探索的工作方式包括'+c.join('、')+'。':'目前职业宫资料不够，暂不指定职业类别。')+'如果现实工作涉及技术分析、项目推进、流程管理、客户沟通或跨团队协调，可以观察自己更擅长深入解决问题、组织资源推动落地，还是把复杂内容讲清楚并促成共识，再选择更适合的成长路线。'+(w.length?'财帛宫补充了'+w.join('、')+'等资源管理线索。':'')+(t.length?'迁移宫则提示外部环境中可留意'+t.join('、')+'。':'')+'最终仍要结合真实能力、经验、市场需求和收入风险来决定。';
+  const p4='在人际、家庭和日常处事上，夫妻宫星曜为'+compact(relationship)+'，可作为观察亲密关系中沟通、期待和分工的线索；福德宫星曜为'+compact(wellbeing)+'，可辅助理解自己如何恢复精力、怎样面对压力。其余宫位也应一并参考：兄弟宫看同辈互助，子女宫看照顾与创造性投入，交友宫看团队和朋友圈，田宅宫看家庭居住与长期积累，父母宫看长辈、上级及制度资源，疾厄宫只是传统身心主题而非医学判断。落到现实中，尽量把期待、分工、期限说清楚，不用猜测代替沟通；压力积累时及时求助并安排休息。';
+  const p5='再看五行层面，'+elementText+(missing.length?'按这个最简单的表层计数，未出现的是'+missing.join('、')+'。':'表层计数中五行都有出现。')+caveat;
+  const external=missing.length?missing.map(x=>x+'：'+advice[x]).join(' '):'如果后续完整八字分析确认某一五行为喜用，再考虑对应颜色、材质或生活环境作为温和的象征性提醒，不必为了凑齐五行同时佩戴多种饰品。';
+  const p6='因此，解决方案最好分成内在调整和外部辅助两条线。自身方面，把优势训练成稳定习惯，把短板转成可检查的动作：每天确认最重要的目标，做事中主动同步进度与风险，沟通时减少含糊表达，重大决定保留复核时间，并定期复盘自己的行为细节。外部方面，传统五行文化会用颜色、材质、自然环境作为象征性提醒；'+external+'手串或饰品可以选自己喜欢、舒适、适合日常佩戴的款式，把它当作提醒自己践行改变的小物件即可，不需要购买昂贵物品，也没有科学证据证明某种材质能够改写命运或治疗身体问题。';
+  narrative=[p1,p2,p3,p4,p5,p6].map(para).join('');
+ }else narrative=para('当前命宫星曜信息不足，无法负责任地生成性格与事业方向判断。请先确认排盘结果完整，再生成综合解读。');
  let limits='';
- try{
-  if(chart.limitContext){
-   const {calculateLifeLimits}=await import('./engines/life-limits.js?v=20261030-2');
-   const y=Number(document.getElementById('targetLunarYear')?.value||new Date().getFullYear());
-   const l=calculateLifeLimits({...chart.limitContext,targetLunarYear:y});
-   limits='<article class="combo-card"><h4>时间节奏参考 · '+y+'年</h4><p><strong>大限：</strong>'+(l.major.active?l.major.startAge+'至'+l.major.endAge+'虚岁，落在'+l.major.palaceName:'尚未进入起限年龄')+'</p><p><strong>流年命宫：</strong>'+l.annual.mingBranch+'；<strong>小限：</strong>'+l.minor.branch+'；<strong>当前虚岁：</strong>'+l.virtualAge+'</p><p><strong>怎么理解：</strong>大限看十年阶段主题，流年和小限看这一年的传统观察位置。它们适合用来安排复盘重点，不适合当作某件事一定发生的日期表。</p><p class="panel-source">按当前项目实验口径计算，存在流派差异。</p></article>';
-  }
- }catch(e){limits='<p class="hint">时间节奏信息暂不可用：'+escapeHTML(e.message||String(e))+'</p>';}
+ try{if(chart.limitContext){const {calculateLifeLimits}=await import('./engines/life-limits.js?v=20261030-3');const y=Number(document.getElementById('targetLunarYear')?.value||new Date().getFullYear());const l=calculateLifeLimits({...chart.limitContext,targetLunarYear:y});limits=para('从时间阶段看，当前大限为'+(l.major.active?l.major.startAge+'至'+l.major.endAge+'虚岁，落在'+l.major.palaceName:'尚未进入起限年龄')+'；'+y+'年流年命宫在'+l.annual.mingBranch，小限在'+l.minor.branch+'。可把这些位置当作阶段性复盘的提醒，提前检查工作安排、家庭责任、财务计划和身心节奏；此处采用项目实验口径，存在流派差异，不代表某件事必然发生。');}}catch(e){limits=para('大限流年资料暂不可用：'+(e.message||String(e)));}
  if(runId!==comprehensiveRunId)return;
- panel.innerHTML='<div class="combo-card"><h4>先看结论：这张盘怎么读？</h4><p>不要把命盘当成“好或坏”的判决。比较实用的读法是：先看你习惯怎样做事，再看工作、金钱、关系和外部环境分别提示了哪些优势与需要留意的地方，最后用大限流年作为阶段性复盘线索。</p><div class="relation-tags"><span>排盘体系：'+escapeHTML(system)+'</span><span>五行局：'+escapeHTML(bureau)+'</span><span>命宫：'+escapeHTML(ming)+'</span><span>身宫：'+escapeHTML(body)+'</span></div><p><strong>四柱：</strong>'+escapeHTML(pillars)+'</p><p><strong>盘中主要星曜：</strong>'+starLine([...new Set(allStars.filter(x=>majorNames.includes(x)))])+'</p><p><strong>重复出现的主星：</strong>'+escapeHTML(repeated.join('、')||'当前数据未发现')+'</p></div>'+
- '<div class="combo-section"><h4>一、把十二宫翻译成现实生活中的问题</h4><p class="hint">每一项都按“它在看什么—盘里有哪些线索—现实中可以怎么做”来说明。没有星曜数据时不会强行下结论。</p>'+sections+'</div>'+
- '<div class="combo-card"><h4>二、四化：事情的推动方式</h4>'+(sihuaAll.length?'<div class="relation-tags">'+sihuaAll.map(x=>'<span>'+escapeHTML(x.palace+'：'+x.text)+'</span>').join('')+'</div><p>这些标签只汇总当前引擎真实返回的内容。简单说，四化可作为观察事情如何被推动、关注或消耗的线索；本版本没有完整实现宫干飞化，因此不推演未返回的内容。</p>':'<p>当前引擎没有返回可展示的四化资料，因此这一部分先留白，不凭空补结论。</p>')+'</div>'+
- (limits||'')+
- '<div class="combo-card"><h4>三、把命盘建议变成行动</h4><ol><li>先挑一个你最关心的现实主题，例如工作沟通、收支管理或家庭关系。</li><li>回看对应宫位及其对宫、三合宫，不只看单颗星。</li><li>把提示转成一个可执行的小行动，观察一段时间后再复盘，而不是因为一句命理判断就做重大决定。</li></ol><p class="panel-source">本报告是依据当前程序已实现并返回的数据生成的传统文化参考，不是权威命例定盘，不是完整《天纪》复现，也不能替代医疗、财务、婚姻或职业方面的现实判断。出生资料只在本次页面运行中用于计算，不在此处保存。</p></div>';
+ const intro='本次采用'+system+'，五行局为'+bureau+'，命宫在'+ming+'、身宫在'+body+'。下面尝试把十二宫和四柱线索串成一段连贯的生活解读，重点放在性格、优势短板、事业取向和可以执行的调整上。';
+ panel.innerHTML='<div class="combo-card"><h4>综合命理解读</h4>'+para(intro)+narrative+limits+(sihua.length?para('四化补充线索：'+sihua.join('；')+'。这里只汇总当前引擎实际返回的标签；项目尚未实现完整宫干飞化体系，不据此补造推论。'):'')+'<p class="panel-source">重要说明：当前紫微排盘及五行统计仍属于实验功能。表层五行计数不等于八字喜用神；手串、饰品、颜色和环境布置只可作为文化象征或行为提醒，不具有已证实的改运效果。涉及健康、投资、婚姻和职业的重大决定，应以现实信息和专业意见为依据。出生资料仅用于当前页面计算，本功能不保存出生资料。</p></div>';
 }
 async function renderLifeLimits(chart,form){
  const panel=document.getElementById('lifeLimitsResult');
