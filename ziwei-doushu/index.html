@@ -370,16 +370,18 @@ async function runRuleSelfTests(){
  const out=document.getElementById('ruleTests');
  out.hidden=false;out.innerHTML='<h3>规则自检进行中……</h3>';
  try{
-  const [calendarMod,standardMod,regressionMod]=await Promise.all([
-   import('./engines/calendar-layer.js?v=20261029-10'),
-   import('./engines/standard-cases.js?v=20261029-10'),
-   import('./engines/regression-suite.js?v=20261029-10')
+  const [calendarMod,standardMod,regressionMod,baziMod]=await Promise.all([
+   import('./engines/calendar-layer.js?v=20261029-11'),
+   import('./engines/standard-cases.js?v=20261029-11'),
+   import('./engines/regression-suite.js?v=20261029-11'),
+   import('./engines/bazi-analysis.js?v=20261030-2')
   ]);
   const suites=[
    ['统一算法回归套件',regressionMod.runZiweiRegressionSuite()],
    ['历法适配层',calendarMod.runCalendarLayerSelfTests()],
    ['历法公开参考命例',await calendarMod.runCalendarReferenceCases()],
-   ['标准命例交叉核验',await standardMod.runStandardCaseSuite()]
+   ['标准命例交叉核验',await standardMod.runStandardCaseSuite()],
+   ['八字五行分析模块',baziMod.runBaZiAnalysisTests()]
   ];
   for(const [suite,result] of suites){
    let suiteTests;
