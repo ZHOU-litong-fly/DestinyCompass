@@ -135,7 +135,7 @@ export function analyzeBaZi(input){
   dayMaster:{stem:dm,element:dmElement,polarity:polarity(dm),strength:strength.strength,score:strength.scores,supportRatio:strength.ratio,reason:strengthReason,rootedIn:dayRoot,diagnostics:{得令:strength.seasonGetsOrder,月令权重:strength.monthFactor,得地宫位:strength.rootedPositions,得势天干:strength.visibleSupport}},
   monthCommand:{branch:pillars[1].branch,hiddenStems:pillars[1].hidden,season:season?.name||'未知',seasonElement:season?.element||'未知'},
   pillars:visible,hiddenStemDistribution:hiddenDistribution(pillars),allElements,missingSurfaceElements:missing,
-  tenGods:visible.flatMap(p=>[{pillar:p.pillar,stem:p.stem,tenGod:p.tenGod},...p.hidden.map(h=>({pillar:p.pillar,stem:h.stem,tenGod:h.tenGod,hidden:true}))],tenGodCounts:visible.flatMap(p=>[{tenGod:p.tenGod},...p.hidden.map(h=>({tenGod:h.tenGod}))]).reduce((out,x)=>{out[x.tenGod]=(out[x.tenGod]||0)+1;return out;},{}),
+  tenGods:visible.flatMap(p=>[{pillar:p.pillar,stem:p.stem,tenGod:p.tenGod},...p.hidden.map(h=>({pillar:p.pillar,stem:h.stem,tenGod:h.tenGod,hidden:true}))]),tenGodCounts:visible.flatMap(p=>[{tenGod:p.tenGod},...p.hidden.map(h=>({tenGod:h.tenGod}))]).reduce((out,x)=>{out[x.tenGod]=(out[x.tenGod]||0)+1;return out;},{}),
   branchRelations,elementRoles:roles,usefulElementCandidates:useful.primary,avoidElementCandidates:useful.avoid,usefulReason:useful.reason,
   suggestions:practicalAdvice(useful.primary),cautions
  };
