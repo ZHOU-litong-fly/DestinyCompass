@@ -234,7 +234,7 @@ async function renderComprehensiveAnalysis(chart,form){
  panel.innerHTML='<div class="combo-card"><h4>综合命理解读</h4>'+para(intro)+narrative+limits+(sihua.length?para('四化补充线索：'+sihua.join('；')+'。这里只汇总当前引擎实际返回的标签；项目尚未实现完整宫干飞化体系，不据此补造推论。'):'')+'<p class="panel-source">重要说明：当前紫微排盘及八字分析仍属于实验功能。喜用方向只是初步候选；手串、饰品、颜色和环境布置只可作为文化象征或行为提醒，不具有已证实的改运效果。涉及健康、投资、婚姻和职业的重大决定，应以现实信息和专业意见为依据。出生资料仅用于当前页面计算，本功能不保存出生资料。</p></div>';
 
  try{
-  const {analyzeBaZi}=await import('./engines/bazi-analysis.js?v=20261030-2');
+  const {analyzeBaZi}=await import('./engines/bazi-analysis.js?v=20261030-3');
   const baziSource=chart.fourPillars||chart.chart?.fourPillars||chart.tianjiExperimental?.fourPillars||chart.traditional?.fourPillars||chart.bazi?.fourPillars;
   if(baziSource){
    const bz=analyzeBaZi(baziSource);
@@ -251,7 +251,12 @@ async function renderComprehensiveAnalysis(chart,form){
    const actionNarrative='落实到现实行动，建议先把日主强弱作为自我管理的观察框架，而不是命运标签。若偏弱候选成立，可重点培养稳定的支持系统、规律作息、持续学习、求助协作和长期积累，避免长期透支、孤军奋战或同时承担过多任务；若偏强候选成立，可练习成果输出、资源管理、授权协作和接受规则反馈，避免凡事亲自控制、过度坚持己见或把精力消耗在无效竞争上；若中和，则先保持节奏，按现实反馈调整，不必刻意“补”。';
    const missingNote=bz.missingSurfaceElements.length?'表层未见的五行为'+bz.missingSurfaceElements.join('、')+'，但这不代表命局真正缺它，更不代表需要补它。':'按当前藏干统计，五行都有出现。';
    const caveatText='当前模块使用常见藏干表、十神关系和地支关系，并用公开透明的启发式权重估计日主强弱；尚未完整实现传统子平法的格局、调候、通关、从格、化气格及所有合化条件，因此“有利方向”只能作为待进一步核验的候选。';
-   const baziHtml='<div class="combo-card"><h4>八字五行结构 · 日主与喜用方向初判</h4>'+para('先解释四柱结构：'+baziNarrative)+para('再看日主力量：'+strengthNarrative)+para('五行表层情况：'+Object.entries(dm.score).map(([k,v])=>k+' '+v.toFixed(1)).join('、')+'；'+missingNote)+para('干支互动：'+interactionsNarrative)+para('可能有利的五行方向：'+usefulNarrative)+para('自身调整建议：'+actionNarrative)+para('外部辅助建议：'+adviceText)+para(caveatText)+para('以上手串、颜色、材质和环境布置只适合作为传统文化象征或行为提醒，没有科学证据证明能够改运、治疗疾病或替代现实决策。')+'</div>';
+   const ziweiBureauElement=textValue(get(chart,['bureau.element'],'未提供'));
+   const ziweiMingStars=personality.filter(x=>mainNames.includes(x));
+   const ziweiCareerStars=career.filter(x=>mainNames.includes(x));
+   const tenGodSummary=Object.entries(bz.tenGodCounts).filter(([k,v])=>k!=='未知'&&v>0).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>k+' '+v+'处').join('、')||'十神资料不足';
+   const crossNarrative='把两套体系放在一起看：紫微部分，命宫主星为'+compact(ziweiMingStars)+'，官禄宫主星为'+compact(ziweiCareerStars)+'；八字部分，日主为'+dm.stem+'（'+dm.element+'），十神结构中较常出现的是'+tenGodSummary+'。紫微命宫偏向描述传统象义中的处事风格，八字日主与十神则从五行生克关系观察资源、表达、规则与现实事务，两者不是同一套分类，不能机械地一一对应。'+(ziweiBureauElement!=='未提供'?'本盘紫微五行局为'+ziweiBureauElement+'，日主五行属'+dm.element+'；五行局是紫微安星基础参数，不等于八字喜用神，不能因为两者相同或相生就直接判定吉利。':'紫微引擎未返回五行局元素，因此不强行比较两套五行。')+'若两边都提示某种能力值得发展，可以把它当成一个现实观察假设；若两边结论不同，应保留差异，回到实际工作表现、长期反馈和个人选择验证，而不是挑选听起来更顺耳的一套。结合目前资料，较稳妥的落点是：把命宫星曜所提示的优势转化为具体工作习惯，再用八字十神结构提醒自己平衡表达、协作、规则和资源管理。';
+   const baziHtml='<div class="combo-card"><h4>八字五行结构 · 日主与喜用方向初判</h4>'+para('先解释四柱结构：'+baziNarrative)+para('再看日主力量：'+strengthNarrative)+para('五行表层情况：'+Object.entries(dm.score).map(([k,v])=>k+' '+v.toFixed(1)).join('、')+'；'+missingNote)+para('干支互动：'+interactionsNarrative)+para('紫微与八字交叉观察：'+crossNarrative)+para('可能有利的五行方向：'+usefulNarrative)+para('自身调整建议：'+actionNarrative)+para('外部辅助建议：'+adviceText)+para(caveatText)+para('以上手串、颜色、材质和环境布置只适合作为传统文化象征或行为提醒，没有科学证据证明能够改运、治疗疾病或替代现实决策。')+'</div>';
    panel.insertAdjacentHTML('beforeend',baziHtml);
   }else{
    panel.insertAdjacentHTML('beforeend','<div class="combo-card"><h4>八字五行结构</h4><p>当前排盘结果未提供完整四柱，暂时无法分析日主、月令和喜用方向。请确认四柱信息完整后再试。</p></div>');
