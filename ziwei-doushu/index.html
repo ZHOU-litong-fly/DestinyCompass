@@ -234,7 +234,7 @@ async function renderComprehensiveAnalysis(chart,form){
  panel.innerHTML='<div class="combo-card"><h4>综合命理解读</h4>'+para(intro)+narrative+limits+(sihua.length?para('四化补充线索：'+sihua.join('；')+'。这里只汇总当前引擎实际返回的标签；项目尚未实现完整宫干飞化体系，不据此补造推论。'):'')+'<p class="panel-source">重要说明：当前紫微排盘及八字分析仍属于实验功能。喜用方向只是初步候选；手串、饰品、颜色和环境布置只可作为文化象征或行为提醒，不具有已证实的改运效果。涉及健康、投资、婚姻和职业的重大决定，应以现实信息和专业意见为依据。出生资料仅用于当前页面计算，本功能不保存出生资料。</p></div>';
 
  try{
-  const {analyzeBaZi}=await import('./engines/bazi-analysis.js?v=20261030-1');
+  const {analyzeBaZi}=await import('./engines/bazi-analysis.js?v=20261030-2');
   const baziSource=chart.fourPillars||chart.chart?.fourPillars||chart.tianjiExperimental?.fourPillars||chart.traditional?.fourPillars||chart.bazi?.fourPillars;
   if(baziSource){
    const bz=analyzeBaZi(baziSource);
