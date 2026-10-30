@@ -82,11 +82,19 @@ function calculateStrength(pillars,dmElement){
    score[e]+=base*season*w;
   });
  });
- const support=score[dmElement]+score[Object.keys(GENERATES).find(k=>GENERATES[k]===dmElement)];
+ const resource=Object.keys(GENERATES).find(k=>GENERATES[k]===dmElement);
+ const support=score[dmElement]+score[resource];
  const total=Object.values(score).reduce((a,b)=>a+b,0)||1;
  const ratio=support/total;
+ const monthSeason=SEASONS.find(x=>x.branches.includes(pillars[1].branch))||null;
+ const monthFactor=SEASON_WEIGHT[pillars[1].branch]?.[dmElement]||1;
+ const monthHidden=HIDDEN[pillars[1].branch].map(elementOfStem);
+ const seasonGetsOrder=monthHidden.includes(dmElement)||monthFactor>=1.4;
+ const rootPositions=pillars.map((p,i)=>p.hidden.some(h=>elementOfStem(h)===dmElement)?i:-1).filter(i=>i>=0);
+ const visibleSupport=pillars.filter(p=>p.element===dmElement||p.element===resource).map(p=>p.label);
+ const rootedPositions=rootPositions.map(i=>pillars[i].label);
  const strength=ratio>=.53?'偏强':ratio<=.39?'偏弱':'中和倾向';
- return {scores:score,support,total,ratio,strength,monthSeason:SEASONS.find(x=>x.branches.includes(pillars[1].branch))||null};
+ return {scores:score,support,total,ratio,strength,monthSeason,monthFactor,seasonGetsOrder,rootPositions,rootedPositions,visibleSupport};
 }
 function elementRoles(dm){
  const produced=GENERATES[dm],resource=Object.keys(GENERATES).find(k=>GENERATES[k]===dm);
@@ -120,14 +128,14 @@ export function analyzeBaZi(input){
  const allElements=Object.keys(strength.scores).filter(e=>strength.scores[e]>0);
  const missing=Object.keys(strength.scores).filter(e=>strength.scores[e]===0);
  const seasonLine=season?'生于'+season.name+'，季节主气偏'+season.element+'；':'';
- const strengthReason='以日主'+dm+'（'+dmElement+'）为中心，结合月令季节、四柱天干和地支藏干作启发式加权，支持力量占比约'+Math.round(strength.ratio*100)+'%，暂评为'+strength.strength+'。日主在'+(dayRoot.length?dayRoot.join('、')+'藏干中有同类根气':'四柱藏干中未见同类根气')+'。'+seasonLine;
+ const strengthReason='以日主'+dm+'（'+dmElement+'）为中心，结合月令季节、四柱天干和地支藏干作启发式加权，支持力量占比约'+Math.round(strength.ratio*100)+'%，暂评为'+strength.strength+'。得令观察：月支'+pillars[1].branch+'对日主五行的季节权重为'+strength.monthFactor+'，'+(strength.seasonGetsOrder?'月令藏干或季节权重显示有一定时令支持。':'月令没有显示明显的同类时令支持。')+'得地观察：'+(strength.rootedPositions.length?'日主同类藏根见于'+strength.rootedPositions.join('、')+'。':'四柱地支藏干中未见日主同类根气。')+'得势观察：天干中日主同类或生扶力量见于'+(strength.visibleSupport.length?strength.visibleSupport.join('、'):'未见')+'。这三项仅为可解释的结构观察，不等同于完整子平旺衰定论。'+seasonLine;
  const usable=useful.primary.length?useful.primary.join('、'):'暂不指定单一喜用五行';
  const cautions=['本评分是教学型启发式模型，不等同于传统命理师完整的旺衰、格局、调候、通关与合化判断。','五行“未出现”只表示当前四柱表层干支与本气/藏干统计没有该元素，不代表一定需要补它。','地支六合、三合、冲刑害破仅列出结构关系，不自动判定合化成功或吉凶。','颜色、手串、饰品和环境建议只作为传统文化象征与行为提醒，没有科学证据证明其能改运。'];
  return {
-  dayMaster:{stem:dm,element:dmElement,polarity:polarity(dm),strength:strength.strength,score:strength.scores,supportRatio:strength.ratio,reason:strengthReason,rootedIn:dayRoot},
+  dayMaster:{stem:dm,element:dmElement,polarity:polarity(dm),strength:strength.strength,score:strength.scores,supportRatio:strength.ratio,reason:strengthReason,rootedIn:dayRoot,diagnostics:{得令:strength.seasonGetsOrder,月令权重:strength.monthFactor,得地宫位:strength.rootedPositions,得势天干:strength.visibleSupport}},
   monthCommand:{branch:pillars[1].branch,hiddenStems:pillars[1].hidden,season:season?.name||'未知',seasonElement:season?.element||'未知'},
   pillars:visible,hiddenStemDistribution:hiddenDistribution(pillars),allElements,missingSurfaceElements:missing,
-  tenGods:visible.flatMap(p=>[{pillar:p.pillar,stem:p.stem,tenGod:p.tenGod},...p.hidden.map(h=>({pillar:p.pillar,stem:h.stem,tenGod:h.tenGod,hidden:true}))]),
+  tenGods:visible.flatMap(p=>[{pillar:p.pillar,stem:p.stem,tenGod:p.tenGod},...p.hidden.map(h=>({pillar:p.pillar,stem:h.stem,tenGod:h.tenGod,hidden:true}))],tenGodCounts:visible.flatMap(p=>[{tenGod:p.tenGod},...p.hidden.map(h=>({tenGod:h.tenGod}))]).reduce((out,x)=>{out[x.tenGod]=(out[x.tenGod]||0)+1;return out;},{}),
   branchRelations,elementRoles:roles,usefulElementCandidates:useful.primary,avoidElementCandidates:useful.avoid,usefulReason:useful.reason,
   suggestions:practicalAdvice(useful.primary),cautions
  };
@@ -136,6 +144,8 @@ export function runBaZiAnalysisTests(){
  const tests=[],check=(name,actual,expected)=>tests.push({name,pass:JSON.stringify(actual)===JSON.stringify(expected),actual,expected});
  const a=analyzeBaZi(['甲子','丙寅','甲寅','甲子']);
  check('识别甲木日主',a.dayMaster.element,'木');
+ check('输出得令得地得势诊断',Object.keys(a.dayMaster.diagnostics).sort(),['得地宫位','得势天干','得令','月令权重'].sort());
+ check('统计十神分布',a.tenGodCounts['比肩']>0,true);
  check('识别寅月为春季',a.monthCommand.season,'春');
  check('寅中藏干',a.pillars[1].hidden.map(x=>x.stem),['甲','丙','戊']);
  check('日主十神同类',a.pillars[2].tenGod,'比肩');
