@@ -31,6 +31,7 @@
 - `engines/traditional-chart.js`：组装通用传统命盘 JSON。
 - `engines/tianji-engine.js`：独立实现《天机道》文本中可核对的核心公式；不导入通用传统核心模块或 iztro。
 - `engines/calendar-layer.js`：公历/农历转换、闰月有效性检查、晚子时日期处理与历法元数据。
+- `engines/bazi-analysis.js`：根据四柱分析日主、月令、藏干、十神与地支合冲刑害破；以透明启发式模型给出日主强弱和喜用五行候选。该模块尚未完整实现格局、调候、通关、从格与全部合化条件，不能当作最终喜用神结论。
 - `engines/standard-cases.js`：可复算命宫/身宫边界案例，并对两套五行局公式进行 8640 组穷举交叉核验。
 - `engines/regression-suite.js`：传统核心规则、固定紫微定位参考表与穷举边界测试。
 - `engines/tianji-reference-policy.js`：记录待核验的《天纪》口径来源与状态。
