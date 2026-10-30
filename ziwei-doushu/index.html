@@ -223,16 +223,41 @@ async function renderComprehensiveAnalysis(chart,form){
   const c=careerRead.map(x=>x.name+'所代表的'+x.meaning).filter(Boolean),w=wealthRead.map(x=>x.name+'所代表的'+x.meaning).filter(Boolean),t=travelRead.map(x=>x.name+'所代表的'+x.meaning).filter(Boolean);
   const p3='事业方面，不宜简单用一颗星断定某个职业，而要看适合发挥哪种能力。官禄宫的星曜为'+compact(career)+'；结合命宫和身宫，'+(c.length?'盘面较值得探索的工作方式包括'+c.join('、')+'。':'目前职业宫资料不够，暂不指定职业类别。')+'如果现实工作涉及技术分析、项目推进、流程管理、客户沟通或跨团队协调，可以观察自己更擅长深入解决问题、组织资源推动落地，还是把复杂内容讲清楚并促成共识，再选择更适合的成长路线。'+(w.length?'财帛宫补充了'+w.join('、')+'等资源管理线索。':'')+(t.length?'迁移宫则提示外部环境中可留意'+t.join('、')+'。':'')+'最终仍要结合真实能力、经验、市场需求和收入风险来决定。';
   const p4='在人际、家庭和日常处事上，夫妻宫星曜为'+compact(relationship)+'，可作为观察亲密关系中沟通、期待和分工的线索；福德宫星曜为'+compact(wellbeing)+'，可辅助理解自己如何恢复精力、怎样面对压力。其余宫位也应一并参考：兄弟宫看同辈互助，子女宫看照顾与创造性投入，交友宫看团队和朋友圈，田宅宫看家庭居住与长期积累，父母宫看长辈、上级及制度资源，疾厄宫只是传统身心主题而非医学判断。落到现实中，尽量把期待、分工、期限说清楚，不用猜测代替沟通；压力积累时及时求助并安排休息。';
-  const p5='再看五行层面，'+elementText+(missing.length?'按这个最简单的表层计数，未出现的是'+missing.join('、')+'。':'表层计数中五行都有出现。')+caveat;
-  const external=missing.length?missing.map(x=>x+'：'+advice[x]).join(' '):'如果后续完整八字分析确认某一五行为喜用，再考虑对应颜色、材质或生活环境作为温和的象征性提醒，不必为了凑齐五行同时佩戴多种饰品。';
-  const p6='因此，解决方案最好分成内在调整和外部辅助两条线。自身方面，把优势训练成稳定习惯，把短板转成可检查的动作：每天确认最重要的目标，做事中主动同步进度与风险，沟通时减少含糊表达，重大决定保留复核时间，并定期复盘自己的行为细节。外部方面，传统五行文化会用颜色、材质、自然环境作为象征性提醒；'+external+'手串或饰品可以选自己喜欢、舒适、适合日常佩戴的款式，把它当作提醒自己践行改变的小物件即可，不需要购买昂贵物品，也没有科学证据证明某种材质能够改写命运或治疗身体问题。';
+  const p5='八字部分将另行结合日主、月令、藏干和干支关系进行判断，不再把四柱中某个五行出现次数少或没有出现，直接当成命局缺项。';
+  const p6='自身调整方面，建议把性格分析中提到的优势转成稳定习惯，把容易失衡的地方转成可检查的动作：每天确认最重要的目标，执行中主动同步进度与风险，沟通时减少含糊表达，重大决定保留复核时间，并定期复盘自己的行为细节。外部辅助要等八字结构分析判断出较有利的五行方向后，再谨慎选择颜色、材质和生活环境作为象征提醒；不为了凑齐五行而盲目购买饰品。';
   narrative=[p1,p2,p3,p4,p5,p6].map(para).join('');
  }else narrative=para('当前命宫星曜信息不足，无法负责任地生成性格与事业方向判断。请先确认排盘结果完整，再生成综合解读。');
  let limits='';
  try{if(chart.limitContext){const {calculateLifeLimits}=await import('./engines/life-limits.js?v=20261030-3');const y=Number(document.getElementById('targetLunarYear')?.value||new Date().getFullYear());const l=calculateLifeLimits({...chart.limitContext,targetLunarYear:y});limits=para('从时间阶段看，当前大限为'+(l.major.active?l.major.startAge+'至'+l.major.endAge+'虚岁，落在'+l.major.palaceName:'尚未进入起限年龄')+'；'+y+'年流年命宫在'+l.annual.mingBranch+'，小限在'+l.minor.branch+'。可把这些位置当作阶段性复盘的提醒，提前检查工作安排、家庭责任、财务计划和身心节奏；此处采用项目实验口径，存在流派差异，不代表某件事必然发生。');}}catch(e){limits=para('大限流年资料暂不可用：'+(e.message||String(e)));}
  if(runId!==comprehensiveRunId)return;
  const intro='本次采用'+system+'，五行局为'+bureau+'，命宫在'+ming+'、身宫在'+body+'。下面尝试把十二宫和四柱线索串成一段连贯的生活解读，重点放在性格、优势短板、事业取向和可以执行的调整上。';
- panel.innerHTML='<div class="combo-card"><h4>综合命理解读</h4>'+para(intro)+narrative+limits+(sihua.length?para('四化补充线索：'+sihua.join('；')+'。这里只汇总当前引擎实际返回的标签；项目尚未实现完整宫干飞化体系，不据此补造推论。'):'')+'<p class="panel-source">重要说明：当前紫微排盘及五行统计仍属于实验功能。表层五行计数不等于八字喜用神；手串、饰品、颜色和环境布置只可作为文化象征或行为提醒，不具有已证实的改运效果。涉及健康、投资、婚姻和职业的重大决定，应以现实信息和专业意见为依据。出生资料仅用于当前页面计算，本功能不保存出生资料。</p></div>';
+ panel.innerHTML='<div class="combo-card"><h4>综合命理解读</h4>'+para(intro)+narrative+limits+(sihua.length?para('四化补充线索：'+sihua.join('；')+'。这里只汇总当前引擎实际返回的标签；项目尚未实现完整宫干飞化体系，不据此补造推论。'):'')+'<p class="panel-source">重要说明：当前紫微排盘及八字分析仍属于实验功能。喜用方向只是初步候选；手串、饰品、颜色和环境布置只可作为文化象征或行为提醒，不具有已证实的改运效果。涉及健康、投资、婚姻和职业的重大决定，应以现实信息和专业意见为依据。出生资料仅用于当前页面计算，本功能不保存出生资料。</p></div>';
+
+ try{
+  const {analyzeBaZi}=await import('./engines/bazi-analysis.js?v=20261030-1');
+  const baziSource=chart.fourPillars||chart.chart?.fourPillars||chart.tianjiExperimental?.fourPillars||chart.traditional?.fourPillars||chart.bazi?.fourPillars;
+  if(baziSource){
+   const bz=analyzeBaZi(baziSource);
+   const dm=bz.dayMaster, roleNames={比肩:'比肩',劫财:'劫财',正印:'正印',偏印:'偏印',食神:'食神',伤官:'伤官',正财:'正财',偏财:'偏财',正官:'正官',七杀:'七杀'};
+   const pillarSummary=bz.pillars.map(p=>p.pillar+' '+p.stem+p.branch+'（天干'+p.tenGod+'；藏干'+p.hidden.map(h=>h.stem+'·'+h.tenGod).join('、')+'）').join('；');
+   const relationSummary=bz.branchRelations.length?bz.branchRelations.map(x=>x.name||x.type+' '+x.branches).join('、'):'四柱地支之间未识别到本模块列出的成组关系';
+   const usefulText=bz.usefulElementCandidates.length?bz.usefulElementCandidates.join('、'):'暂不指定单一五行';
+   const adviceText=bz.suggestions.length?bz.suggestions.map(x=>x.element+'：'+x.own+' '+x.outside).join(' '):'当前强弱评分处于中间区间，暂不推荐单一五行饰品；优先保持生活环境舒适、规律和适合自身的状态。';
+   const strengthText=dm.strength==='偏弱'?'目前支持日主的力量相对少，传统上会先考察生扶日主的资源与同类力量。':dm.strength==='偏强'?'目前日主得到的支持相对多，传统上会进一步考察输出、财星和规则约束能否让整体更平衡。':'目前评分处于中间范围，不宜简单贴上身强或身弱标签，也不宜直接指定补哪一种五行。';
+   const baziNarrative='四柱为'+bz.pillars.map(p=>p.stem+p.branch).join(' ')+'。八字分析以日柱天干作为“日主”，本盘日主为'+dm.stem+'，属'+dm.element+'，这是分析命局时的中心参照，并不是直接等同于一个人的全部性格。月令落在'+bz.monthCommand.branch+'，属于'+bz.monthCommand.season+'季，季节主气偏'+bz.monthCommand.seasonElement+'；月令可以理解为出生时的大环境，对五行力量有重要影响。四柱藏干也不能忽略：'+pillarSummary+'。';
+   const strengthNarrative='把月令、天干透出和地支藏干综合作启发式加权后，日主暂评为'+dm.strength+'。'+strengthText+dm.reason+'这只是初步力量结构，不是最终格局判断；还需要继续核对调候、通根、合化、格局取用和特殊命局，不能仅凭一个分数断吉凶。';
+   const usefulNarrative='按当前强弱模型，暂列的有利方向候选为'+usefulText+'；'+bz.usefulReason+'如果日主偏弱，优先观察印星、比劫是否能提供支持；如果偏强，才进一步观察食伤、财星、官杀能否疏导或制衡。候选不等于已经确定的喜用神，特别是寒暖燥湿、格局成败和干支合化尚未完整计算时，不能把它当成最终结论。';
+   const interactionsNarrative='四柱地支关系方面，当前识别到：'+relationSummary+'。这些关系说明地支之间存在传统命理所说的合、冲、刑、害、破等结构联系；它们可能改变五行力量的表现方式，但程序不会仅凭出现“合”就认定合化成功，也不会仅凭“冲”就断定发生坏事。';
+   const actionNarrative='落实到现实行动，建议先把日主强弱作为自我管理的观察框架，而不是命运标签。若偏弱候选成立，可重点培养稳定的支持系统、规律作息、持续学习、求助协作和长期积累，避免长期透支、孤军奋战或同时承担过多任务；若偏强候选成立，可练习成果输出、资源管理、授权协作和接受规则反馈，避免凡事亲自控制、过度坚持己见或把精力消耗在无效竞争上；若中和，则先保持节奏，按现实反馈调整，不必刻意“补”。';
+   const missingNote=bz.missingSurfaceElements.length?'表层未见的五行为'+bz.missingSurfaceElements.join('、')+'，但这不代表命局真正缺它，更不代表需要补它。':'按当前藏干统计，五行都有出现。';
+   const caveatText='当前模块使用常见藏干表、十神关系和地支关系，并用公开透明的启发式权重估计日主强弱；尚未完整实现传统子平法的格局、调候、通关、从格、化气格及所有合化条件，因此“有利方向”只能作为待进一步核验的候选。';
+   const baziHtml='<div class="combo-card"><h4>八字五行结构 · 日主与喜用方向初判</h4>'+para('先解释四柱结构：'+baziNarrative)+para('再看日主力量：'+strengthNarrative)+para('五行表层情况：'+Object.entries(dm.score).map(([k,v])=>k+' '+v.toFixed(1)).join('、')+'；'+missingNote)+para('干支互动：'+interactionsNarrative)+para('可能有利的五行方向：'+usefulNarrative)+para('自身调整建议：'+actionNarrative)+para('外部辅助建议：'+adviceText)+para(caveatText)+para('以上手串、颜色、材质和环境布置只适合作为传统文化象征或行为提醒，没有科学证据证明能够改运、治疗疾病或替代现实决策。')+'</div>';
+   panel.insertAdjacentHTML('beforeend',baziHtml);
+  }else{
+   panel.insertAdjacentHTML('beforeend','<div class="combo-card"><h4>八字五行结构</h4><p>当前排盘结果未提供完整四柱，暂时无法分析日主、月令和喜用方向。请确认四柱信息完整后再试。</p></div>');
+  }
+ }catch(e){panel.insertAdjacentHTML('beforeend','<div class="combo-card"><h4>八字五行结构</h4><p>分析暂时失败：'+escapeHTML(e.message||String(e))+'</p></div>');}
+
 }
 async function renderLifeLimits(chart,form){
  const panel=document.getElementById('lifeLimitsResult');
