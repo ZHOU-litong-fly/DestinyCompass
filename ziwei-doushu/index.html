@@ -287,9 +287,21 @@ async function renderComprehensiveAnalysis(chart,form){
    const careerOptions=[...new Set(careerCandidates)].slice(0,10);
    const careerNarrative=careerOptions.length?'结合命宫、身宫、官禄宫星曜和八字十神结构，以下职业/岗位方向值得优先了解：'+careerOptions.join('；')+'。这些是能力场景的探索清单，不是命盘指定的唯一职业。建议先选出最符合自己经验的两三个方向，通过实际项目、技能积累、招聘要求和收入稳定性验证。':'目前可读取的职业相关星曜或十神线索有限，暂不强行列出具体职业；建议补充核对官禄宫、命宫及完整四柱后再判断。';
    const fortuneLine=dm.strength==='偏弱'?'厚积薄发，借力成事。关键词：蓄。':dm.strength==='偏强'?'有所作为，贵在收放有度。关键词：衡。':'守正出新，循序渐进。关键词：稳。';
+   const healthElementMap={
+    木:{organs:'肝、胆',focus:'规律作息，避免长期熬夜；保持适度活动，少久坐。'},
+    火:{organs:'心、小肠',focus:'保持适量有氧活动与稳定作息；留意长期压力和睡眠质量。'},
+    土:{organs:'脾、胃',focus:'规律进餐，注意饮食均衡；留意持续的胃肠不适。'},
+    金:{organs:'肺、大肠',focus:'避免吸烟和二手烟，注意室内通风；保持适量饮水与膳食纤维摄入。'},
+    水:{organs:'肾、膀胱',focus:'保持合理饮水，不憋尿；避免自行长期使用可能伤肾的药物，药物使用遵医嘱。'}
+   };
+   const healthRank=Object.entries(dm.score).sort((a,b)=>a[1]-b[1]);
+   const lowHealth=healthRank.slice(0,2).map(([el])=>el);
+   const highHealth=healthRank.slice(-2).map(([el])=>el);
+   const healthNarrative='传统五行脏腑对应中，木对应肝胆、火对应心与小肠、土对应脾胃、金对应肺与大肠、水对应肾与膀胱。按当前实验模型的五行结构，分值相对偏低的元素为'+lowHealth.join('、')+'，偏高的元素为'+highHealth.join('、')+'。这只能作为传统文化中的生活习惯提醒：'+[...new Set([...lowHealth,...highHealth])].map(el=>el+'（'+healthElementMap[el].organs+'）'+healthElementMap[el].focus).join('')+'。不要据此推断某个器官虚弱、患病或未来容易生病，也不建议因为命盘结果自行增加器官专项检查或服用保健品。身体状况应以症状、既往病史和正规体检结果为准；若有持续不适，请咨询医生。';
+
 
    const crossNarrative='把两套体系放在一起看：紫微部分，命宫主星为'+compact(ziweiMingStars)+'，官禄宫主星为'+compact(ziweiCareerStars)+'；八字部分，日主为'+dm.stem+'（'+dm.element+'），十神结构中较常出现的是'+tenGodSummary+'。紫微命宫偏向描述传统象义中的处事风格，八字日主与十神则从五行生克关系观察资源、表达、规则与现实事务，两者不是同一套分类，不能机械地一一对应。'+(ziweiBureauElement!=='未提供'?'本盘紫微五行局为'+ziweiBureauElement+'，日主五行属'+dm.element+'；五行局是紫微安星基础参数，不等于八字喜用神，不能因为两者相同或相生就直接判定吉利。':'紫微引擎未返回五行局元素，因此不强行比较两套五行。')+'若两边都提示某种能力值得发展，可以把它当成一个现实观察假设；若两边结论不同，应保留差异，回到实际工作表现、长期反馈和个人选择验证，而不是挑选听起来更顺耳的一套。结合目前资料，较稳妥的落点是：把命宫星曜所提示的优势转化为具体工作习惯，再用八字十神结构提醒自己平衡表达、协作、规则和资源管理。';
-   const baziHtml='<div class="combo-card"><h4>八字五行结构 · 日主与喜用方向初判</h4>'+para('先解释四柱结构：'+baziNarrative)+para('再看日主力量：'+strengthNarrative)+para('五行表层情况：'+Object.entries(dm.score).map(([k,v])=>k+' '+v.toFixed(1)).join('、')+'；'+missingNote)+para('干支互动：'+interactionsNarrative)+para('紫微与八字交叉观察：'+crossNarrative)+para('适合探索的职业方向：'+careerNarrative)+para('可能有利的五行方向：'+usefulNarrative)+para('自身调整建议：'+actionNarrative)+para('外部辅助建议：'+adviceText)+para(caveatText)+para('以上手串、颜色、材质和环境布置只适合作为传统文化象征或行为提醒，没有科学证据证明能够改运、治疗疾病或替代现实决策。')+'</div><div class="combo-card"><h4>一句话运势总结</h4><p><strong style="font-size:18px;color:var(--gold)">'+escapeHTML(fortuneLine)+'</strong></p><p class="panel-source">这句话是根据当前实验模型的日主强弱倾向生成的文化化总结，用作提醒，不代表未来必然发生的结果。</p></div>';
+   const baziHtml='<div class="combo-card"><h4>八字五行结构 · 日主与喜用方向初判</h4>'+para('先解释四柱结构：'+baziNarrative)+para('再看日主力量：'+strengthNarrative)+para('五行表层情况：'+Object.entries(dm.score).map(([k,v])=>k+' '+v.toFixed(1)).join('、')+'；'+missingNote)+para('干支互动：'+interactionsNarrative)+para('紫微与八字交叉观察：'+crossNarrative)+para('适合探索的职业方向：'+careerNarrative)+para('身体健康方面的传统提醒：'+healthNarrative)+para('可能有利的五行方向：'+usefulNarrative)+para('自身调整建议：'+actionNarrative)+para('外部辅助建议：'+adviceText)+para(caveatText)+para('以上手串、颜色、材质和环境布置只适合作为传统文化象征或行为提醒，没有科学证据证明能够改运、治疗疾病或替代现实决策。')+'</div><div class="combo-card"><h4>一句话运势总结</h4><p><strong style="font-size:18px;color:var(--gold)">'+escapeHTML(fortuneLine)+'</strong></p><p class="panel-source">这句话是根据当前实验模型的日主强弱倾向生成的文化化总结，用作提醒，不代表未来必然发生的结果。</p></div>';
    panel.insertAdjacentHTML('beforeend',baziHtml);
   }else{
    panel.insertAdjacentHTML('beforeend','<div class="combo-card"><h4>八字五行结构</h4><p>当前排盘结果未提供完整四柱，暂时无法分析日主、月令和喜用方向。请确认四柱信息完整后再试。</p></div>');
